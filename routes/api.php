@@ -22,23 +22,26 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
+Route::get('/roles', [RoleController::class, 'index']);
+//http://127.0.0.1:8000/api/roles
+Route::post('/roles', [RoleController::class, 'store']);
+//http://127.0.0.1:8000/api/roles
+Route::put('/roles/{id}', [RoleController::class, 'update']);
+//http://127.0.0.1:8000/api/roles/{id}
+Route::delete('/roles/{id}', [RoleController::class, 'destroy']);
+//http://127.0.0.1:8000/api/roles/{id}
 
 
-Route::controller(RoleController::class)
-    ->group(function () {
-        Route::get('/roles', 'index')->name('roles.index');
-        Route::post('/roles', 'store')->name('roles.store');
-        Route::put('/roles/{id}', 'update')->name('roles.update');
-        Route::delete('/roles/{id}', 'destroy')->name('roles.destroy');
-    });
+Route::get('/permissions', [PermissionsController::class, 'index']);
+//http://127.0.0.1:8000/api/permissions
+Route::post('/permissions', [PermissionsController::class, 'store']);
+//http://127.0.0.1:8000/api/permissions
+Route::put('/permissions/{id}', [PermissionsController::class, 'update']);
+//http://127.0.0.1:8000/api/permissions/{id}
+Route::delete('/permissions/{id}', [PermissionsController::class, 'destroy']);
+//http://127.0.0.1:8000/api/permissions/{id}
 
-Route::controller(PermissionsController::class)
-    ->group(function () {
-        Route::get('/permissions', 'index')->name('permissions.index');
-        Route::post('/permissions', 'store')->name('permissions.store');
-        Route::put('/permissions/{id}', 'update')->name('permissions.update');
-        Route::delete('/permissions/{id}', 'destroy')->name('permissions.destroy');
-    });
+
 
 
 
