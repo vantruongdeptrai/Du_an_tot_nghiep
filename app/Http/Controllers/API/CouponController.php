@@ -11,7 +11,8 @@ class CouponController extends Controller
     // Lấy danh sách tất cả coupons
     public function index()
     {
-        return response()->json(Coupon::all());
+        $coupons = Coupon::all();
+        return response()->json($coupons, 200);
     }
 
     // Tạo một coupon mới
