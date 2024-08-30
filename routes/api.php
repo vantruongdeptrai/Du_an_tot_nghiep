@@ -52,5 +52,6 @@ Route::put('/permissions/{id}', [PermissionsController::class, 'update']);
 Route::delete('/permissions/{id}', [PermissionsController::class, 'destroy']);
 //http://127.0.0.1:8000/api/permissions/{id}
 
+//
 
 
