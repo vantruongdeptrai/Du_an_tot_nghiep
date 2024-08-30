@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\Role;
+
 
 class RoleController extends Controller
 {
@@ -12,16 +14,14 @@ class RoleController extends Controller
      */
     public function index()
     {
-        //
+        $role = Role::All();
+        return response()->json($role);
     }
 
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
-    {
-        //
-    }
+
 
     /**
      * Store a newly created resource in storage.
@@ -29,6 +29,12 @@ class RoleController extends Controller
     public function store(Request $request)
     {
         //
+
+        $role = Role::create([
+            'name' => $request->input('name'),
+        ]);
+
+        return response()->json($role, 201);
     }
 
     /**
@@ -52,14 +58,23 @@ class RoleController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $role = Role::findOrFail($id);
+
+        $role->name = $request->input('name', $role->name); 
+        $role->save();
+
+        return response()->json($role);
     }
+
 
     /**
      * Remove the specified resource from storage.
      */
     public function destroy(string $id)
     {
-        //
+        $role = Role::findOrFail($id);
+        $role->delete();
+
+        return response()->json(null, 204);
     }
 }

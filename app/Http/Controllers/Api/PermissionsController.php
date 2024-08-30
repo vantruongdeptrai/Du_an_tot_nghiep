@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\Permissions;
+
 
 class PermissionsController extends Controller
 {
@@ -12,16 +14,14 @@ class PermissionsController extends Controller
      */
     public function index()
     {
-        //
+        $Permissions = Permissions::All();
+        return response()->json($Permissions);
     }
 
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
-    {
-        //
-    }
+
 
     /**
      * Store a newly created resource in storage.
@@ -29,6 +29,12 @@ class PermissionsController extends Controller
     public function store(Request $request)
     {
         //
+
+        $Permissions = Permissions::create([
+            'name' => $request->input('name'),
+        ]);
+
+        return response()->json($Permissions, 201);
     }
 
     /**
@@ -52,14 +58,23 @@ class PermissionsController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $Permissions = Permissions::findOrFail($id);
+
+        $Permissions->name = $request->input('name', $Permissions->name); 
+        $Permissions->save();
+
+        return response()->json($Permissions);
     }
+
 
     /**
      * Remove the specified resource from storage.
      */
     public function destroy(string $id)
     {
-        //
+        $Permissions = Permissions::findOrFail($id);
+        $Permissions->delete();
+
+        return response()->json(null, 204);
     }
 }
