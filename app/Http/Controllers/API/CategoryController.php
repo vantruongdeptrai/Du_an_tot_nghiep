@@ -46,15 +46,13 @@ class CategoryController extends Controller
         $model=Category::query()->findOrFail($id);  
         $data=[
             'name'=>$request->name,
+            // 'image'=>$request->image,
             'slug'=>Str::slug($request->name)
         ];
         // check có ảnh thì cho vào storage
         if ($request->hasFile('image')) {
             $data['image'] = Storage::put('categories', $request->file('image'));
-        }else {
-            // Nếu không có ảnh mới, giữ lại ảnh cũ
-            $data['image'] = $model->image;
-        }
+        } 
         // lưu ảnh cũ trước khi update
         $imageCurrent=$model->image; 
         // update data mới
