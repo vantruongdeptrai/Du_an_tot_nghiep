@@ -34,9 +34,11 @@ class CategoryController extends Controller
         }
       
         $category=Category::create($data);
+        $imageUrl = isset($category->image) ? asset('storage/' . $category->image) : null;
         return response()->json([
             'message' => 'success',
-            'category' => $category
+            'category' => $category,
+            'image_url' => $imageUrl
         ]);
     }
 
@@ -46,7 +48,6 @@ class CategoryController extends Controller
         $model=Category::query()->findOrFail($id);  
         $data=[
             'name'=>$request->name,
-            // 'image'=>$request->image,
             'slug'=>Str::slug($request->name)
         ];
         // check có ảnh thì cho vào storage
@@ -63,7 +64,9 @@ class CategoryController extends Controller
         } 
         return response()->json([
             'message' => 'success',
-            'data' => $data
+            'data' => array_merge($data, [
+        'image_url' => isset($data['image']) ? asset('storage/' . $data['image']) : null
+    ])
         ]);
     }
 
