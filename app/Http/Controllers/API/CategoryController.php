@@ -17,7 +17,12 @@ class CategoryController extends Controller
     {
         $categories = Category::all();
         // dd($categories);
-        return response()->json($categories);
+        $categoriesWithImageUrl = $categories->map(function ($category) {
+            $category->image_url = $category->image ? asset('storage/' . $category->image) : null;
+            return $category;
+        });
+    
+        return response()->json($categoriesWithImageUrl);
     }
 
    
@@ -32,7 +37,6 @@ class CategoryController extends Controller
         if (!empty($data['image'])) {
             $data['image'] = Storage::put('categories',$data['image']);
         }
-      
         $category=Category::create($data);
         $imageUrl = isset($category->image) ? asset('storage/' . $category->image) : null;
         return response()->json([
