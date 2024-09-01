@@ -38,11 +38,11 @@ class CategoryController extends Controller
             $data['image'] = Storage::put('categories',$data['image']);
         }
         $category=Category::create($data);
-        $imageUrl = isset($category->image) ? asset('storage/' . $category->image) : null;
+    
         return response()->json([
             'message' => 'success',
             'category' => $category,
-            'image_url' => $imageUrl
+           
         ]);
     }
 
@@ -68,9 +68,8 @@ class CategoryController extends Controller
         } 
         return response()->json([
             'message' => 'success',
-            'data' => array_merge($data, [
-        'image_url' => isset($data['image']) ? asset('storage/' . $data['image']) : null
-    ])
+            'data' =>$data
+    
         ]);
     }
 
