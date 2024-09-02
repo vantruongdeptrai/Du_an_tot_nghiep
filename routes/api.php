@@ -35,7 +35,6 @@ Route::get('/categories', [CategoryController::class, 'index']);
 Route::post('/categories', [CategoryController::class, 'store']);
 Route::put('/categorie/{id}', [CategoryController::class, 'update']);
 Route::delete('/categories/{id}', [CategoryController::class, 'destroy']);
-=======
 Route::get('/operating-costs', [OperatingCostController::class, 'index']);
 Route::post('/operating-costs', [OperatingCostController::class, 'store']);
 Route::put('/operating-costs/{id}', [OperatingCostController::class, 'update']);
@@ -59,10 +58,3 @@ Route::put('/permissions/{id}', [PermissionsController::class, 'update']);
 //http://127.0.0.1:8000/api/permissions/{id}
 Route::delete('/permissions/{id}', [PermissionsController::class, 'destroy']);
 //http://127.0.0.1:8000/api/permissions/{id}
-
-<<<<<<< HEAD
-//
-///
-
-=======
->>>>>>> fdc8131eb20afcb1d20d007b2e6ca3dbcdab1c9e
