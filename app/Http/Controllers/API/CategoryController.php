@@ -17,7 +17,12 @@ class CategoryController extends Controller
     {
         $categories = Category::all();
         // dd($categories);
-        return response()->json($categories);
+        $categoriesWithImageUrl = $categories->map(function ($category) {
+            $category->image_url = $category->image ? asset('storage/' . $category->image) : null;
+            return $category;
+        });
+    
+        return response()->json($categoriesWithImageUrl);
     }
 
    
@@ -32,11 +37,12 @@ class CategoryController extends Controller
         if (!empty($data['image'])) {
             $data['image'] = Storage::put('categories',$data['image']);
         }
-      
         $category=Category::create($data);
+    
         return response()->json([
             'message' => 'success',
-            'category' => $category
+            'category' => $category,
+           
         ]);
     }
 
@@ -51,10 +57,7 @@ class CategoryController extends Controller
         // check có ảnh thì cho vào storage
         if ($request->hasFile('image')) {
             $data['image'] = Storage::put('categories', $request->file('image'));
-        }else {
-            // Nếu không có ảnh mới, giữ lại ảnh cũ
-            $data['image'] = $model->image;
-        }
+        } 
         // lưu ảnh cũ trước khi update
         $imageCurrent=$model->image; 
         // update data mới
@@ -65,7 +68,8 @@ class CategoryController extends Controller
         } 
         return response()->json([
             'message' => 'success',
-            'data' => $data
+            'data' =>$data
+    
         ]);
     }
 

@@ -11,20 +11,19 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('role', function (Blueprint $table) {
+        Schema::create('model_has_roles', function (Blueprint $table) {
             $table->id();
-            $table -> string('name',255);
-            $table->softDeletes();
+            $table->foreign('role_id')->references('id')->on('role');
+            $table->string('model_type');
             $table->timestamps();
         });
     }
 
-    
     /**
      * Reverse the migrations.
      */
     public function down(): void
     {
-        Schema::dropIfExists('role');
+        Schema::dropIfExists('model_has_roles');
     }
 };

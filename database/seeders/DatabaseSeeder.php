@@ -3,6 +3,9 @@
 namespace Database\Seeders;
 
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+
+use App\Models\OperatingCost;
+use App\Models\Tag;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -21,7 +24,8 @@ class DatabaseSeeder extends Seeder
         $this->call([
             roleSeeder::class,
             PermissionsSeeder::class,
-
+            OperatingCostSeeder::class,
+            TagSeeder::class,
         ]);
         
         
