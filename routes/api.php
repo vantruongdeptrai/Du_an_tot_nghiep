@@ -35,7 +35,7 @@ Route::get('/categories', [CategoryController::class, 'index']);
 Route::post('/categories', [CategoryController::class, 'store']);
 Route::put('/categorie/{id}', [CategoryController::class, 'update']);
 Route::delete('/categories/{id}', [CategoryController::class, 'destroy']);
-=======
+
 Route::get('/operating-costs', [OperatingCostController::class, 'index']);
 Route::post('/operating-costs', [OperatingCostController::class, 'store']);
 Route::put('/operating-costs/{id}', [OperatingCostController::class, 'update']);
