@@ -51,7 +51,6 @@ Route::put('/attributes/{id}', [AttributeController::class, 'update']);
 //http://127.0.0.1:8000/api/attributes/{id} 
 Route::delete('/attributes/{id}', [AttributeController::class, 'destroy']);
 
-
 Route::get('/tags', [TagController::class, 'index']);
 Route::post('/tags', [TagController::class, 'store']);
 Route::put('/tags/{id}', [TagController::class, 'update']);
@@ -85,4 +84,3 @@ Route::put('/permissions/{id}', [PermissionsController::class, 'update']);
 //http://127.0.0.1:8000/api/permissions/{id}
 Route::delete('/permissions/{id}', [PermissionsController::class, 'destroy']);
 //http://127.0.0.1:8000/api/permissions/{id}
-
