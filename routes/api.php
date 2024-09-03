@@ -50,6 +50,7 @@ Route::get('/attributes/{id}', [AttributeController::class, 'show']);
 Route::put('/attributes/{id}', [AttributeController::class, 'update']);
 //http://127.0.0.1:8000/api/attributes/{id} 
 Route::delete('/attributes/{id}', [AttributeController::class, 'destroy']);
+
 Route::get('/tags', [TagController::class, 'index']);
 Route::post('/tags', [TagController::class, 'store']);
 Route::put('/tags/{id}', [TagController::class, 'update']);
@@ -60,6 +61,7 @@ Route::get('/categories', [CategoryController::class, 'index']);
 Route::post('/categories', [CategoryController::class, 'store']);
 Route::put('/categories/{id}', [CategoryController::class, 'update']);
 Route::delete('/categories/{id}', [CategoryController::class, 'destroy']);
+
 Route::get('/operating-costs', [OperatingCostController::class, 'index']);
 Route::post('/operating-costs', [OperatingCostController::class, 'store']);
 Route::put('/operating-costs/{id}', [OperatingCostController::class, 'update']);
