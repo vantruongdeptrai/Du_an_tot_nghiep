@@ -6,8 +6,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Attribute extends Model
+class Gallery extends Model
 {
-    use HasFactory,SoftDeletes;
-    protected $fillable = ['name'];
+    use HasFactory, SoftDeletes;
+    protected $fillable = [
+        'product_id',
+        'image',
+    ];
 }
