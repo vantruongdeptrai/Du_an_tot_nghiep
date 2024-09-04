@@ -25,7 +25,12 @@ class CategoryController extends Controller
         return response()->json($categoriesWithImageUrl);
     }
 
-   
+    public function show(string $id)
+    {
+        $category = Category::query()->findOrFail($id);
+        $category->image_url = $category->image ? asset('storage/' . $category->image) : null;
+        return response()->json($category);
+    }
    
     public function store(Request $request)
     {
