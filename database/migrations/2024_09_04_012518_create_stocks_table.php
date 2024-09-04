@@ -11,20 +11,21 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('role', function (Blueprint $table) {
-            $table->id();
-            $table -> string('name',255);
+        Schema::create('stocks', function (Blueprint $table) {
+            $table->increments('id');
+            $table->unsignedInteger('product_id');
+            $table->integer('quantity');
             $table->softDeletes();
             $table->timestamps();
+            $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade');
         });
     }
 
-    
     /**
      * Reverse the migrations.
      */
     public function down(): void
     {
-        Schema::dropIfExists('role');
+        Schema::dropIfExists('stocks');
     }
 };

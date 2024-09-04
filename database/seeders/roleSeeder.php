@@ -19,7 +19,7 @@ class roleSeeder extends Seeder
     {
         $faker = Faker::create();
         for($i=0;$i<5;$i++){
-            DB::table('role')->insert([
+            DB::table('roles')->insert([
                 'name' => 'Role ' . ($i + 1),
             ]);
         }  

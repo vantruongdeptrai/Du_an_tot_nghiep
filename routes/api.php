@@ -1,5 +1,9 @@
 <?php
 
+
+use App\Http\Controllers\API\AttributeController;
+use App\Http\Controllers\API\CouponController;
+
 use App\Http\Controllers\API\CategoryController;
 use App\Http\Controllers\API\TagController;
 use App\Http\Controllers\API\OperatingCostController;
@@ -25,6 +29,28 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
+//http://127.0.0.1:8000/api/coupons
+Route::get('/coupons', [CouponController::class, 'index']); 
+//http://127.0.0.1:8000/api/coupons          
+Route::post('/coupons', [CouponController::class, 'store']); 
+//http://127.0.0.1:8000/api/coupons/{id}          
+Route::get('/coupons/{id}', [CouponController::class, 'show']); 
+//http://127.0.0.1:8000/api/coupons/{id}      
+Route::put('/coupons/{id}', [CouponController::class, 'update']);     
+//http://127.0.0.1:8000/api/coupons/{id}
+Route::delete('/coupons/{id}', [CouponController::class, 'destroy']);  
+
+//http://127.0.0.1:8000/api/attributes
+Route::get('/attributes', [AttributeController::class, 'index']);     
+//http://127.0.0.1:8000/api/attributes  
+Route::post('/attributes', [AttributeController::class, 'store']);
+//http://127.0.0.1:8000/api/attributes/{id}      
+Route::get('/attributes/{id}', [AttributeController::class, 'show']);
+//http://127.0.0.1:8000/api/attributes/{id}   
+Route::put('/attributes/{id}', [AttributeController::class, 'update']);
+//http://127.0.0.1:8000/api/attributes/{id} 
+Route::delete('/attributes/{id}', [AttributeController::class, 'destroy']);
+
 Route::get('/tags', [TagController::class, 'index']);
 Route::post('/tags', [TagController::class, 'store']);
 Route::put('/tags/{id}', [TagController::class, 'update']);
@@ -33,7 +59,8 @@ Route::delete('/tags/{id}', [TagController::class, 'destroy']);
 
 Route::get('/categories', [CategoryController::class, 'index']);
 Route::post('/categories', [CategoryController::class, 'store']);
-Route::put('/categorie/{id}', [CategoryController::class, 'update']);
+Route::get('/categories/{id}', [CategoryController::class, 'show']);
+Route::put('/categories/{id}', [CategoryController::class, 'update']);
 Route::delete('/categories/{id}', [CategoryController::class, 'destroy']);
 
 Route::get('/operating-costs', [OperatingCostController::class, 'index']);
@@ -49,7 +76,6 @@ Route::put('/roles/{id}', [RoleController::class, 'update']);
 //http://127.0.0.1:8000/api/roles/{id}
 Route::delete('/roles/{id}', [RoleController::class, 'destroy']);
 //http://127.0.0.1:8000/api/roles/{id}
-
 
 Route::get('/permissions', [PermissionsController::class, 'index']);
 //http://127.0.0.1:8000/api/permissions

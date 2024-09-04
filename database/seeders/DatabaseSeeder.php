@@ -3,6 +3,11 @@
 namespace Database\Seeders;
 
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+
+use App\Models\AttributeValue;
+use App\Models\OperatingCost;
+use App\Models\Tag;
+use Attribute;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -24,7 +29,15 @@ class DatabaseSeeder extends Seeder
             CategorySeeder::class,
             OperatingCostSeeder::class,
             TagSeeder::class,
-            roleSeeder::class
+            roleSeeder::class,
+            OperatingCostSeeder::class,
+            TagSeeder::class,
+            CategorySeeder::class,
+            AttributeSeeder::class,
+            AttributeValueSeeder::class,
+            ProductSeeder::class,
+            ProductVariantSeeder::class,
+            DetailVariantSeeder::class,
         ]);
         
         
