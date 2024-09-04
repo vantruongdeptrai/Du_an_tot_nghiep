@@ -11,11 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('model_has_roles', function (Blueprint $table) {
-            $table->id();
-            $table->foreign('role_id')->references('id')->on('role');
-            $table->string('model_type');
+        Schema::create('attribute_values', function (Blueprint $table) {
+            $table->increments('id');
+            $table->unsignedInteger('attribute_id');
+            $table->string('value');
+            $table->softDeletes();
             $table->timestamps();
+            $table->foreign('attribute_id')->references('id')->on('attributes')->onDelete('cascade');
         });
     }
 
@@ -24,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('model_has_roles');
+        Schema::dropIfExists('attribute_values');
     }
 };
