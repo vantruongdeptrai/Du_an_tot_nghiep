@@ -71,6 +71,8 @@ Route::get('/roles', [RoleController::class, 'index']);
 //http://127.0.0.1:8000/api/roles
 Route::post('/roles', [RoleController::class, 'store']);
 //http://127.0.0.1:8000/api/roles
+Route::get('/roles/{id}', [RoleController::class, 'show']);
+//http://127.0.0.1:8000/api/roles/{id}   
 Route::put('/roles/{id}', [RoleController::class, 'update']);
 //http://127.0.0.1:8000/api/roles/{id}
 Route::delete('/roles/{id}', [RoleController::class, 'destroy']);
@@ -80,6 +82,8 @@ Route::get('/permissions', [PermissionsController::class, 'index']);
 //http://127.0.0.1:8000/api/permissions
 Route::post('/permissions', [PermissionsController::class, 'store']);
 //http://127.0.0.1:8000/api/permissions
+Route::get('/permissions/{id}', [PermissionsController::class, 'show']);
+//http://127.0.0.1:8000/api/permissions/{id} 
 Route::put('/permissions/{id}', [PermissionsController::class, 'update']);
 //http://127.0.0.1:8000/api/permissions/{id}
 Route::delete('/permissions/{id}', [PermissionsController::class, 'destroy']);
