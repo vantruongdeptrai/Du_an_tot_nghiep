@@ -54,6 +54,7 @@ Route::delete('/attributes/{id}', [AttributeController::class, 'destroy']);
 Route::get('/tags', [TagController::class, 'index']);
 Route::post('/tags', [TagController::class, 'store']);
 Route::put('/tags/{id}', [TagController::class, 'update']);
+Route::get('/tags/{id}', [TagController::class, 'show']);
 Route::delete('/tags/{id}', [TagController::class, 'destroy']);
 
 
@@ -63,6 +64,7 @@ Route::put('/categories/{id}', [CategoryController::class, 'update']);
 Route::delete('/categories/{id}', [CategoryController::class, 'destroy']);
 
 Route::get('/operating-costs', [OperatingCostController::class, 'index']);
+Route::get('/operating-costs/{id}', [OperatingCostController::class, 'show']);
 Route::post('/operating-costs', [OperatingCostController::class, 'store']);
 Route::put('/operating-costs/{id}', [OperatingCostController::class, 'update']);
 Route::delete('/operating-costs/{id}', [OperatingCostController::class, 'destroy']);

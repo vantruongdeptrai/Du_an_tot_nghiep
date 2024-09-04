@@ -7,12 +7,16 @@ use Illuminate\Http\Request;
 
 class TagController extends Controller
 {
-    function index(){
+    public function index(){
         $tags = Tag::all();
         return response()->json($tags);
     }
+    public function show($id){
+        $tags = Tag::find($id);
+        return response()->json($tags);
+    }
 
-    function store(Request $req){
+    public function store(Request $req){
         $data = $req->all();
         $tag = new Tag();
         $tag -> name = $data['name'];
@@ -23,7 +27,7 @@ class TagController extends Controller
         ]);
     }
 
-    function update(Request $req, $id){
+    public function update(Request $req, $id){
         $tag = Tag::find($id);
         if(!$tag){
             return response()->json([
@@ -39,7 +43,7 @@ class TagController extends Controller
         ]);
     }
 
-    function destroy($id){
+    public function destroy($id){
         $destroy = Tag::find($id);
         $destroy->delete();
         return response()->json([
