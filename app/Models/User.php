@@ -47,4 +47,7 @@ class User extends Authenticatable
     public function modelHasRoles(){
         return $this->hasMany(ModelHasRole::class);
     }
+    public function blogs(){
+        return $this->hasMany(Blog::class);
+    }
 }

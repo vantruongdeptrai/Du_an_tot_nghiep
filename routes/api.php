@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\RoleController;
 use App\Http\Controllers\API\PermissionsController;
-
+use App\Http\Controllers\API\BlogController;
 
 
 /*
@@ -60,3 +60,10 @@ Route::put('/permissions/{id}', [PermissionsController::class, 'update']);
 Route::delete('/permissions/{id}', [PermissionsController::class, 'destroy']);
 //http://127.0.0.1:8000/api/permissions/{id}
 
+// Blog
+//http://127.0.0.1:8000/api/blogs
+Route::get('/blogs',[BlogController::class,'index']);
+Route::post('/blogs',[BlogController::class,'store']);
+Route::get('/blogs/{id}',[BlogController::class,'index']);
+Route::put('/blogs/{id}',[BlogController::class,'update']);
+Route::delete('/blogs/{id}',[BlogController::class,'destroy']);
