@@ -1,16 +1,17 @@
 <?php
 
 
-use App\Http\Controllers\API\AttributeController;
-use App\Http\Controllers\API\CouponController;
-
-use App\Http\Controllers\API\CategoryController;
-use App\Http\Controllers\API\TagController;
-use App\Http\Controllers\API\OperatingCostController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+
+use App\Http\Controllers\API\TagController;
 use App\Http\Controllers\API\RoleController;
+use App\Http\Controllers\API\CouponController;
+use App\Http\Controllers\API\CategoryController;
+use App\Http\Controllers\API\AttributeController;
 use App\Http\Controllers\API\PermissionsController;
+use App\Http\Controllers\API\OperatingCostController;
+use App\Http\Controllers\API\AttributeValueController;
 
 
 
@@ -85,3 +86,15 @@ Route::put('/permissions/{id}', [PermissionsController::class, 'update']);
 //http://127.0.0.1:8000/api/permissions/{id}
 Route::delete('/permissions/{id}', [PermissionsController::class, 'destroy']);
 //http://127.0.0.1:8000/api/permissions/{id}
+
+Route::get('attribute-values', [AttributeValueController::class, 'index']);
+
+Route::post('attribute-values', [AttributeValueController::class, 'store']);
+
+Route::get('attribute-values/{id}', [AttributeValueController::class, 'show']); //lấy theo id của bảng AttributeValues
+
+Route::get('attribute-values/attribute/{attributeId}', [AttributeValueController::class, 'showByAttributeId']);// lấy theo attribute_id
+
+Route::put('attribute-values/{id}', [AttributeValueController::class, 'update']);
+
+Route::delete('attribute-values/{id}', [AttributeValueController::class, 'destroy']);
