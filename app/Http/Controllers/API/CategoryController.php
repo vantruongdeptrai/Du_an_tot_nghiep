@@ -39,6 +39,7 @@ class CategoryController extends Controller
             'image'=>$request->image,
             'slug'=>Str::slug($request->name)
         ];
+        // đay là xử lý ảnh
         if (!empty($data['image'])) {
             $data['image'] = Storage::put('categories',$data['image']);
         }
