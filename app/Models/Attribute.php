@@ -10,4 +10,7 @@ class Attribute extends Model
 {
     use HasFactory,SoftDeletes;
     protected $fillable = ['name'];
+    public function attributevalues() {
+        return $this->hasMany(AttributeValue::class);
+    }
 }
