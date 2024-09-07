@@ -10,6 +10,7 @@ use App\Http\Controllers\API\CouponController;
 use App\Http\Controllers\API\CategoryController;
 use App\Http\Controllers\API\AttributeController;
 use App\Http\Controllers\API\PermissionsController;
+use App\Http\Controllers\API\BlogController;
 use App\Http\Controllers\API\OperatingCostController;
 use App\Http\Controllers\API\AttributeValueController;
 
