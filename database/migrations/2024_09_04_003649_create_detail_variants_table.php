@@ -17,6 +17,7 @@ return new class extends Migration
             $table->unsignedInteger('attribute_value_id');
             $table->softDeletes();
             $table->timestamps();
+            // Thiết lập khóa ngoại
             $table->foreign('attribute_value_id')->references('id')->on('attribute_values')->onDelete('cascade');
             $table->foreign('product_variant_id')->references('id')->on('product_variants')->onDelete('cascade');
         });

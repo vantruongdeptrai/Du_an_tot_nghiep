@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('value');
             $table->softDeletes();
             $table->timestamps();
+            // Thiết lập khóa ngoại
             $table->foreign('attribute_id')->references('id')->on('attributes')->onDelete('cascade');
         });
     }

@@ -18,7 +18,7 @@ class GalleryFactory extends Factory
     {
         return [
             'product_id' => Product::all()->random()->id,
-            'image' => $this->faker->imageUrl(), 
+            'image' => $this->faker->imageUrl(), // Đường dẫn ảnh giả lập
         ];
     }
 }

@@ -14,9 +14,10 @@ return new class extends Migration
         Schema::create('stocks', function (Blueprint $table) {
             $table->increments('id');
             $table->unsignedInteger('product_id');
-            $table->integer('quantity');
+            $table->integer('quantity');//Số lượng tồn kho
             $table->softDeletes();
             $table->timestamps();
+            // Thiết lập khóa ngoại
             $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade');
         });
     }

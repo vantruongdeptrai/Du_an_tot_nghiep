@@ -12,11 +12,12 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('galleries', function (Blueprint $table) {
-            $table->increments('id');
-            $table->unsignedInteger('product_id');
-            $table->string('image');
+            $table->increments('id');// Khóa chính tự động tăng
+            $table->unsignedInteger('product_id');// Khóa ngoại tham chiếu đến bảng products
+            $table->string('image');// Đường dẫn đến hình ảnh
             $table->softDeletes();
             $table->timestamps();
+            // Thiết lập khóa ngoại
             $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade');
         });
     }

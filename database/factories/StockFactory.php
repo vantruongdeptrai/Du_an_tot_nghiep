@@ -18,7 +18,7 @@ class StockFactory extends Factory
     {
         return [
             'product_id' => Product::all()->random()->id,
-            'quantity' => $this->faker->numberBetween(1, 1000),
+            'quantity' => $this->faker->numberBetween(1, 1000),// Số lượng tồn kho giả lập
         ];
     }
 }

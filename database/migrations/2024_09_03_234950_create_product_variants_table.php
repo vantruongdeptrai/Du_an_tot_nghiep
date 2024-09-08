@@ -14,12 +14,13 @@ return new class extends Migration
         Schema::create('product_variants', function (Blueprint $table) {
             $table->increments('id');
             $table->unsignedInteger('product_id');
-            $table->integer('quantity');
-            $table->decimal('price', 8, 2);
+            $table->integer('quantity');//số lượng
+            $table->decimal('price', 8, 2);//giá
             $table->string('sku')->unique();//mã sku duy nhất cho sản phẩm, để quản lý tồn kho
             $table->boolean('status')->default(true);//trạng thái "true"=còn hàng, "false"=hết hàng
             $table->softDeletes();
             $table->timestamps();
+            // Thiết lập khóa ngoại
             $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade');
         });
     }
