@@ -13,6 +13,6 @@ class ProductVariantSeeder extends Seeder
      */
     public function run(): void
     {
-        ProductVariant::factory(5)->create();
+        
     }
 }

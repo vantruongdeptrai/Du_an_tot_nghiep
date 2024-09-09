@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-
+use App\Models\Attribute;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -14,5 +14,8 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
+    $attribute_id = Attribute::query()->get()->pluck('id');//array attribute_id
+    dd($attribute_id);
     return view('welcome');
 });
+
