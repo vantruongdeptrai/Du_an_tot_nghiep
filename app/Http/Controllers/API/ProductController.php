@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use App\Models\ProductVariant;
 use Illuminate\Http\Request;
+use App\Models\Product;
 
 class ProductController extends Controller
 {
@@ -12,7 +14,11 @@ class ProductController extends Controller
      */
     public function index()
     {
-        
+        $products = Product::get()->all();//admin
+
+        $product_variants = ProductVariant::with('detailVariants')->get();//client
+
+        return response()->json([$products,$product_variants]);
     }
 
     /**

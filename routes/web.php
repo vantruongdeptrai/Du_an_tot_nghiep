@@ -1,7 +1,9 @@
 <?php
 
+use App\Models\AttributeValue;
+use App\Models\ProductVariant;
 use Illuminate\Support\Facades\Route;
-use App\Models\Attribute;
+use App\Models\DetailVariant;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -14,8 +16,12 @@ use App\Models\Attribute;
 */
 
 Route::get('/', function () {
-    $attribute_id = Attribute::query()->get()->pluck('id');//array attribute_id
-    dd($attribute_id);
+    $product_variants = ProductVariant::with('detailVariants')->get();
+    // foreach($product_variants as $item){
+    //     dd($item->detailVariants);
+    // }
+    $attribute_values = AttributeValue::get()->all();
+    dd($attribute_values);
     return view('welcome');
 });
 

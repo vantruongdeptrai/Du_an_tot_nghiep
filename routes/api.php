@@ -1,6 +1,7 @@
 <?php
 
 
+use App\Http\Controllers\API\ProductController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -101,3 +102,8 @@ Route::get('attribute-values/attribute/{attributeId}', [AttributeValueController
 Route::put('attribute-values/{id}', [AttributeValueController::class, 'update']);
 
 Route::delete('attribute-values/{id}', [AttributeValueController::class, 'destroy']);
+
+//Products and productVariants
+
+Route::get('products',[ProductController::class,'index']);
+//http://127.0.0.1:8000/api/products
