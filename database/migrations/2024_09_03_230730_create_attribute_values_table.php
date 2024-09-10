@@ -11,11 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('attributes', function (Blueprint $table) {
+        Schema::create('attribute_values', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('name');
+            $table->unsignedInteger('attribute_id');
+            $table->string('value');
             $table->softDeletes();
             $table->timestamps();
+            $table->foreign('attribute_id')->references('id')->on('attributes')->onDelete('cascade');
         });
     }
 
@@ -24,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('attributes');
+        Schema::dropIfExists('attribute_values');
     }
 };

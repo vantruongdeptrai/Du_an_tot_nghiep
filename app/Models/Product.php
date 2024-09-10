@@ -28,4 +28,13 @@ class Product extends Model
         'sale_start', 
         'sale_end',
     ];
+    public function attributes(){
+        return $this->hasMany(Attribute::class);
+    }
+    public function galleries(){
+        return $this->hasMany(Gallery::class);
+    }
+    public function productVariants(){
+        return $this->hasMany(ProductVariant::class);
+    }
 }

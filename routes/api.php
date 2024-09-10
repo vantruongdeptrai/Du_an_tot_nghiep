@@ -1,16 +1,19 @@
 <?php
 
 
-use App\Http\Controllers\API\AttributeController;
-use App\Http\Controllers\API\CouponController;
-
-use App\Http\Controllers\API\CategoryController;
-use App\Http\Controllers\API\TagController;
-use App\Http\Controllers\API\OperatingCostController;
+use App\Http\Controllers\API\ProductController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+
+use App\Http\Controllers\API\TagController;
 use App\Http\Controllers\API\RoleController;
+use App\Http\Controllers\API\CouponController;
+use App\Http\Controllers\API\CategoryController;
+use App\Http\Controllers\API\AttributeController;
 use App\Http\Controllers\API\PermissionsController;
+use App\Http\Controllers\API\BlogController;
+use App\Http\Controllers\API\OperatingCostController;
+use App\Http\Controllers\API\AttributeValueController;
 
 
 
@@ -54,15 +57,18 @@ Route::delete('/attributes/{id}', [AttributeController::class, 'destroy']);
 Route::get('/tags', [TagController::class, 'index']);
 Route::post('/tags', [TagController::class, 'store']);
 Route::put('/tags/{id}', [TagController::class, 'update']);
+Route::get('/tags/{id}', [TagController::class, 'show']);
 Route::delete('/tags/{id}', [TagController::class, 'destroy']);
 
 
 Route::get('/categories', [CategoryController::class, 'index']);
 Route::post('/categories', [CategoryController::class, 'store']);
+Route::get('/categories/{id}', [CategoryController::class, 'show']);
 Route::put('/categories/{id}', [CategoryController::class, 'update']);
 Route::delete('/categories/{id}', [CategoryController::class, 'destroy']);
 
 Route::get('/operating-costs', [OperatingCostController::class, 'index']);
+Route::get('/operating-costs/{id}', [OperatingCostController::class, 'show']);
 Route::post('/operating-costs', [OperatingCostController::class, 'store']);
 Route::put('/operating-costs/{id}', [OperatingCostController::class, 'update']);
 Route::delete('/operating-costs/{id}', [OperatingCostController::class, 'destroy']);
@@ -88,3 +94,20 @@ Route::put('/permissions/{id}', [PermissionsController::class, 'update']);
 //http://127.0.0.1:8000/api/permissions/{id}
 Route::delete('/permissions/{id}', [PermissionsController::class, 'destroy']);
 //http://127.0.0.1:8000/api/permissions/{id}
+
+Route::get('attribute-values', [AttributeValueController::class, 'index']);
+
+Route::post('attribute-values', [AttributeValueController::class, 'store']);
+
+Route::get('attribute-values/{id}', [AttributeValueController::class, 'show']); //lấy theo id của bảng AttributeValues
+
+Route::get('attribute-values/attribute/{attributeId}', [AttributeValueController::class, 'showByAttributeId']);// lấy theo attribute_id
+
+Route::put('attribute-values/{id}', [AttributeValueController::class, 'update']);
+
+Route::delete('attribute-values/{id}', [AttributeValueController::class, 'destroy']);
+
+//Products and productVariants
+
+Route::get('products',[ProductController::class,'index']);
+//http://127.0.0.1:8000/api/products

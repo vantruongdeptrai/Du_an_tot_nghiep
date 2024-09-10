@@ -7,11 +7,17 @@ use Illuminate\Http\Request;
 
 class OperatingCostController extends Controller
 {
-    function index(){
+    public function index(){
         $operating_costs = OperatingCost::all();
         return response()->json($operating_costs);
     }
-    function store(Request $req){
+
+    public function show($id){
+        $operating_costs = OperatingCost::find($id);
+        return response()->json($operating_costs);
+    }
+    
+    public function store(Request $req){
         $data = $req->all();
         $operating_cost = new OperatingCost();
         $operating_cost -> cost_type = $data['cost_type'];
@@ -23,7 +29,7 @@ class OperatingCostController extends Controller
             'operating_cost' => $operating_cost
         ]);
     }
-    function update(Request $req, $id){
+    public function update(Request $req, $id){
         $operating_cost = OperatingCost::find($id);
         if(!$operating_cost){
             return response()->json([
@@ -40,7 +46,7 @@ class OperatingCostController extends Controller
             'operating_cost' => $operating_cost
         ]);
     }
-    function destroy($id){
+    public function destroy($id){
         $destroy = OperatingCost::find($id);
         $destroy->delete();
         return response()->json([

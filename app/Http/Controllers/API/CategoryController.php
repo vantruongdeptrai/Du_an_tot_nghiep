@@ -25,7 +25,12 @@ class CategoryController extends Controller
         return response()->json($categoriesWithImageUrl);
     }
 
-   
+    public function show(string $id)
+    {
+        $category = Category::query()->findOrFail($id);
+        $category->image_url = $category->image ? asset('storage/' . $category->image) : null;
+        return response()->json($category);
+    }
    
     public function store(Request $request)
     {
@@ -34,6 +39,7 @@ class CategoryController extends Controller
             'image'=>$request->image,
             'slug'=>Str::slug($request->name)
         ];
+        // đay là xử lý ảnh
         if (!empty($data['image'])) {
             $data['image'] = Storage::put('categories',$data['image']);
         }
