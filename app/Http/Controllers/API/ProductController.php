@@ -1,6 +1,9 @@
 <?php
 
 namespace App\Http\Controllers\API;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB; 
+
 
 use App\Http\Controllers\Controller;
 use App\Models\ProductVariant;
@@ -26,12 +29,51 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        // Xử lý việc tải hình ảnh lên
+        $imagePath = null;
+        if ($request->hasFile('image')) {
+            $image = $request->file('image');
+            $imagePath = $image->store('images/products', 'public'); 
+        }
+    
+        // Them san pham
+        $product = Product::create([
+            'name' => $request->input('name'),
+            'description' => $request->input('description'),
+            'price' => $request->input('price'),
+            'sale_price' => $request->input('sale_price'),
+            'category_id' => $request->input('category_id'),
+            'sale_start' => now(), 
+            'sale_end' => now()->addDays(7),  
+            'new_product' => 0,
+            'best_seller_product' => 0,
+            'featured_product' => 0,
+            'image' => $imagePath, 
+        ]);
+    
+        $variants = $request->input('variants', []);
+        foreach ($variants as $variant) {
+            $sku = strtoupper(str_replace(' ', '-', $product->name) . '-' . Str::random(5));
+    
+            $productVariant = ProductVariant::create([
+                'product_id' => $product->id,
+                'quantity' => $variant['quantity'],
+                'price' => $variant['price'],
+                'sku' => $sku, // Use the generated SKU
+                'status' => $variant['status'] ?? 0,
+            ]);
+    
+            foreach ($variant['attributes'] as $attributeId => $attributeValueId) {
+                DB::table('detail_variants')->insert([
+                    'product_variant_id' => $productVariant->id,
+                    'attribute_value_id' => $attributeValueId,
+                ]);
+            }
+        }
+    
+        return response()->json($product, 201);
     }
-
-    /**
-     * Display the specified resource.
-     */
+    
     public function show(string $id)
     {
         //
@@ -48,8 +90,23 @@ class ProductController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy($id)
     {
-        //
+        $product = Product::find($id);
+    
+        if (!$product) {
+            return response()->json(['message' => 'Không tìm thấy sản phẩm'], 404);
+        }
+    
+        // xoa cac bien the lien quan
+        ProductVariant::where('product_id', $id)->delete();
+    
+        if ($product->image) {
+            Storage::disk('public')->delete($product->image);
+        }
+    
+        $product->delete();
+    
+        return response()->json(['message' => 'xóa thành công'], 200);
     }
 }

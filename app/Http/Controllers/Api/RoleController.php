@@ -43,6 +43,8 @@ class RoleController extends Controller
     public function show(string $id)
     {
         //
+        $role = Role::findOrFail($id);
+        return response()->json($role, 200);
     }
 
     /**
