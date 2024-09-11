@@ -111,7 +111,6 @@ Route::delete('attribute-values/{id}', [AttributeValueController::class, 'destro
 
 Route::get('products',[ProductController::class,'index']);
 //http://127.0.0.1:8000/api/products
-
 Route::post('products',[ProductController::class,'store']);
 //http://127.0.0.1:8000/api/products
 Route::delete('products/{id}',[ProductController::class,'destroy']);

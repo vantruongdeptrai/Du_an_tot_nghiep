@@ -27,13 +27,6 @@ class ProductController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-
-    
-
-
-    /**
-     * Display the specified resource.
-     */
     public function store(Request $request)
     {
         // Xử lý việc tải hình ảnh lên
@@ -81,7 +74,10 @@ class ProductController extends Controller
         return response()->json($product, 201);
     }
     
-    
+    public function show(string $id)
+    {
+        //
+    }
 
     /**
      * Update the specified resource in storage.
@@ -113,5 +109,4 @@ class ProductController extends Controller
     
         return response()->json(['message' => 'xóa thành công'], 200);
     }
-    
 }
