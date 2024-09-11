@@ -26,8 +26,35 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        // Create the product
+        $product = Product::create([
+            'name' => $request->input('name'),
+            'description' => $request->input('description'),
+            'price' => $request->input('price'),
+            'sale_price' => $request->input('sale_price'),
+            'category_id' => $request->input('category_id'),
+            'sale_start' => now(),  // Assuming current time for sale start
+            'sale_end' => now()->addDays(7),  // Sale ends after 7 days
+            'new_product' => 0,
+            'best_seller_product' => 0,
+            'featured_product' => 0
+        ]);
+
+        // Create product variants
+        $variants = $request->input('variants');
+        foreach ($variants as $variant) {
+            ProductVariant::create([
+                'product_id' => $product->id,
+                'quantity' => $variant['quantity'],
+                'price' => $variant['price'],
+                'sku' => $variant['sku'],
+                'status' => $variant['status']
+            ]);
+        }
+
+        return response()->json($product->load('variants'), 201);
     }
+
 
     /**
      * Display the specified resource.
