@@ -60,7 +60,6 @@ class ProductController extends Controller
     
         $variants = $request->input('variants', []);
         foreach ($variants as $variant) {
-            // Generate SKU based on product name
             $sku = strtoupper(str_replace(' ', '-', $product->name) . '-' . Str::random(5));
     
             $productVariant = ProductVariant::create([
@@ -100,7 +99,7 @@ class ProductController extends Controller
         $product = Product::find($id);
     
         if (!$product) {
-            return response()->json(['message' => 'Product not found'], 404);
+            return response()->json(['message' => 'Không tìm thấy sản phẩm'], 404);
         }
     
         // xoa cac bien the lien quan
@@ -112,7 +111,7 @@ class ProductController extends Controller
     
         $product->delete();
     
-        return response()->json(['message' => 'Product deleted successfully'], 200);
+        return response()->json(['message' => 'xóa thành công'], 200);
     }
     
 }
