@@ -26,10 +26,14 @@ class CategoryController extends Controller
    
     public function store(Request $request)
     {
-        $data=[
-            'name'=>$request->name,
-            'image'=>$request->image,
-            'slug'=>Str::slug($request->name)
+        $validatedData = $request->validate([
+            'name' => 'required|string|max:255|unique:categories,name',
+            'image' => 'required|string|max:255', 
+        ]);
+        $data = [
+            'name' => $validatedData['name'],
+            'image' => $validatedData['image'],
+            'slug' => Str::slug($validatedData['name']),
         ];
         $category=Category::create($data);
     
@@ -43,10 +47,14 @@ class CategoryController extends Controller
     
     public function update(Request $request, string $id)
     {
-        $model=Category::query()->findOrFail($id);  
+        $model=Category::query()->findOrFail($id); 
+        $validatedData = $request->validate([
+            'name' => 'required|string|max:255|unique:categories,name,'.$id,
+            'image' => 'nullable|string|max:255', 
+        ]); 
         $data=[
-            'name'=>$request->name,
-            'slug'=>Str::slug($request->name)
+            'name' => $validatedData['name'],
+            'slug' => Str::slug($validatedData['name']),
         ];
         // check có ảnh thì cho vào storage
         if ($request->has('image') && $request->image !== null) {
