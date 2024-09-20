@@ -25,16 +25,24 @@ class Product extends Model
     ];
 
     protected $dates = [
-        'sale_start', 
+        'sale_start',
         'sale_end',
     ];
-    public function attributes(){
+    public function attributes()
+    {
         return $this->hasMany(Attribute::class);
     }
-    public function galleries(){
+    public function galleries()
+    {
         return $this->hasMany(Gallery::class);
     }
-    public function productVariants(){
+    public function productVariants()
+    {
         return $this->hasMany(ProductVariant::class);
     }
+    public function category()
+    {
+        return $this->belongsTo(Category::class, 'category_id');
+    }
+
 }
