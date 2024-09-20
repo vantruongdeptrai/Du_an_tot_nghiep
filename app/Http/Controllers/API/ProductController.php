@@ -17,11 +17,16 @@ class ProductController extends Controller
      */
     public function index()
     {
-        $products = Product::get()->all();//admin
+        $products = Product::with([
+            'productVariants' => function ($query) {
+                $query->with('detailVariants.attributeValue');
+            }
+        ],'category')->get();
+        $products->each(function ($product) {
+            $product->category_name = $product->category->name; // Thêm trường category_name
+        });
+        return response()->json($products);
 
-        $product_variants = ProductVariant::with('detailVariants')->get();//client
-
-        return response()->json([$products,$product_variants]);
     }
 
     /**
@@ -48,10 +53,10 @@ class ProductController extends Controller
             'new_product' => 0,
             'best_seller_product' => 0,
             'featured_product' => 0,
-            'image' => $imagePath, 
+            'image' => $imagePath,
         ]);
     
-        $variants = $request->input('variants', []);
+        $variants = $request->input('variants', default: []);
         foreach ($variants as $variant) {
             $sku = strtoupper(str_replace(' ', '-', $product->name) . '-' . Str::random(5));
     
