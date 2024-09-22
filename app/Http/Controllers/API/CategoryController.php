@@ -6,7 +6,6 @@ use App\Models\Category;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Storage;
 
 class CategoryController extends Controller
 {
@@ -16,32 +15,26 @@ class CategoryController extends Controller
     public function index()
     {
         $categories = Category::all();
-        // dd($categories);
-        $categoriesWithImageUrl = $categories->map(function ($category) {
-            $category->image_url = $category->image ? asset('storage/' . $category->image) : null;
-            return $category;
-        });
-    
-        return response()->json($categoriesWithImageUrl);
+        return response()->json($categories);
     }
 
     public function show(string $id)
     {
         $category = Category::query()->findOrFail($id);
-        $category->image_url = $category->image ? asset('storage/' . $category->image) : null;
         return response()->json($category);
     }
    
     public function store(Request $request)
     {
-        $data=[
-            'name'=>$request->name,
-            'image'=>$request->image,
-            'slug'=>Str::slug($request->name)
+        $validatedData = $request->validate([
+            'name' => 'required|string|max:255|unique:categories,name',
+            'image' => 'required|string|max:255', 
+        ]);
+        $data = [
+            'name' => $validatedData['name'],
+            'image' => $validatedData['image'],
+            'slug' => Str::slug($validatedData['name']),
         ];
-        if (!empty($data['image'])) {
-            $data['image'] = Storage::put('categories',$data['image']);
-        }
         $category=Category::create($data);
     
         return response()->json([
@@ -54,23 +47,23 @@ class CategoryController extends Controller
     
     public function update(Request $request, string $id)
     {
-        $model=Category::query()->findOrFail($id);  
+        $model=Category::query()->findOrFail($id); 
+        $validatedData = $request->validate([
+            'name' => 'required|string|max:255|unique:categories,name,'.$id,
+            'image' => 'nullable|string|max:255', 
+        ]); 
         $data=[
-            'name'=>$request->name,
-            'slug'=>Str::slug($request->name)
+            'name' => $validatedData['name'],
+            'slug' => Str::slug($validatedData['name']),
         ];
         // check có ảnh thì cho vào storage
-        if ($request->hasFile('image')) {
-            $data['image'] = Storage::put('categories', $request->file('image'));
-        } 
-        // lưu ảnh cũ trước khi update
-        $imageCurrent=$model->image; 
+        if ($request->has('image') && $request->image !== null) {
+            $data['image'] = $request->image;
+        } else {
+            $data['image'] =$model->image; 
+        }
         // update data mới
         $model->update($data);
-      // ảnh cũ tồn tại trong storage thì xóa
-        if ($request->hasFile('image') && $imageCurrent && Storage::exists($imageCurrent)) {
-            Storage::delete($imageCurrent);
-        } 
         return response()->json([
             'message' => 'success',
             'data' =>$data

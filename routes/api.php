@@ -1,6 +1,7 @@
 <?php
 
 
+use App\Http\Controllers\API\ProductController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -10,6 +11,7 @@ use App\Http\Controllers\API\CouponController;
 use App\Http\Controllers\API\CategoryController;
 use App\Http\Controllers\API\AttributeController;
 use App\Http\Controllers\API\PermissionsController;
+use App\Http\Controllers\API\BlogController;
 use App\Http\Controllers\API\OperatingCostController;
 use App\Http\Controllers\API\AttributeValueController;
 
@@ -75,6 +77,8 @@ Route::get('/roles', [RoleController::class, 'index']);
 //http://127.0.0.1:8000/api/roles
 Route::post('/roles', [RoleController::class, 'store']);
 //http://127.0.0.1:8000/api/roles
+Route::get('/roles/{id}', [RoleController::class, 'show']);
+//http://127.0.0.1:8000/api/roles/{id}   
 Route::put('/roles/{id}', [RoleController::class, 'update']);
 //http://127.0.0.1:8000/api/roles/{id}
 Route::delete('/roles/{id}', [RoleController::class, 'destroy']);
@@ -84,6 +88,8 @@ Route::get('/permissions', [PermissionsController::class, 'index']);
 //http://127.0.0.1:8000/api/permissions
 Route::post('/permissions', [PermissionsController::class, 'store']);
 //http://127.0.0.1:8000/api/permissions
+Route::get('/permissions/{id}', [PermissionsController::class, 'show']);
+//http://127.0.0.1:8000/api/permissions/{id} 
 Route::put('/permissions/{id}', [PermissionsController::class, 'update']);
 //http://127.0.0.1:8000/api/permissions/{id}
 Route::delete('/permissions/{id}', [PermissionsController::class, 'destroy']);
@@ -100,3 +106,13 @@ Route::get('attribute-values/attribute/{attributeId}', [AttributeValueController
 Route::put('attribute-values/{id}', [AttributeValueController::class, 'update']);
 
 Route::delete('attribute-values/{id}', [AttributeValueController::class, 'destroy']);
+
+//Products and productVariants
+
+Route::get('products',[ProductController::class,'index']);
+//http://127.0.0.1:8000/api/products
+Route::post('products',[ProductController::class,'store']);
+//http://127.0.0.1:8000/api/products
+Route::delete('products/{id}',[ProductController::class,'destroy']);
+//http://127.0.0.1:8000/api/products/id
+

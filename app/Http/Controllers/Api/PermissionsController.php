@@ -43,6 +43,8 @@ class PermissionsController extends Controller
     public function show(string $id)
     {
         //
+        $Permissions = Permissions::findOrFail($id);
+        return response()->json($Permissions, 200);
     }
 
     /**

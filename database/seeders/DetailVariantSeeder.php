@@ -12,6 +12,6 @@ class DetailVariantSeeder extends Seeder
      */
     public function run(): void
     {
-        DetailVariant::factory(5)->create();
+        
     }
 }

@@ -12,6 +12,6 @@ class AttributeSeeder extends Seeder
      */
     public function run(): void
     {
-        Attribute::factory(5)->create();
+        
     }
 }
