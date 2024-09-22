@@ -32,6 +32,7 @@ class ProductFactory extends Factory
             'new_product' => $this->faker->boolean, // Sản phẩm mới
             'best_seller_product' => $this->faker->boolean, // Sản phẩm bán chạy
             'featured_product' => $this->faker->boolean, // Sản phẩm nổi bật
+            'is_variant'=>$this->faker->boolean(80),
             'created_at' => now(),
             'updated_at' => now(),
         ];

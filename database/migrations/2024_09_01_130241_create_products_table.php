@@ -26,6 +26,7 @@ return new class extends Migration
             $table->boolean('new_product')->default(false);
             $table->boolean('best_seller_product')->default(false);
             $table->boolean('featured_product')->default(false);
+            $table->boolean('is_variant')->default(true);
             $table->softDeletes();
             $table->timestamps();
         });
