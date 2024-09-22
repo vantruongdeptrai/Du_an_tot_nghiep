@@ -11,14 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('attribute_values', function (Blueprint $table) {
+        Schema::create('detail_variants', function (Blueprint $table) {
             $table->increments('id');
-            $table->unsignedInteger('attribute_id');
-            $table->string('value');
+            $table->unsignedInteger('product_variant_id');
+            $table->unsignedInteger('attribute_value_id');
             $table->softDeletes();
             $table->timestamps();
             // Thiết lập khóa ngoại
-            $table->foreign('attribute_id')->references('id')->on('attributes')->onDelete('cascade');
+            $table->foreign('attribute_value_id')->references('id')->on('attribute_values')->onDelete('cascade');
+            $table->foreign('product_variant_id')->references('id')->on('product_variants')->onDelete('cascade');
         });
     }
 
@@ -27,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('attribute_values');
+        Schema::dropIfExists('detail_variants');
     }
 };
