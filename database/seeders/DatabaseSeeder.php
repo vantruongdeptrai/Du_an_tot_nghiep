@@ -6,6 +6,7 @@ namespace Database\Seeders;
 
 use App\Models\AttributeValue;
 use App\Models\OperatingCost;
+use App\Models\Stock;
 use App\Models\Tag;
 use Attribute;
 use Illuminate\Database\Seeder;
@@ -32,6 +33,7 @@ class DatabaseSeeder extends Seeder
             roleSeeder::class,
             OperatingCostSeeder::class,
             TagSeeder::class,
+            StockSeeder::class,
             CategorySeeder::class,
             AttributeSeeder::class,
             AttributeValueSeeder::class,
