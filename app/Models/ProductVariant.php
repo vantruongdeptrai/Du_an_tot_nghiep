@@ -15,6 +15,7 @@ class ProductVariant extends Model
         'price',
         'sku',
         'status',
+        'image',
     ];
     public function product(){
         return $this->belongsTo(Product::class);

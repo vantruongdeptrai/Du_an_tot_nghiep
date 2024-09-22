@@ -22,6 +22,7 @@ class Product extends Model
         'new_product',
         'best_seller_product',
         'featured_product',
+        'is_variant',
     ];
 
     protected $dates = [
