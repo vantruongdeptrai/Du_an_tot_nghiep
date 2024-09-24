@@ -33,11 +33,11 @@ class DatabaseSeeder extends Seeder
             roleSeeder::class,
             OperatingCostSeeder::class,
             TagSeeder::class,
-            StockSeeder::class,
             CategorySeeder::class,
             AttributeSeeder::class,
             AttributeValueSeeder::class,
-            ProductSeeder::class,
+            ProductSeeder::class,   
+            StockSeeder::class,
             ProductVariantSeeder::class,
             DetailVariantSeeder::class,
         ]);
