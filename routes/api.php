@@ -5,8 +5,10 @@ use App\Http\Controllers\API\AttributeController;
 use App\Http\Controllers\API\CouponController;
 
 use App\Http\Controllers\API\CategoryController;
+use App\Http\Controllers\API\ColorController;
 use App\Http\Controllers\API\TagController;
 use App\Http\Controllers\API\OperatingCostController;
+use App\Http\Controllers\ProductVariantController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\RoleController;
@@ -86,3 +88,25 @@ Route::put('/permissions/{id}', [PermissionsController::class, 'update']);
 Route::delete('/permissions/{id}', [PermissionsController::class, 'destroy']);
 //http://127.0.0.1:8000/api/permissions/{id}
 
+
+//http://127.0.0.1:8000/api/colors
+Route::get('/colors', [ColorController::class, 'index']); 
+//http://127.0.0.1:8000/api/colors/{id}
+Route::get('/colors/{id}', [ColorController::class, 'show']);
+//http://127.0.0.1:8000/api/colors/{id}
+Route::post('/colors', [ColorController::class, 'store']);
+//http://127.0.0.1:8000/api/colors
+Route::put('/colors/{id}', [ColorController::class, 'update']); 
+//http://127.0.0.1:8000/api/colors/{id}
+Route::delete('/colors/{id}', [ColorController::class, 'destroy']);
+
+//http://127.0.0.1:8000/api//product-variants
+Route::get('/product-variants', [ProductVariantController::class, 'index']); 
+//http://127.0.0.1:8000/api//product-variants/{id}
+Route::get('/product-variants/{id}', [ProductVariantController::class, 'show']); 
+//http://127.0.0.1:8000/api//product-variants
+Route::post('/product-variants', [ProductVariantController::class, 'store']); 
+//http://127.0.0.1:8000/api//product-variants/{id}
+Route::put('/product-variants/{id}', [ProductVariantController::class, 'update']); 
+//http://127.0.0.1:8000/api//product-variants/{id}
+Route::delete('/product-variants/{id}', [ProductVariantController::class, 'destroy']);
