@@ -1,6 +1,7 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+
+namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Models\Size;
@@ -8,6 +9,7 @@ use Illuminate\Http\Request;
 
 class SizeController extends Controller
 {
+
     /**
      * Display a listing of the resource.
      */
@@ -81,3 +83,4 @@ class SizeController extends Controller
         ]);
     }
 }
+

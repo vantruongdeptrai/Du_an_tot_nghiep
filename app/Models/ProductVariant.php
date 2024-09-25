@@ -11,11 +11,13 @@ class ProductVariant extends Model
     use HasFactory, SoftDeletes;
     protected $fillable = [
         'product_id',
+        'color_id',
+        'size_id',
         'quantity',
+        'image',
         'price',
         'sku',
         'status',
-        'image',
     ];
     public function product(){
         return $this->belongsTo(Product::class);
@@ -23,4 +25,5 @@ class ProductVariant extends Model
     public function detailVariants(){
         return $this->hasMany(DetailVariant::class);
     }
+    
 }
