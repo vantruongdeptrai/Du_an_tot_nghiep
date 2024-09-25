@@ -1,20 +1,21 @@
 <?php
 
-use App\Http\Controllers\API\ProductController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-
 use App\Http\Controllers\API\TagController;
+
+use App\Http\Controllers\API\BlogController;
 use App\Http\Controllers\API\RoleController;
+use App\Http\Controllers\Api\SizeController;
+use App\Http\Controllers\Api\ColorController;
 use App\Http\Controllers\API\CouponController;
+use App\Http\Controllers\API\ProductController;
 use App\Http\Controllers\API\CategoryController;
 use App\Http\Controllers\API\AttributeController;
+use App\Http\Controllers\ProductVariantController;
 use App\Http\Controllers\API\PermissionsController;
-use App\Http\Controllers\API\BlogController;
 use App\Http\Controllers\API\OperatingCostController;
 use App\Http\Controllers\API\AttributeValueController;
-use App\Http\Controllers\Api\ColorController;
-use App\Http\Controllers\Api\SizeController;
 
 /*
 |--------------------------------------------------------------------------
@@ -115,7 +116,7 @@ Route::post('/product-variants', [ProductVariantController::class, 'store']);
 Route::put('/product-variants/{id}', [ProductVariantController::class, 'update']); 
 //http://127.0.0.1:8000/api//product-variants/{id}
 Route::delete('/product-variants/{id}', [ProductVariantController::class, 'destroy']);
-=======
+
 // Route::get('attribute-values', [AttributeValueController::class, 'index']);
 
 // Route::post('attribute-values', [AttributeValueController::class, 'store']);
