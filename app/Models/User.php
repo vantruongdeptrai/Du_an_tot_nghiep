@@ -21,6 +21,8 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'image',
+        'model_has_role_id'
     ];
 
     /**
@@ -42,4 +44,10 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
+    public function modelHasRoles(){
+        return $this->hasMany(ModelHasRole::class);
+    }
+    public function blogs(){
+        return $this->hasMany(Blog::class);
+    }
 }

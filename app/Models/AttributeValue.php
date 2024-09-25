@@ -6,11 +6,14 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Attribute extends Model
+class AttributeValue extends Model
 {
     use HasFactory,SoftDeletes;
-    protected $fillable = ['name'];
-    public function attributeValues() {
-        return $this->hasMany(AttributeValue::class);
+    protected $fillable = [
+        'value',
+        'attribute_id',
+    ];
+    public function attribute(){
+        return $this->belongsTo(Attribute::class);
     }
 }

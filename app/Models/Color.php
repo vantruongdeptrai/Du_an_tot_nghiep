@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+
 use Illuminate\Database\Eloquent\SoftDeletes; // Import SoftDeletes
 
 class Color extends Model
@@ -12,3 +13,5 @@ class Color extends Model
 
     protected $fillable = ['name'];
 }
+
+

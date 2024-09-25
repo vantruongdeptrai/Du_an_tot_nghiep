@@ -11,20 +11,19 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('role', function (Blueprint $table) {
-            $table->id();
-            $table -> string('name',255);
+        Schema::create('sizes', function (Blueprint $table) {
+            $table->increments('id');
+            $table->string('name');
             $table->softDeletes();
             $table->timestamps();
         });
     }
 
-    
     /**
      * Reverse the migrations.
      */
     public function down(): void
     {
-        Schema::dropIfExists('role');
+        Schema::dropIfExists('sizes');
     }
 };

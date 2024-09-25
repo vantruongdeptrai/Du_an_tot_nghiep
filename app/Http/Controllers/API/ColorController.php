@@ -1,76 +1,83 @@
 <?php
 
 namespace App\Http\Controllers\API;
-
 use App\Http\Controllers\Controller;
 use App\Models\Color;
 use Illuminate\Http\Request;
 
 class ColorController extends Controller
 {
+
+    /**
+     * Display a listing of the resource.
+     */
     public function index()
     {
-        return response()->json(Color::all(), 200);
+        $listColor=Color::all();
+        return response()->json($listColor,200);
     }
 
-    public function show($id)
+    /**
+     * Show the form for creating a new resource.
+     */
+    public function create()
     {
-        $color = Color::find($id);
-
-        if (!$color) {
-            return response()->json(['message' => 'Color not found'], 404);
-        }
-
-        return response()->json($color, 200);
+        //
     }
 
+    /**
+     * Store a newly created resource in storage.
+     */
     public function store(Request $request)
     {
-        $request->validate(['name' => 'required|unique:colors,name']);
-
-        $color = Color::create($request->all());
-
-        return response()->json($color, 201);
+        
+        $data=$request->validate([
+            'name' => 'required|string|max:255',
+        ]);
+        $colors=Color::query()->create($data);
+        return response()->json($colors,201);
     }
 
-    public function update(Request $request, $id)
+    /**
+     * Display the specified resource.
+     */
+    public function show(string $id)
     {
-        $color = Color::find($id);
-
-        if (!$color) {
-            return response()->json(['message' => 'Color not found'], 404);
-        }
-
-        $request->validate(['name' => 'unique:colors,name,' . $color->id]);
-
-        $color->update($request->all());
-
-        return response()->json($color, 200);
+        $colors=Color::query()->findOrFail($id);
+        return response()->json($colors,200);
     }
 
-    public function destroy($id)
+    /**
+     * Show the form for editing the specified resource.
+     */
+    public function edit(string $id)
     {
-        $color = Color::find($id);
-
-        if (!$color) {
-            return response()->json(['message' => 'Color not found'], 404);
-        }
-
-        $color->delete(); // Xóa mềm
-
-        return response()->json(null, 204);
+        //
     }
 
-    public function restore($id)
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(Request $request, string $id)
     {
-        $color = Color::withTrashed()->find($id);
+        $color=Color::query()->findOrFail($id);
+        $data=$request->validate([
+            'name' => 'required|string|max:255',
+        ]);
+        $color->update($data);
+        return response()->json($color,200);
+    }
 
-        if (!$color) {
-            return response()->json(['message' => 'Color not found'], 404);
-        }
-
-        $color->restore(); // Khôi phục lại
-
-        return response()->json(['message' => 'Color restored successfully'], 200);
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy(string $id)
+    {
+        $color=Color::query()->findOrFail($id);
+        $color->delete();
+        return response()->json([
+            'message' => 'success'
+        ]);
     }
 }
+

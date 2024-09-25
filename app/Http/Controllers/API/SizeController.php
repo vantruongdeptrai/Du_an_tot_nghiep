@@ -1,5 +1,6 @@
 <?php
 
+
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
@@ -8,69 +9,78 @@ use Illuminate\Http\Request;
 
 class SizeController extends Controller
 {
+
+    /**
+     * Display a listing of the resource.
+     */
     public function index()
     {
-        return response()->json(Size::all(), 200);
+        $lisSize=Size::all();
+        return response()->json($lisSize,200);
+        
     }
 
-    public function show($id)
-    {
-        $size = Size::find($id);
+    /**
+     * Show the form for creating a new resource.
+     */
+    // public function create(Request $request)
+    // {
+      
+    // }
 
-        if (!$size) {
-            return response()->json(['message' => 'Size này không tồn tại'], 404);
-        }
-
-        return response()->json($size, 200);
-    }
-
+    /**
+     * Store a newly created resource in storage.
+     */
     public function store(Request $request)
     {
-        $request->validate(['name' => 'required|unique:sizes,name']);
-
-        $size = Size::create($request->all());
-
-        return response()->json($size, 201);
+         $data=$request->validate([
+            'name' => 'required|string|max:255',
+        ]);
+        $size=Size::query()->create($data);
+        return response()->json($size,201);
     }
 
-    public function update(Request $request, $id)
+    /**
+     * Display the specified resource.
+     */
+    public function show(string $id)
     {
-        $size = Size::find($id);
+        $size=Size::query()->findOrFail($id);
+        return response()->json($size,200);
 
-        if (!$size) {
-            return response()->json(['message' => 'Size này không tồn tại'], 404);
-        }
-
-        $request->validate(['name' => 'unique:sizes,name,' . $size->id]);
-
-        $size->update($request->all());
-
-        return response()->json($size, 200);
     }
 
-    public function destroy($id)
+    /**
+     * Show the form for editing the specified resource.
+     */
+    public function edit(string $id)
     {
-        $size = Size::find($id);
-
-        if (!$size) {
-            return response()->json(['message' => 'Size này không tồn tại'], 404);
-        }
-
-        $size->delete(); 
-
-        return response()->json(null, 204);
+      
     }
 
-    public function restore($id)
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(Request $request, string $id)
     {
-        $size = Size::withTrashed()->find($id);
+        $size=Size::query()->findOrFail($id);
+        $data=$request->validate([
+            'name' => 'required|string|max:255',
+        ]);
+        $size->update($data);
+        return response()->json($size,200);
+    }
 
-        if (!$size) {
-            return response()->json(['message' => 'Size này không tồn tại'], 404);
-        }
-
-        $size->restore();
-
-        return response()->json(['message' => 'Size restored successfully'], 200);
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy(string $id)
+    {
+        $size=Size::query()->findOrFail($id);
+        $size->delete();
+        return response()->json([
+            'message' => 'success'
+        ]);
     }
 }
+
