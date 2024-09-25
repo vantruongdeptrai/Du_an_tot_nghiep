@@ -14,8 +14,8 @@ use App\Http\Controllers\API\PermissionsController;
 use App\Http\Controllers\API\BlogController;
 use App\Http\Controllers\API\OperatingCostController;
 use App\Http\Controllers\API\AttributeValueController;
-
-
+use App\Http\Controllers\Api\ColorController;
+use App\Http\Controllers\Api\SizeController;
 
 /*
 |--------------------------------------------------------------------------
@@ -95,17 +95,34 @@ Route::put('/permissions/{id}', [PermissionsController::class, 'update']);
 Route::delete('/permissions/{id}', [PermissionsController::class, 'destroy']);
 //http://127.0.0.1:8000/api/permissions/{id}
 
-Route::get('attribute-values', [AttributeValueController::class, 'index']);
+// Route::get('attribute-values', [AttributeValueController::class, 'index']);
 
-Route::post('attribute-values', [AttributeValueController::class, 'store']);
+// Route::post('attribute-values', [AttributeValueController::class, 'store']);
 
-Route::get('attribute-values/{id}', [AttributeValueController::class, 'show']); //lấy theo id của bảng AttributeValues
+// Route::get('attribute-values/{id}', [AttributeValueController::class, 'show']); //lấy theo id của bảng AttributeValues
 
-Route::get('attribute-values/attribute/{attributeId}', [AttributeValueController::class, 'showByAttributeId']);// lấy theo attribute_id
+// Route::get('attribute-values/attribute/{attributeId}', [AttributeValueController::class, 'showByAttributeId']);// lấy theo attribute_id
 
-Route::put('attribute-values/{id}', [AttributeValueController::class, 'update']);
+// Route::put('attribute-values/{id}', [AttributeValueController::class, 'update']);
 
-Route::delete('attribute-values/{id}', [AttributeValueController::class, 'destroy']);
+// Route::delete('attribute-values/{id}', [AttributeValueController::class, 'destroy']);
+
+//size
+//http://127.0.0.1:8000/api/sizes
+Route::get('sizes',[SizeController::class,'index']);
+Route::post('sizes',[SizeController::class,'store']);
+Route::get('sizes/{id}',[SizeController::class,'show']);
+Route::put('sizes/{id}',[SizeController::class,'update']);
+Route::delete('sizes/{id}',[SizeController::class,'destroy']);
+
+//color
+//http://127.0.0.1:8000/api/colors
+Route::get('colors',[ColorController::class,'index']);
+Route::post('colors',[ColorController::class,'store']);
+Route::get('colors/{id}',[ColorController::class,'show']);
+Route::put('colors/{id}',[ColorController::class,'update']);
+Route::delete('colors/{id}',[ColorController::class,'destroy']);
+
 
 //Products and productVariants
 
@@ -115,4 +132,5 @@ Route::post('products',[ProductController::class,'store']);
 //http://127.0.0.1:8000/api/products
 Route::delete('products/{id}',[ProductController::class,'destroy']);
 //http://127.0.0.1:8000/api/products/id
+
 
