@@ -6,16 +6,16 @@ use App\Http\Controllers\API\TagController;
 
 use App\Http\Controllers\API\BlogController;
 use App\Http\Controllers\API\RoleController;
-use App\Http\Controllers\Api\SizeController;
-use App\Http\Controllers\Api\ColorController;
+use App\Http\Controllers\API\SizeController;
+use App\Http\Controllers\API\ColorController;
 use App\Http\Controllers\API\CouponController;
 use App\Http\Controllers\API\ProductController;
 use App\Http\Controllers\API\CategoryController;
 use App\Http\Controllers\API\AttributeController;
-use App\Http\Controllers\ProductVariantController;
 use App\Http\Controllers\API\PermissionsController;
 use App\Http\Controllers\API\OperatingCostController;
 use App\Http\Controllers\API\AttributeValueController;
+use App\Http\Controllers\API\ProductVariantController;
 
 /*
 |--------------------------------------------------------------------------
