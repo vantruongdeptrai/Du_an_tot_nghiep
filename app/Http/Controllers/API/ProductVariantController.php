@@ -1,7 +1,7 @@
 <?php
+namespace App\Http\Controllers\API;
 
-namespace App\Http\Controllers;
-
+use App\Http\Controllers\Controller;
 use App\Models\ProductVariant;
 use Illuminate\Http\Request;
 
@@ -9,18 +9,13 @@ class ProductVariantController extends Controller
 {
     public function index()
     {
-        return response()->json(ProductVariant::all(), 200);
+        return ProductVariant::all();
     }
 
     public function show($id)
     {
-        $productVariant = ProductVariant::find($id);
-
-        if (!$productVariant) {
-            return response()->json(['message' => 'Product variant not found'], 404);
-        }
-
-        return response()->json($productVariant, 200);
+        $productVariant = ProductVariant::findOrFail($id);
+        return response()->json($productVariant);
     }
 
     public function store(Request $request)
@@ -31,54 +26,66 @@ class ProductVariantController extends Controller
             'size_id' => 'required|integer',
             'quantity' => 'required|integer',
             'price' => 'required|numeric',
-            'sku' => 'required|unique:product_variants,sku',
+            'sku' => 'required|string|unique:product_variants',
+            'status' => 'required|boolean',
+            'image' => 'nullable|string', // Trường ảnh dưới dạng chuỗi
         ]);
 
-        $productVariant = ProductVariant::create($request->all());
+        $productVariant = new ProductVariant();
+        $productVariant->product_id = $request->product_id;
+        $productVariant->color_id = $request->color_id;
+        $productVariant->size_id = $request->size_id;
+        $productVariant->quantity = $request->quantity;
+        $productVariant->price = $request->price;
+        $productVariant->sku = $request->sku;
+        $productVariant->status = $request->status;
 
+        // Lưu đường dẫn ảnh
+        if ($request->has('image')) {
+            $productVariant->image = $request->image;
+        }
+
+        $productVariant->save();
         return response()->json($productVariant, 201);
     }
 
     public function update(Request $request, $id)
     {
-        $productVariant = ProductVariant::find($id);
-
-        if (!$productVariant) {
-            return response()->json(['message' => 'Product variant not found'], 404);
-        }
-
         $request->validate([
-            'sku' => 'unique:product_variants,sku,' . $productVariant->id,
+            'product_id' => 'required|integer',
+            'color_id' => 'required|integer',
+            'size_id' => 'required|integer',
+            'quantity' => 'required|integer',
+            'price' => 'required|numeric',
+            'sku' => 'required|string|unique:product_variants,sku,' . $id,
+            'status' => 'required|boolean',
+            'image' => 'nullable|string',
         ]);
 
-        $productVariant->update($request->all());
+        $productVariant = ProductVariant::findOrFail($id);
+        $productVariant->product_id = $request->product_id;
+        $productVariant->color_id = $request->color_id;
+        $productVariant->size_id = $request->size_id;
+        $productVariant->quantity = $request->quantity;
+        $productVariant->price = $request->price;
+        $productVariant->sku = $request->sku;
+        $productVariant->status = $request->status;
 
-        return response()->json($productVariant, 200);
+        // Cập nhật trường ảnh
+        if ($request->has('image')) {
+            $productVariant->image = $request->image;
+        }
+
+        $productVariant->save();
+        return response()->json($productVariant);
     }
 
     public function destroy($id)
     {
-        $productVariant = ProductVariant::find($id);
-
-        if (!$productVariant) {
-            return response()->json(['message' => 'Product variant not found'], 404);
-        }
-
-        $productVariant->delete(); // Xóa mềm
-
+        $productVariant = ProductVariant::findOrFail($id);
+        $productVariant->delete();
         return response()->json(null, 204);
     }
 
-    public function restore($id)
-    {
-        $productVariant = ProductVariant::withTrashed()->find($id);
-
-        if (!$productVariant) {
-            return response()->json(['message' => 'Product variant not found'], 404);
-        }
-
-        $productVariant->restore(); // Khôi phục lại
-
-        return response()->json(['message' => 'Product variant restored successfully'], 200);
-    }
+   
 }
