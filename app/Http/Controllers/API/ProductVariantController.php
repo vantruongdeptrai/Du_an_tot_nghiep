@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use App\Models\ProductVariant;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class ProductVariantController extends Controller
 {
@@ -26,7 +27,6 @@ class ProductVariantController extends Controller
             'size_id' => 'required|integer',
             'quantity' => 'required|integer',
             'price' => 'required|numeric',
-            'sku' => 'required|string|unique:product_variants',
             'status' => 'required|boolean',
             'image' => 'nullable|string', // Trường ảnh dưới dạng chuỗi
         ]);
@@ -37,7 +37,7 @@ class ProductVariantController extends Controller
         $productVariant->size_id = $request->size_id;
         $productVariant->quantity = $request->quantity;
         $productVariant->price = $request->price;
-        $productVariant->sku = $request->sku;
+        $productVariant->sku = Str::upper(Str::random(8));
         $productVariant->status = $request->status;
 
         // Lưu đường dẫn ảnh
