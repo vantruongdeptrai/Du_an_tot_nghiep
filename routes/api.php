@@ -1,20 +1,22 @@
 <?php
 
-use App\Http\Controllers\API\ProductController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-
 use App\Http\Controllers\API\TagController;
+
+use App\Http\Controllers\API\BlogController;
 use App\Http\Controllers\API\RoleController;
+use App\Http\Controllers\API\SizeController;
+use App\Http\Controllers\API\ColorController;
 use App\Http\Controllers\API\CouponController;
+use App\Http\Controllers\API\ProductController;
 use App\Http\Controllers\API\CategoryController;
 use App\Http\Controllers\API\AttributeController;
 use App\Http\Controllers\API\PermissionsController;
-use App\Http\Controllers\API\ProductVariantController;
 use App\Http\Controllers\API\OperatingCostController;
 use App\Http\Controllers\API\AttributeValueController;
-use App\Http\Controllers\Api\ColorController;
-use App\Http\Controllers\Api\SizeController;
+use App\Http\Controllers\API\ProductVariantController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -105,15 +107,15 @@ Route::put('/colors/{id}', [ColorController::class, 'update']);
 //http://127.0.0.1:8000/api/colors/{id}
 Route::delete('/colors/{id}', [ColorController::class, 'destroy']);
 
-//http://127.0.0.1:8000/api//product-variants
-Route::get('/product-variants', [ProductVariantController::class, 'index']); 
-//http://127.0.0.1:8000/api//product-variants/{id}
+//http://127.0.0.1:8000/api/product-variants
+Route::get('/product-variants', [ProductVariantController::class, 'index']);
+//http://127.0.0.1:8000/api/product-variants/{id}
 Route::get('/product-variants/{id}', [ProductVariantController::class, 'show']); 
-//http://127.0.0.1:8000/api//product-variants
+//http://127.0.0.1:8000/api/product-variants
 Route::post('/product-variants', [ProductVariantController::class, 'store']); 
-//http://127.0.0.1:8000/api//product-variants/{id}
+//http://127.0.0.1:8000/api/product-variants/{id}
 Route::put('/product-variants/{id}', [ProductVariantController::class, 'update']); 
-//http://127.0.0.1:8000/api//product-variants/{id}
+//http://127.0.0.1:8000/api/product-variants/{id}
 Route::delete('/product-variants/{id}', [ProductVariantController::class, 'destroy']);
 
 // Route::get('attribute-values', [AttributeValueController::class, 'index']);

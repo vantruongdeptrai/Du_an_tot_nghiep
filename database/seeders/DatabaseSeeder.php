@@ -30,7 +30,6 @@ class DatabaseSeeder extends Seeder
             CategorySeeder::class,
             OperatingCostSeeder::class,
             TagSeeder::class,
-            roleSeeder::class,
             OperatingCostSeeder::class,
             TagSeeder::class,
             CategorySeeder::class,
@@ -39,7 +38,6 @@ class DatabaseSeeder extends Seeder
             ProductSeeder::class,   
             StockSeeder::class,
             ProductVariantSeeder::class,
-            DetailVariantSeeder::class,
         ]);
         
         
