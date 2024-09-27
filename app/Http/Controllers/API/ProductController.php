@@ -137,18 +137,18 @@ class ProductController extends Controller
             }
 
             // Cập nhật chi tiết biến thể
-            foreach ($variant['attributes'] as $attributeId => $attributeValueId) {
-                DB::table('detail_variants')->updateOrInsert(
-                    [
-                        'product_variant_id' => $productVariant->id,
-                        'attribute_value_id' => $attributeValueId,
-                    ],
-                    [
-                        'product_variant_id' => $productVariant->id,
-                        'attribute_value_id' => $attributeValueId,
-                    ]
-                );
-            }
+            // foreach ($variant['attributes'] as $attributeId => $attributeValueId) {
+            //     DB::table('detail_variants')->updateOrInsert(
+            //         [
+            //             'product_variant_id' => $productVariant->id,
+            //             'attribute_value_id' => $attributeValueId,
+            //         ],
+            //         [
+            //             'product_variant_id' => $productVariant->id,
+            //             'attribute_value_id' => $attributeValueId,
+            //         ]
+            //     );
+            // }
         }
 
         return response()->json($product, 200);
