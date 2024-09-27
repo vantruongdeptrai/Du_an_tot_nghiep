@@ -21,9 +21,7 @@ class ProductController extends Controller
     public function index()
     {
         $products = Product::with([
-            'productVariants' => function ($query) {
-                $query->with('detailVariants.attributeValue');
-            }
+
         ], 'category')->get();
         $products->each(function ($product) {
             $product->category_name = $product->category->name; // Thêm trường category_name
@@ -37,22 +35,31 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
-
-        // Thêm sản phẩm
+        $imagePath = null;
+        if ($request->hasFile('image')) {
+            $image = $request->file('image');
+            $imageName = time() . '-' . $image->getClientOriginalName(); 
+            $imagePath = $image->storeAs('images', $imageName, 'public');
+        }
+    
+        $slug = Str::slug($request->input('name'));
+    
         $product = Product::create([
-            'name' => $request->input('name'),
+            'name' => $request->input('name'), // Đảm bảo rằng bạn có giá trị cho trường này
             'description' => $request->input('description'),
             'price' => $request->input('price'),
             'sale_price' => $request->input('sale_price'),
             'category_id' => $request->input('category_id'),
-            'sale_start' => now(),
-            'sale_end' => now()->addDays(7),
+            'sale_start' => $request->input('sale_start', now()),
+            'sale_end' => $request->input('sale_end', now()->addDays(7)),
             'new_product' => $request->input('new_product', 0),
             'best_seller_product' => $request->input('best_seller_product', 0),
             'featured_product' => $request->input('featured_product', 0),
-            
+            'image' => $imagePath,
+            'slug' => $slug, 
         ]);
-        return response()->json($product, 201);
+    
+        return response()->json(['message' => 'Product created successfully', 'product' => $product], 201);
     }
 
     public function show(string $id)
