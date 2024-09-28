@@ -1,8 +1,12 @@
 <?php
 namespace App\Http\Controllers\API;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use App\Models\ProductVariant;
+use Illuminate\Support\Str;
+
 use App\Http\Controllers\Controller;
+
 
 class ProductVariantController extends Controller
 {
@@ -16,16 +20,45 @@ class ProductVariantController extends Controller
         $productVariant = ProductVariant::findOrFail($id);
         return response()->json($productVariant);
     }
-
     public function store(Request $request)
     {
+
+        $createdVariants = [];
+    
+        foreach ($request->colors as $color_id) {
+            foreach ($request->sizes as $size_id) {
+                $productVariant = new ProductVariant();
+                $productVariant->product_id = $request->product_id;
+                $productVariant->color_id = $color_id;
+                $productVariant->size_id = $size_id;
+    
+                $quantityKey = $color_id . '-' . $size_id; 
+                $productVariant->quantity = $request->quantities[$quantityKey] ?? 0; 
+    
+                $priceKey = $color_id . '-' . $size_id; 
+                $productVariant->price = $request->prices[$priceKey] ?? 0; 
+    
+                $productVariant->status = $request->status;
+    
+                $randomString = Str::random(5); // Generate a 5-character random string
+                $productVariant->sku = 'SKU-' . $request->product_id . '-' . $color_id . '-' . $size_id . '-' . $randomString;
+    
+                if (isset($request->images)) {
+                    $imageKey = $color_id . '-' . $size_id;
+                    $productVariant->image = $request->images[$imageKey] ?? null;
+                }
+    
+                $productVariant->save();
+    
+                $createdVariants[] = $productVariant;
+            }
+
         $request->validate([
             'product_id' => 'required|integer',
             'color_id' => 'required|integer',
             'size_id' => 'required|integer',
             'quantity' => 'required|integer',
             'price' => 'required|numeric',
-            'sku' => 'required|string|unique:product_variants',
             'status' => 'required|boolean',
             'image' => 'nullable|string', // Trường ảnh dưới dạng chuỗi
         ]);
@@ -36,17 +69,21 @@ class ProductVariantController extends Controller
         $productVariant->size_id = $request->size_id;
         $productVariant->quantity = $request->quantity;
         $productVariant->price = $request->price;
-        $productVariant->sku = $request->sku;
+        $productVariant->sku = Str::upper(Str::random(8));
         $productVariant->status = $request->status;
 
         // Lưu đường dẫn ảnh
         if ($request->has('image')) {
             $productVariant->image = $request->image;
-        }
 
-        $productVariant->save();
-        return response()->json($productVariant, 201);
+        }
+    
+        return response()->json([
+            'message' => 'Product variants created successfully',
+            'variants' => $createdVariants
+        ], 201);
     }
+    
 
     public function update(Request $request, $id)
     {
