@@ -108,7 +108,7 @@ Route::put('/colors/{id}', [ColorController::class, 'update']);
 Route::delete('/colors/{id}', [ColorController::class, 'destroy']);
 
 //http://127.0.0.1:8000/api/product-variants
-Route::get('/product-variants', [ProductVariantController::class, 'index']); 
+Route::get('/product-variants', [ProductVariantController::class, 'index']);
 //http://127.0.0.1:8000/api/product-variants/{id}
 Route::get('/product-variants/{id}', [ProductVariantController::class, 'show']); 
 //http://127.0.0.1:8000/api/product-variants

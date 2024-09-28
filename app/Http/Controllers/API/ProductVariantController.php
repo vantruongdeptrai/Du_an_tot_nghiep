@@ -1,10 +1,12 @@
 <?php
 namespace App\Http\Controllers\API;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use App\Models\ProductVariant;
 use Illuminate\Support\Str;
 
 use App\Http\Controllers\Controller;
+
 
 class ProductVariantController extends Controller
 {
@@ -20,6 +22,7 @@ class ProductVariantController extends Controller
     }
     public function store(Request $request)
     {
+
         $createdVariants = [];
     
         foreach ($request->colors as $color_id) {
@@ -49,6 +52,30 @@ class ProductVariantController extends Controller
     
                 $createdVariants[] = $productVariant;
             }
+
+        $request->validate([
+            'product_id' => 'required|integer',
+            'color_id' => 'required|integer',
+            'size_id' => 'required|integer',
+            'quantity' => 'required|integer',
+            'price' => 'required|numeric',
+            'status' => 'required|boolean',
+            'image' => 'nullable|string', // Trường ảnh dưới dạng chuỗi
+        ]);
+
+        $productVariant = new ProductVariant();
+        $productVariant->product_id = $request->product_id;
+        $productVariant->color_id = $request->color_id;
+        $productVariant->size_id = $request->size_id;
+        $productVariant->quantity = $request->quantity;
+        $productVariant->price = $request->price;
+        $productVariant->sku = Str::upper(Str::random(8));
+        $productVariant->status = $request->status;
+
+        // Lưu đường dẫn ảnh
+        if ($request->has('image')) {
+            $productVariant->image = $request->image;
+
         }
     
         return response()->json([
