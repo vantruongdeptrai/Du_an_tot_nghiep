@@ -3,7 +3,7 @@ namespace App\Http\Controllers\API;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use App\Models\ProductVariant;
-use Illuminate\Support\Str;
+
 
 use App\Http\Controllers\Controller;
 
@@ -22,66 +22,55 @@ class ProductVariantController extends Controller
     }
     public function store(Request $request)
     {
-
-        $createdVariants = [];
-    
-        foreach ($request->colors as $color_id) {
-            foreach ($request->sizes as $size_id) {
-                $productVariant = new ProductVariant();
-                $productVariant->product_id = $request->product_id;
-                $productVariant->color_id = $color_id;
-                $productVariant->size_id = $size_id;
-    
-                $quantityKey = $color_id . '-' . $size_id; 
-                $productVariant->quantity = $request->quantities[$quantityKey] ?? 0; 
-    
-                $priceKey = $color_id . '-' . $size_id; 
-                $productVariant->price = $request->prices[$priceKey] ?? 0; 
-    
-                $productVariant->status = $request->status;
-    
-                $randomString = Str::random(5); // Generate a 5-character random string
-                $productVariant->sku = 'SKU-' . $request->product_id . '-' . $color_id . '-' . $size_id . '-' . $randomString;
-    
-                if (isset($request->images)) {
-                    $imageKey = $color_id . '-' . $size_id;
-                    $productVariant->image = $request->images[$imageKey] ?? null;
-                }
-    
-                $productVariant->save();
-    
-                $createdVariants[] = $productVariant;
-            }
-
         $request->validate([
-            'product_id' => 'required|integer',
-            'color_id' => 'required|integer',
-            'size_id' => 'required|integer',
-            'quantity' => 'required|integer',
-            'price' => 'required|numeric',
-            'status' => 'required|boolean',
-            'image' => 'nullable|string', // Trường ảnh dưới dạng chuỗi
+            'product_id' => 'required|integer|exists:products,id',
+            'colors' => 'required|array',
+            'sizes' => 'required|array',
+            'quantities' => 'required|array',
+            'prices' => 'required|array',
+            'images' => 'required|array',
+            'status' => 'nullable|string', // Nếu status là một chuỗi hoặc có thể để null
         ]);
 
-        $productVariant = new ProductVariant();
-        $productVariant->product_id = $request->product_id;
-        $productVariant->color_id = $request->color_id;
-        $productVariant->size_id = $request->size_id;
-        $productVariant->quantity = $request->quantity;
-        $productVariant->price = $request->price;
-        $productVariant->sku = Str::upper(Str::random(8));
-        $productVariant->status = $request->status;
+        // Lấy product_id
+        $productId = $request->product_id;
 
-        // Lưu đường dẫn ảnh
-        if ($request->has('image')) {
-            $productVariant->image = $request->image;
+        // Lấy colors, sizes, quantities, images, và prices từ request
+        $colors = $request->colors;
+        $sizes = $request->sizes;
+        $quantities = $request->quantities;
+        $prices = $request->prices;
+        $images = $request->images;
+        $status = $request->status;
 
+        // Giả sử colors và sizes là các mảng có cùng độ dài
+        foreach ($colors as $index => $colorId) {
+            $sizeId = $sizes[$index];
+
+            // Tạo khóa để truy cập vào quantities, images, và prices
+            $key = "$colorId-$sizeId";
+
+            // Lấy giá trị từ quantities, images, và prices tương ứng với khóa
+            $quantity = isset($quantities[$key]) ? $quantities[$key] : null;
+            $price = isset($prices[$key]) ? $prices[$key] : null;
+            $image = isset($images[$key]) ? $images[$key] : null;
+
+            // Kiểm tra nếu tất cả dữ liệu cần thiết tồn tại
+            if ($quantity !== null && $price !== null && $image !== null) {
+                // Lưu biến thể sản phẩm
+                ProductVariant::create([
+                    'product_id' => $productId,
+                    'color_id' => $colorId,
+                    'size_id' => $sizeId,
+                    'quantity' => $quantity,
+                    'price' => $price,
+                    'image' => $image,
+                    'status' => $status ?? 1, // Nếu status null, gán mặc định là active (1)
+                ]);
+            }
         }
-    
-        return response()->json([
-            'message' => 'Product variants created successfully',
-            'variants' => $createdVariants
-        ], 201);
+
+        return response()->json(['message' => 'Product variants added successfully']);
     }
     
 
