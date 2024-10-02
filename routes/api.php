@@ -3,7 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\TagController;
-
+use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\BlogController;
 use App\Http\Controllers\API\RoleController;
 use App\Http\Controllers\API\SizeController;
@@ -85,17 +85,6 @@ Route::put('/roles/{id}', [RoleController::class, 'update']);
 Route::delete('/roles/{id}', [RoleController::class, 'destroy']);
 //http://127.0.0.1:8000/api/roles/{id}
 
-Route::get('/permissions', [PermissionsController::class, 'index']);
-//http://127.0.0.1:8000/api/permissions
-Route::post('/permissions', [PermissionsController::class, 'store']);
-//http://127.0.0.1:8000/api/permissions
-Route::get('/permissions/{id}', [PermissionsController::class, 'show']);
-//http://127.0.0.1:8000/api/permissions/{id} 
-Route::put('/permissions/{id}', [PermissionsController::class, 'update']);
-//http://127.0.0.1:8000/api/permissions/{id}
-Route::delete('/permissions/{id}', [PermissionsController::class, 'destroy']);
-//http://127.0.0.1:8000/api/permissions/{id}
-
 //http://127.0.0.1:8000/api/colors
 Route::get('/colors', [ColorController::class, 'index']); 
 //http://127.0.0.1:8000/api/colors/{id}
@@ -156,3 +145,10 @@ Route::post('products',[ProductController::class,'store']);
 Route::delete('products/{id}',[ProductController::class,'destroy']);
 //http://127.0.0.1:8000/api/products/id
 
+
+// Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
+//     return $request->user();
+// });
+
+Route::post('/login', [AuthController::class, 'login']);
+Route::middleware('auth:sanctum')->post('logout', [AuthController::class, 'logout']);
