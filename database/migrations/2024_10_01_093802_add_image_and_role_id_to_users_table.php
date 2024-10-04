@@ -13,10 +13,10 @@ return new class extends Migration
     {
         Schema::table('users', function (Blueprint $table) {
             $table->string('image')->nullable()->after('name'); // Thêm cột 'image'
-            $table->unsignedInteger('role_id')->nullable()->after('image'); // Thêm cột 'role_id'
+            $table->unsignedInteger('role_id')->default(2)->after('image'); // Thêm cột 'role_id'
             
             // Tạo khóa ngoại cho 'role_id'
-            $table->foreign('role_id')->references('id')->on('roles')->onDelete('set null');
+            $table->foreign('role_id')->references('id')->on('roles')->onDelete('cascade');
         });
     }
 
