@@ -9,6 +9,7 @@ use App\Models\OperatingCost;
 use App\Models\Stock;
 use App\Models\Tag;
 use Attribute;
+use Faker\Core\Color;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -25,19 +26,21 @@ class DatabaseSeeder extends Seeder
         //     'email' => 'test@example.com',
         // ]);
         $this->call([
-            roleSeeder::class,
-            PermissionsSeeder::class,
+            RoleSeeder::class,
             CategorySeeder::class,
             OperatingCostSeeder::class,
             TagSeeder::class,
             OperatingCostSeeder::class,
             TagSeeder::class,
-            CategorySeeder::class,
+            ProductSeeder::class,   
             AttributeSeeder::class,
             AttributeValueSeeder::class,
-            ProductSeeder::class,   
+            ColorSeeder::class,
+            SizeSeeder::class,
             StockSeeder::class,
             ProductVariantSeeder::class,
+            UserSeeder::class,
+           
         ]);
         
         
