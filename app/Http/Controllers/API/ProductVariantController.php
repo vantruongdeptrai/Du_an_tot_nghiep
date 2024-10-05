@@ -23,6 +23,7 @@ class ProductVariantController extends Controller
     
     public function store(Request $request)
     {
+
         // Define validation rules
         $rules = [
             'product_id' => 'required|integer|exists:products,id',
