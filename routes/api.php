@@ -15,6 +15,7 @@ use App\Http\Controllers\API\AttributeController;
 use App\Http\Controllers\API\PermissionsController;
 use App\Http\Controllers\API\OperatingCostController;
 use App\Http\Controllers\API\AttributeValueController;
+use App\Http\Controllers\API\GalleryController;
 use App\Http\Controllers\API\ProductVariantController;
 
 
@@ -156,3 +157,11 @@ Route::post('products',[ProductController::class,'store']);
 Route::delete('products/{id}',[ProductController::class,'destroy']);
 //http://127.0.0.1:8000/api/products/id
 
+Route::get('galleries/', [GalleryController::class, 'index']);
+//http://127.0.0.1:8000/api/galleries
+Route::post('galleries/', [GalleryController::class, 'store']);
+//http://127.0.0.1:8000/api/galleries
+Route::delete('galleries/{id}', [GalleryController::class, 'destroy']);
+//http://127.0.0.1:8000/api/galleries/{id}
+Route::put('galleries/{id}', [GalleryController::class, 'update']);
+//http://127.0.0.1:8000/api/galleries/{id}
