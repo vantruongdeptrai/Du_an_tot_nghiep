@@ -6,6 +6,9 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+
+use function Laravel\Prompts\table;
+
 class AuthController extends Controller
 {
     public function login(Request $request)
@@ -14,6 +17,9 @@ class AuthController extends Controller
         
         // Kiểm tra xem có tìm thấy người dùng và mật khẩu nhập vào có đúng không.
         if ($user && Hash::check($request->password, $user->password)) {
+            
+             // Xóa tất cả các token cũ của người dùng trước khi tạo token mới
+            $user->tokens()->delete();
             // Tạo token cho người dùng
             $token = $user->createToken('API Token')->plainTextToken;
     
