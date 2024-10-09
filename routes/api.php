@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\API\DetailProductController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\TagController;
@@ -145,6 +146,9 @@ Route::post('products',[ProductController::class,'store']);
 Route::delete('products/{id}',[ProductController::class,'destroy']);
 //http://127.0.0.1:8000/api/products/id
 
+//Detail product 
+Route::get('product_detail/{id}',[DetailProductController::class,'index']);
+//http://127.0.0.1:8000/api/product_detail
 
 // Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 //     return $request->user();
