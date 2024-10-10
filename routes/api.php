@@ -15,6 +15,7 @@ use App\Http\Controllers\API\AttributeController;
 use App\Http\Controllers\API\PermissionsController;
 use App\Http\Controllers\API\OperatingCostController;
 use App\Http\Controllers\API\AttributeValueController;
+use App\Http\Controllers\API\GalleryController;
 use App\Http\Controllers\API\ProductVariantController;
 
 
@@ -146,6 +147,16 @@ Route::delete('products/{id}',[ProductController::class,'destroy']);
 //http://127.0.0.1:8000/api/products/id
 
 
+Route::get('galleries/', [GalleryController::class, 'index']);
+//http://127.0.0.1:8000/api/galleries
+Route::post('galleries/', [GalleryController::class, 'store']);
+//http://127.0.0.1:8000/api/galleries
+Route::delete('galleries/{id}', [GalleryController::class, 'destroy']);
+//http://127.0.0.1:8000/api/galleries/{id}
+Route::put('galleries/{id}', [GalleryController::class, 'update']);
+//http://127.0.0.1:8000/api/galleries/{id}
+
+
 // Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 //     return $request->user();
 // });
@@ -153,3 +164,4 @@ Route::delete('products/{id}',[ProductController::class,'destroy']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::middleware('auth:sanctum')->post('logout', [AuthController::class, 'logout']);
 Route::post('/register', [AuthController::class, 'register']);
+
