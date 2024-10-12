@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('image')->nullable();
             $table->text('description')->nullable();
             $table->string('slug')->unique();
-            $table->decimal('price', 15, 2); // Giá gốc của sản phẩm
+            $table->decimal('price', 15, 2)->nullable(); // Giá gốc của sản phẩm
             $table->unsignedInteger('category_id');
             $table->foreign('category_id')->references('id')->on('categories')->onDelete('cascade');
             $table->decimal('sale_price', 15, 2)->nullable(); // Giá sale của sản phẩm
