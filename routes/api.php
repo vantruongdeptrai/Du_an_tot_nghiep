@@ -145,6 +145,8 @@ Route::post('products',[ProductController::class,'store']);
 Route::delete('products/{id}',[ProductController::class,'destroy']);
 //http://127.0.0.1:8000/api/products/id
 
+Route::get('products/newproduct', [ProductController::class, 'newproduct']);
+//http://127.0.0.1:8000/api/products/newproduct
 
 // Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 //     return $request->user();
