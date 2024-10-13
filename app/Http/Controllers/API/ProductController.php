@@ -177,4 +177,21 @@ class ProductController extends Controller
 
         return response()->json(['message' => 'xóa thành công'], 200);
     }
+    public function newproduct(){
+        $product = Product::with('productVariants')
+                            ->where('new_product', 1) // điều kiện new_product = 1
+                            ->latest() // sắp xếp theo thời gian tạo mới nhất
+                            ->limit(5) // chỉ hiển thị 5 sản phẩm mới nhất
+                            ->get(); // lấy tất cả sản phẩm (mới nhất)
+        // nếu không tìm thấy sản phẩm
+        if(!$product){
+            return response()->json([
+                'message'=>"Không tìm thấy sản phẩm"], 404);
+        }
+        // trả về chi tiết sản phẩm cùng với các biến thể
+        return response()->json([
+            'product'=>$product
+        ]);
+    }
+
 }
