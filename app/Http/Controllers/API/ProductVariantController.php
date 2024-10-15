@@ -18,6 +18,18 @@ class ProductVariantController extends Controller
     public function show($id)
     {
         $productVariant = ProductVariant::findOrFail($id);
+
+        $now = now(); 
+        if ($productVariant->sale_price && $productVariant->sale_start && $productVariant->sale_end) {
+            if ($now->between($productVariant->sale_start, $productVariant->sale_end)) {
+                $productVariant->display_price = $productVariant->sale_price;
+            } else {
+                $productVariant->display_price = $productVariant->price;
+            }
+        } else {
+            $productVariant->display_price = $productVariant->price;
+        }
+    
         return response()->json($productVariant);
     }
     
