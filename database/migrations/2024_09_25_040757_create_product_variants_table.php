@@ -19,6 +19,9 @@ return new class extends Migration
             $table->integer('quantity'); // số lượng
             $table->string('image')->nullable(); // trường ảnh (dạng chuỗi)
             $table->decimal('price', 8, 2); // giá
+            $table->decimal('sale_price', 15, 2)->nullable(); // Giá sale của sản phẩm
+            $table->timestamp('sale_start')->nullable(); // Thời gian bắt đầu sale
+            $table->timestamp('sale_end')->nullable(); // Thời gian kết thúc sale
             $table->string('sku')->unique(); // mã sku duy nhất
             $table->boolean('status')->default(true); // trạng thái
             $table->softDeletes();

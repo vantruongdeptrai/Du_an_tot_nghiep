@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\API\DetailProductController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\TagController;
@@ -15,6 +16,7 @@ use App\Http\Controllers\API\AttributeController;
 use App\Http\Controllers\API\PermissionsController;
 use App\Http\Controllers\API\OperatingCostController;
 use App\Http\Controllers\API\AttributeValueController;
+use App\Http\Controllers\API\CommentController;
 use App\Http\Controllers\API\GalleryController;
 use App\Http\Controllers\API\ProductVariantController;
 
@@ -146,6 +148,8 @@ Route::post('products',[ProductController::class,'store']);
 Route::delete('products/{id}',[ProductController::class,'destroy']);
 //http://127.0.0.1:8000/api/products/id
 
+Route::get('products/newproduct', [ProductController::class, 'newproduct']);
+//http://127.0.0.1:8000/api/products/newproduct
 
 Route::get('galleries/', [GalleryController::class, 'index']);
 //http://127.0.0.1:8000/api/galleries
@@ -165,3 +169,11 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::middleware('auth:sanctum')->post('logout', [AuthController::class, 'logout']);
 Route::post('/register', [AuthController::class, 'register']);
 
+//http://127.0.0.1:8000/api/comments
+Route::get('/comments', [CommentController::class, 'index']);
+//http://127.0.0.1:8000/api/comments
+Route::post('/comments', [CommentController::class, 'store']);
+//http://127.0.0.1:8000/api/comments/{id}
+Route::put('/comments/{id}', [CommentController::class, 'update']);
+//http://127.0.0.1:8000/api/comments/{id}
+Route::delete('/comments/{id}', [CommentController::class, 'destroy']);
