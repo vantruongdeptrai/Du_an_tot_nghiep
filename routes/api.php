@@ -185,3 +185,14 @@ Route::post('/comments', [CommentController::class, 'store']);
 Route::put('/comments/{id}', [CommentController::class, 'update']);
 //http://127.0.0.1:8000/api/comments/{id}
 Route::delete('/comments/{id}', [CommentController::class, 'destroy']);
+
+//http://127.0.0.1:8000/api/blogs
+Route::get('blogs', [BlogController::class, 'index']);
+// http://127.0.0.1:8000/api/blogs
+Route::post('blogs', [BlogController::class, 'store']);
+// http://127.0.0.1:8000/api/blogs/{id}
+Route::get('blogs/{id}', [BlogController::class, 'show']);
+// http://127.0.0.1:8000/api/blogs/{id}
+Route::put('blogs/{id}', [BlogController::class, 'update']);
+// http://127.0.0.1:8000/api/blogs/{id}
+Route::delete('blogs/{id}', [BlogController::class, 'destroy']);
