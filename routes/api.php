@@ -151,6 +151,9 @@ Route::delete('products/{id}',[ProductController::class,'destroy']);
 Route::get('products/newproduct', [ProductController::class, 'newproduct']);
 //http://127.0.0.1:8000/api/products/newproduct
 
+Route::get('products/bestproduct', [ProductController::class, 'bestproduct']);
+//http://127.0.0.1:8000/api/products/bestproduct
+
 Route::get('galleries/', [GalleryController::class, 'index']);
 //http://127.0.0.1:8000/api/galleries
 Route::post('galleries/', [GalleryController::class, 'store']);
