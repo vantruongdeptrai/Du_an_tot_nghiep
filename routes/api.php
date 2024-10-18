@@ -147,12 +147,17 @@ Route::post('products',[ProductController::class,'store']);
 //http://127.0.0.1:8000/api/products
 Route::delete('products/{id}',[ProductController::class,'destroy']);
 //http://127.0.0.1:8000/api/products/id
-
+Route::get('product/{id}', [ProductController::class, 'show']);
+//http://127.0.0.1:8000/api/product/id
 Route::get('products/newproduct', [ProductController::class, 'newproduct']);
 //http://127.0.0.1:8000/api/products/newproduct
 
 Route::get('products/bestproduct', [ProductController::class, 'bestproduct']);
 //http://127.0.0.1:8000/api/products/bestproduct
+
+Route::get('products/featuredproduct', [ProductController::class, 'featuredproduct']);
+//http://127.0.0.1:8000/api/products/featuredproduct
+
 
 Route::get('galleries/', [GalleryController::class, 'index']);
 //http://127.0.0.1:8000/api/galleries
