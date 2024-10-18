@@ -64,7 +64,8 @@ class ProductController extends Controller
 
     public function show(string $id)
     {
-        //
+        $product = Product::with('productVariants.size', 'productVariants.color')->findOrFail($id);
+        return response()->json($product);
     }
 
     /**
@@ -186,12 +187,37 @@ class ProductController extends Controller
         // nếu không tìm thấy sản phẩm
         if(!$product){
             return response()->json([
-                'message'=>"Không tìm thấy sản phẩm"], 404);
+                'message'=>"Không có sản phẩm mới nhất"], 404);
         }
         // trả về chi tiết sản phẩm cùng với các biến thể
         return response()->json([
             'product'=>$product
         ]);
     }
-
+    public function bestproduct(){
+        $product = Product::query()
+                            ->where('best_seller_product', 1) // điều kiện best_seller_product = 1
+                            ->limit(10) 
+                            ->get(); 
+        if(!$product){
+            return response()->json([
+                'message'=>"Không có sản phẩm mới nhất"], 404);
+        }
+        return response()->json([
+            'product'=>$product
+        ]);
+    }
+    public function featuredproduct(){
+        $product = Product::query()
+                            ->where('featured_product', 1) // điều kiện featured_product = 1
+                            ->limit(10) 
+                            ->get(); 
+        if(!$product){
+            return response()->json([
+                'message'=>"Không có sản phẩm feature"], 404);
+        }
+        return response()->json([
+            'product'=>$product
+        ]);
+    }
 }

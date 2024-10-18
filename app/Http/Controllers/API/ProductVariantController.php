@@ -107,7 +107,6 @@ class ProductVariantController extends Controller
         } catch (\Exception $e) {
             // Rollback the transaction in case of any errors
             DB::rollBack();
-
             return response()->json([
                 'message' => 'Failed to create product variants.',
                 'error' => $e->getMessage()
@@ -128,7 +127,6 @@ class ProductVariantController extends Controller
             'status' => 'required|boolean',
             'image' => 'nullable|string',
         ]);
-
         $productVariant = ProductVariant::findOrFail($id);
         $productVariant->product_id = $request->product_id;
         $productVariant->color_id = $request->color_id;
