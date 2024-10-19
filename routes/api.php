@@ -200,4 +200,8 @@ Route::put('blogs/{id}', [BlogController::class, 'update']);
 Route::delete('blogs/{id}', [BlogController::class, 'destroy']);
 
 
-Route::middleware('auth:sanctum')->get('/cart', [CartController::class, 'showCart']);
+// Route cho người đã đăng nhập (giỏ hàng lưu trong database), bảo vệ bằng Sanctum token
+Route::middleware('auth:sanctum')->get('/user/cart', [CartController::class, 'showCartUser']);
+// Route cho người chưa đăng nhập (giỏ hàng tạm thời bằng token)
+Route::get('/guest/cart', [CartController::class, 'showCartGuest']);
+
