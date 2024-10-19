@@ -2,14 +2,17 @@
 
 namespace App\Http\Controllers\API;
 
+
 use App\Models\Cart;
 use App\Models\Product;
 use Illuminate\Support\Str;
-use Illuminate\Http\Request;
 use App\Models\ProductVariant;
 use Illuminate\Support\Facades\DB;
-use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+
+
 
 class CartController extends Controller
 {
@@ -75,29 +78,28 @@ public function addToCartGuest(Request $request)
     ]);
 
 }
-public function getCartForAuth()
-{
-    $userId = Auth::id(); // Lấy ID người dùng đã đăng nhập
-    $cartItems = Cart::where('user_id', $userId)->get();
 
-    return response()->json($cartItems);
-}
 
-public function getCartForGuest()
-{
-    // Lấy giỏ hàng từ session
-    $cart = session()->get('cart', []);
-
-    return response()->json($cart);
-}
-    public function index()
+public function showCart()
     {
-        //
+        // Người dùng đã đăng nhập, lấy giỏ hàng của họ
+        $carts = Cart::where('user_id', auth()->id())
+                     ->with('product', 'productVariant')
+                     ->get();
+
+        // Tính tổng tiền giỏ hàng
+        $totalPrice = $carts->sum(function($item) {
+            return $item->quantity * $item->price;
+        });
+
+        // Trả về giỏ hàng và tổng tiền
+        return response()->json([
+            'cart' => $carts,
+            'total_price' => $totalPrice
+        ]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
+
     public function create()
     {
         //

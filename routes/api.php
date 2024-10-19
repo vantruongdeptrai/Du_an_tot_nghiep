@@ -199,8 +199,12 @@ Route::put('blogs/{id}', [BlogController::class, 'update']);
 Route::delete('blogs/{id}', [BlogController::class, 'destroy']);
 
 
+
 // Route cho người dùng đã đăng nhập
 Route::middleware('auth:sanctum')->post('/cart/add', [CartController::class, 'addToCart']);
 
 // Route cho người dùng chưa đăng nhập
 Route::post('/cart/add/guest', [CartController::class, 'addToCartGuest']);
+
+Route::middleware('auth:sanctum')->get('/cart', [CartController::class, 'showCart']);
+

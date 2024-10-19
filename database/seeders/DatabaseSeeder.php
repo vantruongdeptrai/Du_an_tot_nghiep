@@ -40,7 +40,8 @@ class DatabaseSeeder extends Seeder
             StockSeeder::class,
             ProductVariantSeeder::class,
             UserSeeder::class,
-            CartSeeder::class,
+           CartSeeder::class,
+           
         ]);
         
         
