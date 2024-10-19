@@ -19,6 +19,8 @@ use App\Http\Controllers\API\AttributeValueController;
 use App\Http\Controllers\API\CommentController;
 use App\Http\Controllers\API\GalleryController;
 use App\Http\Controllers\API\ProductVariantController;
+use App\Http\Controllers\API\CartController;
+
 
 
 /*
@@ -196,3 +198,6 @@ Route::get('blogs/{id}', [BlogController::class, 'show']);
 Route::put('blogs/{id}', [BlogController::class, 'update']);
 // http://127.0.0.1:8000/api/blogs/{id}
 Route::delete('blogs/{id}', [BlogController::class, 'destroy']);
+
+
+Route::middleware('auth:sanctum')->get('/cart', [CartController::class, 'showCart']);
