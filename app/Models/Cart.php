@@ -9,6 +9,14 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Cart extends Model
 {
     use HasFactory, SoftDeletes;
+    protected $fillable = [
+        'product_id',
+        'product_variant_id',
+        'user_id',
+        'guest_token',
+        'quantity',
+        'price'
+    ];
     public function product(){
         return $this->belongsTo(Product::class);
     }
