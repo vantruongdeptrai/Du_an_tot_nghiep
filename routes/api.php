@@ -200,5 +200,4 @@ Route::put('blogs/{id}', [BlogController::class, 'update']);
 Route::delete('blogs/{id}', [BlogController::class, 'destroy']);
 
 
-
-Route::get('/cart/{id}', [CartController::class, 'showCart']);
+Route::middleware('auth:sanctum')->get('/cart', [CartController::class, 'showCart']);
