@@ -47,6 +47,8 @@ class ProductVariantController extends Controller
             'quantities.*' => 'required|integer|min:0',
             'prices' => 'required|array',
             'prices.*' => 'required|numeric|min:0',
+            'sale_price' => 'required|array',
+            'sale_price.*' => 'required|numeric|min:0',
             'status' => 'required|boolean',
             'images' => 'sometimes|array',
             'images.*' => 'nullable|string', // Adjust based on your image handling
@@ -81,6 +83,9 @@ class ProductVariantController extends Controller
                 $productVariant->size_id = $size_id;
                 $productVariant->quantity = $validatedData['quantities'][$quantityKey] ?? 0;
                 $productVariant->price = $validatedData['prices'][$priceKey] ?? 0;
+                $productVariant->sale_price = $validatedData['sale_price'][$priceKey] ?? 0;
+                $productVariant->sale_start = now();
+                $productVariant->sale_end = now()->addDays(7);
                 $productVariant->status = $validatedData['status'];
 
                 // Generate a unique SKU
@@ -107,7 +112,6 @@ class ProductVariantController extends Controller
         } catch (\Exception $e) {
             // Rollback the transaction in case of any errors
             DB::rollBack();
-
             return response()->json([
                 'message' => 'Failed to create product variants.',
                 'error' => $e->getMessage()
@@ -128,7 +132,6 @@ class ProductVariantController extends Controller
             'status' => 'required|boolean',
             'image' => 'nullable|string',
         ]);
-
         $productVariant = ProductVariant::findOrFail($id);
         $productVariant->product_id = $request->product_id;
         $productVariant->color_id = $request->color_id;
