@@ -1,25 +1,80 @@
 <?php
 
 namespace App\Http\Controllers\API;
-use Illuminate\Support\Facades\Session;
-use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
+
 use App\Models\Cart;
 use Illuminate\Support\Str;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Http\Request;
 use App\Models\ProductVariant;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Session;
+
 class CartController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
+    public function addToCart(Request $request)
+    {
+        // Logic cho người dùng đã đăng nhập
+        $request->validate([
+            'product_id' => 'required|exists:products,id',
+            'product_variant_id' => 'nullable|exists:product_variants,id',
+            'quantity' => 'required|integer|min:1',
+            'price' => 'required|numeric',
+        ]);
 
-public function addToCart(){
-    
-}
+        $userId = Auth::id(); // Lấy ID người dùng nếu đã đăng nhập
+        Cart::updateOrCreate(
+            [
+                'user_id' => $userId,
+                'product_id' => $request->product_id,
+                'product_variant_id' => $request->product_variant_id,
+            ],
+            [
+                'quantity' => DB::raw('quantity + ' . $request->quantity),
+                'price' => $request->price,
+            ]
+        );
 
+        return response()->json(['message' => 'Product added to cart successfully.']);
+    }
 
+    public function addToCartGuest(Request $request)
+    {
+        $validated = $request->validate([
+            'product_id' => 'required|exists:products,id',
+            'product_variant_id' => 'nullable|exists:product_variants,id',
+            'quantity' => 'required|integer|min:1',
+            'price' => 'required|numeric',
+        ]);
+
+        // Lấy session ID để xác định khách hàng
+        $sessionId = $request->session()->getId();
+
+        // Lấy giỏ hàng từ session (giỏ hàng này thuộc về session ID của người dùng)
+        $cart = $request->session()->get('cart_' . $sessionId, []);
+
+        // Thêm sản phẩm vào giỏ hàng
+        $cart[] = [
+            'product_id' => $validated['product_id'],
+            'product_variant_id' => $validated['product_variant_id'],
+            'quantity' => $validated['quantity'],
+            'price' => $validated['price'],
+        ];
+
+        // Lưu giỏ hàng vào session với session ID cụ thể
+        $request->session()->put('cart_' . $sessionId, $cart);
+
+        return response()->json([
+            'message' => 'Product added to cart successfully',
+            'cart' => $cart,
+            'session_id' => $sessionId, // Trả về session ID để kiểm tra
+        ]);
+    }
 //Hiển thị giỏ hàng cho người đã đăng nhập
  public function showCartUser(Request $request)
  {
@@ -54,6 +109,7 @@ public function addToCart(){
             return response()->json(['error' => 'No cart token'], 400);
         }
 
+
         // Lấy các sản phẩm trong giỏ hàng dựa trên token tạm thời
         $carts = Cart::with('productVariant')
                     ->where('guest_token', $cartToken)
@@ -76,23 +132,8 @@ public function addToCart(){
     }
  
 
-    public function create()
-    {
-        //
-    }
 
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
+    
     public function show(string $id)
     {
         //
