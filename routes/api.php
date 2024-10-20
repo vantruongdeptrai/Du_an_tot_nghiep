@@ -207,4 +207,4 @@ Route::middleware('auth:sanctum')->post('/cart/add', [CartController::class, 'ad
 Route::middleware([\Illuminate\Session\Middleware\StartSession::class])->post('/cart/add/guest', [CartController::class, 'addToCartGuest']);
 
 Route::middleware('auth:sanctum')->get('/cart', [CartController::class, 'showCart']);
-Route::middleware([\Illuminate\Session\Middleware\StartSession::class])->get('/cart/guest', [CartController::class, 'getCart']);
+
