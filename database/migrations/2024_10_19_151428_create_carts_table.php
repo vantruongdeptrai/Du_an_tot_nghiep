@@ -15,7 +15,7 @@ return new class extends Migration
             $table->increments('id');
             $table->unsignedInteger('product_id');
             $table->unsignedInteger('product_variant_id')->nullable();
-            $table->unsignedInteger('user_id')->nullable(); // Để trống nếu là guest
+            $table->unsignedInteger('user_id');
             $table->integer('quantity');//Số lượng tồn kho
             $table->decimal('price', 15, 2);
             $table->softDeletes();

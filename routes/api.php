@@ -200,6 +200,11 @@ Route::delete('blogs/{id}', [BlogController::class, 'destroy']);
 
 
 
+// Route cho người đã đăng nhập (giỏ hàng lưu trong database)
+Route::middleware('auth:api')->get('/cart/auth', [CartController::class, 'getCartUser']);
+// // Route cho người chưa đăng nhập (giỏ hàng tạm thời bằng token)
+Route::middleware([\Illuminate\Session\Middleware\StartSession::class])->get('/cart/guest', [CartController::class, 'getCart']);
+
 
 // Route cho người dùng đã đăng nhập
 Route::middleware('auth:sanctum')->post('/cart/add', [CartController::class, 'addToCart']);
@@ -207,9 +212,5 @@ Route::middleware('auth:sanctum')->post('/cart/add', [CartController::class, 'ad
 // Route cho người dùng chưa đăng nhập
 Route::middleware([\Illuminate\Session\Middleware\StartSession::class])->post('/cart/add/guest', [CartController::class, 'addToCartGuest']);
 
-// Route cho người đã đăng nhập (giỏ hàng lưu trong database), bảo vệ bằng Sanctum token
-Route::middleware('auth:sanctum')->get('/user/cart', [CartController::class, 'showCartUser']);
-// Route cho người chưa đăng nhập (giỏ hàng tạm thời bằng token)
-Route::get('/guest/cart', [CartController::class, 'showCartGuest']);
 
 
