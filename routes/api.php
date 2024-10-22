@@ -188,3 +188,5 @@ Route::get('blogs/{id}', [BlogController::class, 'show']);
 Route::put('blogs/{id}', [BlogController::class, 'update']);
 // http://127.0.0.1:8000/api/blogs/{id}
 Route::delete('blogs/{id}', [BlogController::class, 'destroy']);
+
+Route::get('products/filter', [ProductController::class, 'filterProducts']);

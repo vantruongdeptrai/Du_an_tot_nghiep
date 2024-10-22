@@ -193,5 +193,50 @@ class ProductController extends Controller
             'product'=>$product
         ]);
     }
+    public function filterProductByColor(){
+        $product = Product::with('productVariants')->where('color_id')->get();
+        // nếu không tìm thấy sản phẩm
+        if(!$product){
+            return response()->json([
+                'message'=>"Không tìm thấy sản phẩm"], 404);
+        }
+        // trả về chi tiết sản phẩm cùng với các biến thể
+        return response()->json([
+            'product'=>$product
+        ]);
+    }
+    public function filterProducts(Request $request)
+    {
+        // Lấy các thông số lọc từ request
+        $colorId = $request->input('color_id');
+        $sizeId = $request->input('size_id');
+        $minPrice = $request->input('min_price');
+        $maxPrice = $request->input('max_price');
 
+        // Truy vấn sản phẩm theo các tiêu chí
+        $query = Product::query();
+
+        // Nếu có biến thể sản phẩm, thực hiện truy vấn join với bảng product_variants
+        $query->whereHas('productVariants', function($q) use ($colorId, $sizeId, $minPrice, $maxPrice) {
+            if ($colorId) {
+                $q->where('color_id', $colorId);
+            }
+            if ($sizeId) {
+                $q->where('size_id', $sizeId);
+            }
+            if ($minPrice !== null && $maxPrice !== null) {
+                $q->whereBetween('price', [$minPrice, $maxPrice]);
+            } elseif ($minPrice !== null) {
+                $q->where('price', '>=', $minPrice);
+            } elseif ($maxPrice !== null) {
+                $q->where('price', '<=', $maxPrice);
+            }
+        });
+
+        // Lấy danh sách sản phẩm sau khi lọc
+        $products = $query->get();
+
+        // Trả về dữ liệu dưới dạng JSON
+        return response()->json($products);
+    }
 }
