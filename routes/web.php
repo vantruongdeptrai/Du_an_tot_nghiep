@@ -19,6 +19,7 @@ use App\Models\Product;
 
 Route::get('/', function () {
 <<<<<<< HEAD
+<<<<<<< HEAD
     // $product_variants = ProductVariant::with('detailVariants')->get();
     // foreach($product_variants as $item){
     //     dd($item->detailVariants);
@@ -33,6 +34,8 @@ Route::get('/', function () {
     
     $detail_product_variants = ProductVariant::where('product_id',$id)->get();
     dd($detail_product_variants);
+=======
+>>>>>>> 891f8342048bbe55fbae4308955f139a182b2684
     return view('welcome');
 >>>>>>> be55ab23e864ec18561ed95c80325adfa0e34254
 });

@@ -1,23 +1,24 @@
 <?php
 
-use App\Http\Controllers\API\DetailProductController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\TagController;
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\BlogController;
+use App\Http\Controllers\API\CartController;
 use App\Http\Controllers\API\RoleController;
 use App\Http\Controllers\API\SizeController;
 use App\Http\Controllers\API\ColorController;
 use App\Http\Controllers\API\CouponController;
+use App\Http\Controllers\API\CommentController;
+use App\Http\Controllers\API\GalleryController;
 use App\Http\Controllers\API\ProductController;
 use App\Http\Controllers\API\CategoryController;
 use App\Http\Controllers\API\AttributeController;
 use App\Http\Controllers\API\PermissionsController;
+use App\Http\Controllers\API\DetailProductController;
 use App\Http\Controllers\API\OperatingCostController;
 use App\Http\Controllers\API\AttributeValueController;
-use App\Http\Controllers\API\CommentController;
-use App\Http\Controllers\API\GalleryController;
 use App\Http\Controllers\API\ProductVariantController;
 
 
@@ -152,7 +153,7 @@ Route::get('product/{id}', [ProductController::class, 'show']);
 Route::get('products/newproduct', [ProductController::class, 'newproduct']);
 //http://127.0.0.1:8000/api/products/newproduct
 
-Route::get('products/bestproduct', [ProductController::class, 'bestproduct']);
+Route::get('products/bestproduct', [ProductController::class, 'bestProducts']);
 //http://127.0.0.1:8000/api/products/bestproduct
 
 Route::get('products/featuredproduct', [ProductController::class, 'featuredproduct']);
@@ -196,3 +197,21 @@ Route::get('blogs/{id}', [BlogController::class, 'show']);
 Route::put('blogs/{id}', [BlogController::class, 'update']);
 // http://127.0.0.1:8000/api/blogs/{id}
 Route::delete('blogs/{id}', [BlogController::class, 'destroy']);
+
+
+Route::get('products/filter', [ProductController::class, 'filterProducts']);
+
+// Route cho người đã đăng nhập (giỏ hàng lưu trong database)
+Route::get('/cart/auth', [CartController::class, 'getCartUser']);
+// // Route cho người chưa đăng nhập (giỏ hàng tạm thời bằng token)
+
+Route::middleware([\Illuminate\Session\Middleware\StartSession::class])->get('/cart/guest', [CartController::class, 'getCart']);
+
+
+// Route cho người dùng đã đăng nhập
+Route::post('/cart/add', [CartController::class, 'addToCart']);
+
+// Route cho người dùng chưa đăng nhập
+Route::middleware([\Illuminate\Session\Middleware\StartSession::class])->post('/cart/add/guest', [CartController::class, 'addToCartGuest']);
+
+
