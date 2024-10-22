@@ -18,12 +18,6 @@ use App\Models\Product;
 */
 
 Route::get('/', function () {
-    $detail_product = Product::findOrFail(7);
-    
-    $id = $detail_product->id;
-    
-    $detail_product_variants = ProductVariant::where('product_id',$id)->get();
-    dd($detail_product_variants);
     return view('welcome');
 });
 
