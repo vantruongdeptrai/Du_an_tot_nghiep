@@ -266,4 +266,14 @@ class ProductController extends Controller
         return response()->json($products);
     }
 
+    public function searchProduct(Request $request){
+        $name_search = $request->input('name');
+        $products= Product::query()
+        ->where('name','LIKE','%'.$name_search.'%')
+        ->get();
+        return response()->json([
+            'status' => 'success',
+            'products' => $products
+        ], 200);
+    }
 }
