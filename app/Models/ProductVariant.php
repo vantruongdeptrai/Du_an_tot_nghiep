@@ -34,5 +34,10 @@ class ProductVariant extends Model
     {
         return $this->belongsTo(Color::class);
     }
- 
+    protected $appends = ['image_url'];
+
+    public function getImageUrlAttribute()
+    {
+        return $this->image ? asset('storage/' . $this->image) : null;
+    }
 }

@@ -46,6 +46,37 @@ class Product extends Model
     {
         return $this->belongsTo(Category::class, 'category_id');
     }
-    
+    protected $appends = ['category_name', 'highest_price', 'lowest_price', 'image_url', 'variants'];
+
+    public function getCategoryNameAttribute()
+    {
+        return $this->category->name ?? null;
+    }
+
+    public function getHighestPriceAttribute()
+    {
+        return $this->productVariants->max('price') ?? $this->price;
+    }
+
+    public function getLowestPriceAttribute()
+    {
+        return $this->productVariants->min('price') ?? $this->price;
+    }
+    public function getImageUrlAttribute()
+    {
+        return $this->image ? asset('storage/' . $this->image) : null;
+    }
+
+    public function getVariantsAttribute()
+    {
+        return $this->productVariants->map(function ($variant) {
+            return [
+                'size' => $variant->size ? $variant->size->name : 'N/A',
+                'color' => $variant->color ? $variant->color->name : 'N/A',
+                'price' => $variant->price,
+                'image_url' => $variant->image ? asset('storage/' . $variant->image) : null,
+            ];
+        });
+    }
     
 }

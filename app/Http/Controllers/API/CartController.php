@@ -19,7 +19,7 @@ class CartController extends Controller
         // Logic cho người dùng đã đăng nhập
         $request->validate([
             'user_id'=> 'required|exists:users,id',
-            'product_id' => 'required|exists:products,id',
+            'product_id' => 'nullable|exists:products,id',
             'product_variant_id' => 'nullable|exists:product_variants,id',
             'quantity' => 'required|integer|min:1',
             'price' => 'required|numeric',
@@ -47,7 +47,7 @@ class CartController extends Controller
     public function addToCartGuest(Request $request)
     {
         $validated = $request->validate([
-            'product_id' => 'required|exists:products,id',
+            'product_id' => 'nullable|exists:products,id',
             'product_variant_id' => 'nullable|exists:product_variants,id',
             'quantity' => 'required|integer|min:1',
             'price' => 'required|numeric',
@@ -110,12 +110,12 @@ public function getCartUser(Request $request)
             'cart' => $carts->map(function($cart) {
                 $productName = $cart->productVariant 
                     ? $cart->productVariant->product->name 
-                    : null; // Tên sản phẩm từ productVariant
+                    : Product::find($cart->product_id)->name; // Tên sản phẩm từ productVariant
 
-                // Nếu không có biến thể, lấy tên sản phẩm trực tiếp từ sản phẩm
-                if (!$productName) {
-                    $productName = Product::find($cart->product_id)->name; // Tìm tên sản phẩm nếu không có biến thể
-                }
+                // Sử dụng asset() để lấy URL của ảnh sản phẩm
+                $productImage = $cart->productVariant 
+                    ? ($cart->productVariant->product->image ? asset('storage/' . $cart->productVariant->product->image) : null)
+                    : (Product::find($cart->product_id)->image ? asset('storage/' . Product::find($cart->product_id)->image) : null);
 
                 return [
                     'product_name' => $productName,
@@ -127,9 +127,7 @@ public function getCartUser(Request $request)
                     'color' => $cart->productVariant && $cart->productVariant->color 
                         ? $cart->productVariant->color->name 
                         : 'N/A', // Nếu có màu thì lấy, nếu không thì trả về N/A
-                    'product_image' => $cart->productVariant 
-                        ? $cart->productVariant->product->image 
-                        : Product::find($cart->product_id)->image, // Ảnh sản phẩm từ product hoặc từ productVariant
+                    'product_image' => $productImage, // URL của ảnh từ storage
                 ];
             }),
             'total_price' => $totalPrice
@@ -138,8 +136,6 @@ public function getCartUser(Request $request)
 
     return response()->json(['message' => 'Người dùng chưa được xác thực'], 401);
 }
-
-
 
 public function getCart(Request $request)
 {
