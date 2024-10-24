@@ -20,6 +20,10 @@ use App\Http\Controllers\API\DetailProductController;
 use App\Http\Controllers\API\OperatingCostController;
 use App\Http\Controllers\API\AttributeValueController;
 use App\Http\Controllers\API\ProductVariantController;
+use App\Http\Controllers\API\PaymentController;
+use App\Http\Controllers\API\OrderController;
+
+
 
 
 /*
@@ -248,4 +252,7 @@ Route::post('/cart/add', [CartController::class, 'addToCart']);
 // Route cho người dùng chưa đăng nhập
 Route::middleware([\Illuminate\Session\Middleware\StartSession::class])->post('/cart/add/guest', [CartController::class, 'addToCartGuest']);
 
+
+Route::post('/oder/login', [OrderController::class, 'PaymentLogin']);
+Route::post('/oder/no-login', [OrderController::class, 'PaymentNoLogin']);
 
