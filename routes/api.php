@@ -199,6 +199,7 @@ Route::put('blogs/{id}', [BlogController::class, 'update']);
 Route::delete('blogs/{id}', [BlogController::class, 'destroy']);
 
 
+Route::get('products/filter', [ProductController::class, 'filterProducts']);
 
 // Route cho người đã đăng nhập (giỏ hàng lưu trong database)
 Route::get('/cart/auth', [CartController::class, 'getCartUser']);
@@ -211,6 +212,5 @@ Route::post('/cart/add', [CartController::class, 'addToCart']);
 
 // Route cho người dùng chưa đăng nhập
 Route::middleware([\Illuminate\Session\Middleware\StartSession::class])->post('/cart/add/guest', [CartController::class, 'addToCartGuest']);
-
 
 
