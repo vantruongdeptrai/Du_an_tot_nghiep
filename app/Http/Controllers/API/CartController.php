@@ -142,7 +142,6 @@ public function getCartUser(Request $request)
     return response()->json(['message' => 'Người dùng chưa được xác thực'], 401);
 }
 
-
 public function getCart(Request $request)
 {
     // Lấy session ID từ header
@@ -207,6 +206,7 @@ public function getCart(Request $request)
         'total_price' => $totalPrice
     ]);
 }
+
 
 
     
