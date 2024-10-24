@@ -4,16 +4,11 @@ namespace App\Http\Controllers\API;
 
 use App\Models\Cart;
 use App\Models\User;
-use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Models\ProductVariant;
 use App\Models\Product;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Session;
-
 class CartController extends Controller
 {
     /**

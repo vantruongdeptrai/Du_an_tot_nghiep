@@ -203,7 +203,6 @@ Route::delete('blogs/{id}', [BlogController::class, 'destroy']);
 // Route cho người đã đăng nhập (giỏ hàng lưu trong database)
 Route::get('/cart/auth', [CartController::class, 'getCartUser']);
 // // Route cho người chưa đăng nhập (giỏ hàng tạm thời bằng token)
-
 Route::middleware([\Illuminate\Session\Middleware\StartSession::class])->get('/cart/guest', [CartController::class, 'getCart']);
 
 
