@@ -40,4 +40,5 @@ class ProductVariant extends Model
     {
         return $this->image ? asset('storage/' . $this->image) : null;
     }
+
 }

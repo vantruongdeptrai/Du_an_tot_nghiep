@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\API;
-
+use Illuminate\Support\Facades\Storage;
 use App\Models\Cart;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -165,7 +165,9 @@ public function getCart(Request $request)
                 'price' => $item['price'], // Giá
                 'size' => $item['product_variant']['size']['name'] ?? 'N/A', // Size của sản phẩm
                 'color' => $item['product_variant']['color']['name'] ?? 'N/A', // Màu của sản phẩm
-                'product_image' => $item['product_variant']['product']['image'] ?? 'N/A', // Ảnh của sản phẩm
+                'product_image' => isset($item['product_variant']['product']['image']) 
+                    ? asset('storage/' . $item['product_variant']['product']['image']) // Lấy URL công khai của ảnh
+                    : 'N/A', // Ảnh của sản phẩm
             ];
         } 
         // Xử lý trường hợp sản phẩm không có biến thể
@@ -176,7 +178,9 @@ public function getCart(Request $request)
                 'price' => $item['price'], // Giá
                 'size' => 'N/A', // Không có size
                 'color' => 'N/A', // Không có màu
-                'product_image' => $item['product']['image'] ?? 'N/A', // Ảnh của sản phẩm
+                'product_image' => isset($item['product']['image']) 
+                    ? asset('storage/' . $item['product']['image']) // Lấy URL công khai của ảnh
+                    : 'N/A', // Ảnh của sản phẩm
             ];
         }
 
@@ -199,6 +203,7 @@ public function getCart(Request $request)
 }
 
 
+
     
     public function show(string $id)
     {
@@ -218,7 +223,7 @@ public function getCart(Request $request)
      */
     public function update(Request $request, string $id)
     {
-        //
+        
     }
 
     /**
