@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\API;
-
+use Illuminate\Support\Facades\Storage;
 use App\Models\Cart;
 use App\Models\User;
 use Illuminate\Support\Str;
@@ -115,12 +115,12 @@ public function getCartUser(Request $request)
             'cart' => $carts->map(function($cart) {
                 $productName = $cart->productVariant 
                     ? $cart->productVariant->product->name 
-                    : null; // Tên sản phẩm từ productVariant
+                    : Product::find($cart->product_id)->name; // Tên sản phẩm từ productVariant
 
-                // Nếu không có biến thể, lấy tên sản phẩm trực tiếp từ sản phẩm
-                if (!$productName) {
-                    $productName = Product::find($cart->product_id)->name; // Tìm tên sản phẩm nếu không có biến thể
-                }
+                // Sử dụng asset() để lấy URL của ảnh sản phẩm
+                $productImage = $cart->productVariant 
+                    ? ($cart->productVariant->product->image ? asset('storage/' . $cart->productVariant->product->image) : null)
+                    : (Product::find($cart->product_id)->image ? asset('storage/' . Product::find($cart->product_id)->image) : null);
 
                 return [
                     'product_name' => $productName,
@@ -132,9 +132,7 @@ public function getCartUser(Request $request)
                     'color' => $cart->productVariant && $cart->productVariant->color 
                         ? $cart->productVariant->color->name 
                         : 'N/A', // Nếu có màu thì lấy, nếu không thì trả về N/A
-                    'product_image' => $cart->productVariant 
-                        ? $cart->productVariant->product->image 
-                        : Product::find($cart->product_id)->image, // Ảnh sản phẩm từ product hoặc từ productVariant
+                    'product_image' => $productImage, // URL của ảnh từ storage
                 ];
             }),
             'total_price' => $totalPrice
@@ -143,7 +141,6 @@ public function getCartUser(Request $request)
 
     return response()->json(['message' => 'Người dùng chưa được xác thực'], 401);
 }
-
 
 
 public function getCart(Request $request)
@@ -174,7 +171,9 @@ public function getCart(Request $request)
                 'price' => $item['price'], // Giá
                 'size' => $item['product_variant']['size']['name'] ?? 'N/A', // Size của sản phẩm
                 'color' => $item['product_variant']['color']['name'] ?? 'N/A', // Màu của sản phẩm
-                'product_image' => $item['product_variant']['product']['image'] ?? 'N/A', // Ảnh của sản phẩm
+                'product_image' => isset($item['product_variant']['product']['image']) 
+                    ? asset('storage/' . $item['product_variant']['product']['image']) // Lấy URL công khai của ảnh
+                    : 'N/A', // Ảnh của sản phẩm
             ];
         } 
         // Xử lý trường hợp sản phẩm không có biến thể
@@ -185,7 +184,9 @@ public function getCart(Request $request)
                 'price' => $item['price'], // Giá
                 'size' => 'N/A', // Không có size
                 'color' => 'N/A', // Không có màu
-                'product_image' => $item['product']['image'] ?? 'N/A', // Ảnh của sản phẩm
+                'product_image' => isset($item['product']['image']) 
+                    ? asset('storage/' . $item['product']['image']) // Lấy URL công khai của ảnh
+                    : 'N/A', // Ảnh của sản phẩm
             ];
         }
 
@@ -227,7 +228,7 @@ public function getCart(Request $request)
      */
     public function update(Request $request, string $id)
     {
-        //
+        
     }
 
     /**

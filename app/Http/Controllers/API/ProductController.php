@@ -20,14 +20,9 @@ class ProductController extends Controller
      */
     public function index()
     {
-        $products = Product::with([
-
-        ], 'category')->get();
-        $products->each(function ($product) {
-            $product->category_name = $product->category->name; // Thêm trường category_name
-        });
+        // Eager load category và productVariants để tối ưu hiệu suất
+        $products = Product::with(['category', 'productVariants'])->get();
         return response()->json($products);
-
     }
 
     /**
