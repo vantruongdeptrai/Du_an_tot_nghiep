@@ -17,7 +17,7 @@ return new class extends Migration
             $table->unsignedInteger('product_variant_id')->nullable();
             $table->unsignedInteger('user_id');
             $table->integer('quantity');//Số lượng tồn kho
-            $table->decimal('price', 15, 2);
+            // $table->decimal('price', 15, 2);
             $table->softDeletes();
             $table->timestamps();
             // Thiết lập khóa ngoại
