@@ -76,7 +76,7 @@ class ProductController extends Controller
         foreach ($product->productVariants as $variant) {
             $variant->image_url = $variant->image ? asset('storage/' . $variant->image) : null;
         }
-        return response()->json($product);
+        return response()->json($product->makeHidden(['variants']));
     }
 
     /**
