@@ -52,7 +52,6 @@ class CartController extends Controller
             'product_id' => 'nullable|exists:products,id',
             'product_variant_id' => 'nullable|exists:product_variants,id',
             'quantity' => 'required|integer|min:1',
-            // 'price' => 'required|numeric',
         ]);
 
         // Lấy session ID để xác định khách hàng
@@ -147,95 +146,7 @@ public function getCartUser(Request $request)
 
 
 
-// public function getCart(Request $request)
-// {
-//     $sessionId = $request->header('session_id');
-//     $cart = $request->session()->get('cart_' . $sessionId, []);
 
-//     // Thời gian hiện tại
-//     $now = now();
-
-//     // Cập nhật giỏ hàng
-//     foreach ($cart as &$item) {
-//         if (isset($item['product_variant'])) {
-//             $saleStart = $item['product_variant']['sale_start'];
-//             $saleEnd = $item['product_variant']['sale_end'];
-//             $salePrice = $item['product_variant']['sale_price'];
-//             $regularPrice = $item['product_variant']['price'];
-
-//             // Kiểm tra nếu giá sale đã kết thúc
-//             if ($saleStart && $saleEnd && !$now->between($saleStart, $saleEnd)) {
-//                 $item['product_variant']['price'] = $regularPrice; // Đặt lại giá về giá gốc
-//                 unset($item['product_variant']['sale_price']); // Xóa giá sale
-//             }
-//         } elseif (isset($item['product'])) {
-//             $saleStart = $item['product']['sale_start'];
-//             $saleEnd = $item['product']['sale_end'];
-//             $salePrice = $item['product']['sale_price'];
-//             $regularPrice = $item['product']['price'];
-
-//             // Kiểm tra nếu giá sale đã kết thúc
-//             if ($saleStart && $saleEnd && !$now->between($saleStart, $saleEnd)) {
-//                 $item['product']['price'] = $regularPrice; // Đặt lại giá về giá gốc
-//                 unset($item['product']['sale_price']); // Xóa giá sale
-//             }
-//         }
-//     }
-
-//     $detailedCart = array_map(function($item) use ($now) {
-//         $price = 0;
-//         $size = 'N/A';
-//         $color = 'N/A';
-//         $productImage = 'N/A';
-
-//         if (isset($item['product_variant'])) {
-//             $saleStart = $item['product_variant']['sale_start'];
-//             $saleEnd = $item['product_variant']['sale_end'];
-//             $salePrice = $item['product_variant']['sale_price'];
-//             $regularPrice = $item['product_variant']['price'];
-
-//             // Kiểm tra giá cho biến thể
-//             if ($saleStart && $saleEnd && $now->between($saleStart, $saleEnd) && $salePrice) {
-//                 $price = $salePrice;
-//             } else {
-//                 $price = $regularPrice;
-//             }
-
-//             $size = $item['product_variant']['size']['name'];
-//             $color = $item['product_variant']['color']['name'];
-//             $productImage = asset('storage/' . $item['product_variant']['image']);
-//         } elseif (isset($item['product'])) {
-//             $saleStart = $item['product']['sale_start'];
-//             $saleEnd = $item['product']['sale_end'];
-//             $salePrice = $item['product']['sale_price'];
-//             $regularPrice = $item['product']['price'];
-
-//             // Kiểm tra giá cho sản phẩm
-//             if ($saleStart && $saleEnd && $now->between($saleStart, $saleEnd) && $salePrice) {
-//                 $price = $salePrice;
-//             } else {
-//                 $price = $regularPrice;
-//             }
-
-//             $productImage = asset('storage/' . $item['product']['image']);
-//         }
-
-//         return [
-//             'product_name' => $item['product']['name'] ?? 'N/A',
-//             'quantity' => $item['quantity'],
-//             'price' => $price,
-//             'size' => $size,
-//             'color' => $color,
-//             'product_image' => $productImage,
-//         ];
-//     }, $cart);
-
-//     // Cập nhật lại giỏ hàng trong session
-//     $request->session()->put('cart_' . $sessionId, $cart);
-
-//     return response()->json(['cart' => $detailedCart]);
-//     $request->session()->forget('cart_' . $sessionId);
-// }
 
 public function getCart(Request $request)
 {
