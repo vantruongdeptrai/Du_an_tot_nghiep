@@ -9,6 +9,8 @@ use App\Models\ProductVariant;
 use App\Models\Product;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
+
+use Illuminate\Support\Facades\Log;
 class CartController extends Controller
 {
     /**
@@ -22,7 +24,7 @@ class CartController extends Controller
             'product_id' => 'nullable|exists:products,id',
             'product_variant_id' => 'nullable|exists:product_variants,id',
             'quantity' => 'required|integer|min:1',
-            'price' => 'required|numeric',
+            // 'price' => 'required|numeric',
         ]);
 
         // $userId = Auth::id(); // Lấy ID người dùng nếu đã đăng nhập
@@ -34,7 +36,7 @@ class CartController extends Controller
             ],
             [
                 'quantity' => DB::raw('quantity + ' . $request->quantity),
-                'price' => $request->price,
+                // 'price' => $request->price,
             ]
         );
 
@@ -78,62 +80,72 @@ class CartController extends Controller
 public function getCartUser(Request $request)
 {
     $userId = $request->input('user_id');
-    // Lấy người dùng từ ID
     $user = User::find($userId);
 
-    // Nếu người dùng đã đăng nhập, lấy giỏ hàng từ model Cart dựa trên user_id
     if ($user) {
         $carts = Cart::where('user_id', $user->id)
                     ->with([
                         'productVariant',
                         'productVariant.product' => function($query) {
-                            $query->select('id', 'name', 'image'); // Lấy tên và ảnh sản phẩm từ bảng products
+                            $query->select('id', 'name', 'image', 'price', 'sale_price', 'sale_start', 'sale_end');
                         },
                         'productVariant.size' => function($query) {
-                            $query->select('id', 'name'); // Lấy size từ bảng sizes
+                            $query->select('id', 'name');
                         },
                         'productVariant.color' => function($query) {
-                            $query->select('id', 'name'); // Lấy màu từ bảng colors
+                            $query->select('id', 'name');
                         },
                     ])
                     ->get();
 
-        // Tính tổng tiền giỏ hàng
-        $totalPrice = $carts->sum(function($item) {
-            return $item->quantity * $item->price;
-        });
-
-        // Trả về phản hồi JSON với các thông tin chi tiết hơn
         return response()->json([
             'cart' => $carts->map(function($cart) {
-                $productName = $cart->productVariant 
-                    ? $cart->productVariant->product->name 
-                    : Product::find($cart->product_id)->name; // Tên sản phẩm từ productVariant
+                $product = $cart->productVariant ? $cart->productVariant->product : Product::find($cart->product_id);
+                $productName = $product->name;
+                $productImage = $product->image ? asset('storage/' . $product->image) : null;
 
-                // Sử dụng asset() để lấy URL của ảnh sản phẩm
-                $productImage = $cart->productVariant 
-                    ? ($cart->productVariant->product->image ? asset('storage/' . $cart->productVariant->product->image) : null)
-                    : (Product::find($cart->product_id)->image ? asset('storage/' . Product::find($cart->product_id)->image) : null);
+                // Kiểm tra thời gian hiện tại với thời gian sale từ biến thể hoặc từ sản phẩm gốc
+                $now = now();
+                if ($cart->productVariant) {
+                    // Nếu có biến thể, dùng thời gian sale và giá từ biến thể
+                    $saleStart = $cart->productVariant->sale_start;
+                    $saleEnd = $cart->productVariant->sale_end;
+                    $price = ($now >= $saleStart && $now <= $saleEnd && $cart->productVariant->sale_price) 
+                        ? $cart->productVariant->sale_price 
+                        : $cart->productVariant->price;
+                } else {
+                    // Nếu không có biến thể, dùng thời gian sale và giá từ product
+                    $saleStart = $product->sale_start;
+                    $saleEnd = $product->sale_end;
+                    $price = ($now >= $saleStart && $now <= $saleEnd && $product->sale_price) 
+                        ? $product->sale_price 
+                        : $product->price;
+                }
 
                 return [
                     'product_name' => $productName,
                     'quantity' => $cart->quantity,
-                    'price' => $cart->price,
+                    'price' => $price,
                     'size' => $cart->productVariant && $cart->productVariant->size 
                         ? $cart->productVariant->size->name 
-                        : 'N/A', // Nếu có size thì lấy, nếu không thì trả về N/A
+                        : 'N/A',
                     'color' => $cart->productVariant && $cart->productVariant->color 
                         ? $cart->productVariant->color->name 
-                        : 'N/A', // Nếu có màu thì lấy, nếu không thì trả về N/A
-                    'product_image' => $productImage, // URL của ảnh từ storage
+                        : 'N/A',
+                    'product_image' => $productImage,
                 ];
             }),
-            'total_price' => $totalPrice
         ]);
     }
 
     return response()->json(['message' => 'Người dùng chưa được xác thực'], 401);
 }
+
+
+
+
+
+
 
 public function getCart(Request $request)
 {
@@ -194,7 +206,7 @@ public function getCart(Request $request)
                 'sale_price' => $salePrice,
                 'sale_start' => $saleStart,
                 'sale_end' => $saleEnd,
-                'size' => 'N/A',
+                 'size' => 'N/A',
                 'color' => 'N/A',
                 'product_image' => isset($product->image) 
                     ? asset('storage/' . $product->image)
@@ -218,8 +230,6 @@ public function getCart(Request $request)
     return response()->json(['cart' => $detailedCart]);
   
 }
-
-
 
     
     public function show(string $id)
