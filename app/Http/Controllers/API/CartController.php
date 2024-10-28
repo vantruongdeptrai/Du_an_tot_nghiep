@@ -50,7 +50,6 @@ class CartController extends Controller
             'product_id' => 'nullable|exists:products,id',
             'product_variant_id' => 'nullable|exists:product_variants,id',
             'quantity' => 'required|integer|min:1',
-            'price' => 'required|numeric',
         ]);
 
         // Lấy session ID để xác định khách hàng
@@ -64,7 +63,6 @@ class CartController extends Controller
             'product' => Product::find($request->product_id),
             'product_variant' => $request->product_variant_id ? ProductVariant::find($request->product_variant_id) : null,
             'quantity' => $request->quantity,
-            'price' => $request->price,
         ];
 
         // Lưu giỏ hàng vào session với session ID cụ thể
@@ -139,67 +137,86 @@ public function getCartUser(Request $request)
 
 public function getCart(Request $request)
 {
-    // Lấy session ID từ header
     $sessionId = $request->header('session_id');
-
-    // Lấy giỏ hàng dựa trên session ID, nếu không có thì trả về mảng rỗng
     $cart = $request->session()->get('cart_' . $sessionId, []);
 
-    // Lọc sản phẩm có số lượng > 1
     $filteredCart = array_filter($cart, function($item) {
-        return $item['quantity'] > 1;
+        return $item['quantity'] > 1; // Chỉ giữ lại những sản phẩm có quantity > 1
     });
 
-    // Tính tổng tiền giỏ hàng
-    $totalPrice = array_sum(array_map(function($item) {
-        return $item['quantity'] * $item['price'];
-    }, $filteredCart));
+    $now = now();
 
-    // Chuẩn bị dữ liệu chi tiết sản phẩm cho từng sản phẩm trong giỏ hàng
-    $detailedCart = array_map(function($item) {
-        // Xử lý trường hợp sản phẩm có biến thể
-        if (isset($item['product_variant'])) {
+    $detailedCart = array_map(function($item) use ($now) {
+        $productId = $item['product']['id'] ?? null;
+        $productVariantId = $item['product_variant']['id'] ?? null;
+
+        // Truy vấn product từ cơ sở dữ liệu dựa trên product_id
+        $product = Product::find($productId);
+
+        // Truy vấn product_variant từ cơ sở dữ liệu dựa trên product_variant_id nếu có
+        $productVariant = $productVariantId ? ProductVariant::find($productVariantId) : null;
+
+        if ($productVariant) {
+            // Lấy thông tin giá và sale từ biến thể
+            $saleStart = $productVariant->sale_start;
+            $saleEnd = $productVariant->sale_end;
+            $salePrice = $productVariant->sale_price;
+            $price = ($saleStart && $saleEnd && $now->between($saleStart, $saleEnd) && $salePrice)
+                ? $salePrice
+                : $productVariant->price;
+
             return [
-                'product_name' => $item['product_variant']['product']['name'] ?? 'N/A', // Tên sản phẩm
-                'quantity' => $item['quantity'], // Số lượng
-                'price' => $item['price'], // Giá
-                'size' => $item['product_variant']['size']['name'] ?? 'N/A', // Size của sản phẩm
-                'color' => $item['product_variant']['color']['name'] ?? 'N/A', // Màu của sản phẩm
-                'product_image' => isset($item['product_variant']['product']['image']) 
-                    ? asset('storage/' . $item['product_variant']['product']['image']) // Lấy URL công khai của ảnh
-                    : 'N/A', // Ảnh của sản phẩm
+                'product_name' => $product->name ?? 'N/A',
+                'quantity' => $item['quantity'],
+                'price' => $price,
+                'sale_price' => $salePrice,
+                'sale_start' => $saleStart,
+                'sale_end' => $saleEnd,
+                'size' => $productVariant->size->name ?? 'N/A',
+                'color' => $productVariant->color->name ?? 'N/A',
+                'product_image' => isset($product->image) 
+                    ? asset('storage/' . $product->image)
+                    : 'N/A',
             ];
-        } 
-        // Xử lý trường hợp sản phẩm không có biến thể
-        elseif (isset($item['product'])) {
+        } elseif ($product) {
+            // Lấy thông tin giá và sale từ sản phẩm đơn thể
+            $saleStart = $product->sale_start;
+            $saleEnd = $product->sale_end;
+            $salePrice = $product->sale_price;
+            $price = ($saleStart && $saleEnd && $now->between($saleStart, $saleEnd) && $salePrice)
+                ? $salePrice
+                : $product->price;
+
             return [
-                'product_name' => $item['product']['name'] ?? 'N/A', // Tên sản phẩm
-                'quantity' => $item['quantity'], // Số lượng
-                'price' => $item['price'], // Giá
-                'size' => 'N/A', // Không có size
-                'color' => 'N/A', // Không có màu
-                'product_image' => isset($item['product']['image']) 
-                    ? asset('storage/' . $item['product']['image']) // Lấy URL công khai của ảnh
-                    : 'N/A', // Ảnh của sản phẩm
+                'product_name' => $product->name,
+                'quantity' => $item['quantity'],
+                'price' => $price,
+                'sale_price' => $salePrice,
+                'sale_start' => $saleStart,
+                'sale_end' => $saleEnd,
+                'size' => 'N/A',
+                'color' => 'N/A',
+                'product_image' => isset($product->image) 
+                    ? asset('storage/' . $product->image)
+                    : 'N/A',
             ];
         }
 
-        // Nếu không có cả product_variant và product, trả về thông tin mặc định
         return [
             'product_name' => 'N/A',
             'quantity' => $item['quantity'],
-            'price' => $item['price'],
+            'price' => 'N/A',
+            'sale_price' => 'N/A',
+            'sale_start' => 'N/A',
+            'sale_end' => 'N/A',
             'size' => 'N/A',
             'color' => 'N/A',
             'product_image' => 'N/A',
         ];
     }, $filteredCart);
 
-    // Trả về dữ liệu giỏ hàng cùng với tổng tiền
-    return response()->json([
-        'cart' => $detailedCart,
-        'total_price' => $totalPrice
-    ]);
+    return response()->json(['cart' => $detailedCart]);
+  
 }
 
 
