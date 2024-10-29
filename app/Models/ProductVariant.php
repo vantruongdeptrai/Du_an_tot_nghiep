@@ -52,4 +52,11 @@ class ProductVariant extends Model
         return $this->price;
     }
 
+    public function orderItems()
+    {
+        return $this->hasMany(OrderItem::class);
+    }
+
+
+
 }

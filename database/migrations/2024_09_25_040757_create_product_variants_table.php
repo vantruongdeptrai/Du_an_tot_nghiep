@@ -16,18 +16,17 @@ return new class extends Migration
             $table->unsignedInteger('product_id');
             $table->unsignedInteger('color_id');
             $table->unsignedInteger('size_id');
-            $table->integer('quantity'); // số lượng
-            $table->string('image')->nullable(); // trường ảnh (dạng chuỗi)
-            $table->decimal('price', 8, 2); // giá
-            $table->decimal('sale_price', 15, 2)->nullable(); // Giá sale của sản phẩm
-            $table->timestamp('sale_start')->nullable(); // Thời gian bắt đầu sale
-            $table->timestamp('sale_end')->nullable(); // Thời gian kết thúc sale
-            $table->string('sku')->unique(); // mã sku duy nhất
-            $table->boolean('status')->default(true); // trạng thái
+            $table->integer('quantity'); 
+            $table->string('image')->nullable(); 
+            $table->decimal('price', 8, 2); 
+            $table->decimal('sale_price', 15, 2)->nullable(); 
+            $table->timestamp('sale_start')->nullable(); 
+            $table->timestamp('sale_end')->nullable(); 
+            $table->string('sku')->unique();
+            $table->boolean('status')->default(true); 
             $table->softDeletes();
             $table->timestamps();
 
-            // Thiết lập khóa ngoại
             $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade');
             $table->foreign('color_id')->references('id')->on('colors')->onDelete('cascade');
             $table->foreign('size_id')->references('id')->on('sizes')->onDelete('cascade');
