@@ -41,4 +41,11 @@ class ProductVariant extends Model
         return $this->image ? asset('storage/' . $this->image) : null;
     }
 
+    public function orderItems()
+    {
+        return $this->hasMany(OrderItem::class);
+    }
+
+
+
 }
