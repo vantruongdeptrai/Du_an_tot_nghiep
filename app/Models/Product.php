@@ -30,6 +30,11 @@ class Product extends Model
         'sale_start',
         'sale_end',
     ];
+
+    public function variants()
+{
+    return $this->hasMany(ProductVariant::class);
+}
     public function attributes()
     {
         return $this->hasMany(Attribute::class);
@@ -67,6 +72,8 @@ class Product extends Model
         return $this->image ? asset('storage/' . $this->image) : null;
     }
 
+
+
     public function getVariantsAttribute()
     {
         return $this->productVariants->map(function ($variant) {
@@ -89,5 +96,12 @@ class Product extends Model
 
         return $this->price;
     }
+
+    public function orderItems()
+    {
+        return $this->hasMany(OrderItem::class);
+    }
+
+
 
 }
