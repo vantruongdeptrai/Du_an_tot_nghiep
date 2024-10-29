@@ -361,14 +361,29 @@ class ProductController extends Controller
         return response()->json($products);
     }
 
-    public function searchProduct(Request $request){
+    public function searchProduct(Request $request) {
+        // Lấy từ khóa tìm kiếm từ request
         $name_search = $request->input('name');
-        $products= Product::query()
-        ->where('name','LIKE','%'.$name_search.'%')
-        ->get();
+        
+        // Kiểm tra đầu vào
+        if (!$name_search) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Vui lòng cung cấp từ khóa tìm kiếm.'
+            ], 400);
+        }
+    
+        // Tìm kiếm sản phẩm với phân trang
+        $products = Product::query()
+            ->where('name', 'LIKE', '%' . $name_search . '%')
+            ->paginate(10); // Thay đổi số 10 nếu muốn số lượng sản phẩm mỗi trang khác
+    
+        // Trả về kết quả
         return response()->json([
             'status' => 'success',
             'products' => $products
         ], 200);
     }
+    
+
 }
