@@ -10,10 +10,12 @@ class OrderItem extends Model
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
-        'product_variant_id',
         'order_id',
+        'product_id',
+        'product_variant_id',
         'quantity',
     ];
+
 
     public function productVariant()
     {
@@ -23,5 +25,9 @@ class OrderItem extends Model
     public function order()
     {
         return $this->belongsTo(Order::class);
+    }
+    public function product()
+    {
+        return $this->belongsTo(Product::class);
     }
 }

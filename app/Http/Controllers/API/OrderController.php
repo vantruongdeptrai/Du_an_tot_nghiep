@@ -10,6 +10,8 @@ use App\Models\ProductVariant;
 use App\Models\Coupon;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
+use App\Models\Product;
+
 
 class OrderController extends Controller
 {
@@ -18,40 +20,21 @@ class OrderController extends Controller
     public function PaymentLogin(Request $request)
     {
         $user = User::find($request->input('user_id'));
-
         if (!$user) {
-            return response()->json(['message' => 'Người dùng không xác thực'], 401);
+            return response()->json(['message' => 'không có người dùng'], 401);
         }
-
+    
         DB::beginTransaction();
         try {
-            // Tính tổng giá trị đơn hàng
-            $totalPrice = 0;
+            // khơi tạo tôngr giá sp thg vs bt
+            $totalPriceProduct = 0;
+            $totalPriceVariant = 0;
             $orderItems = $request->input('order_items'); 
-
-            foreach ($orderItems as $item) {
-                $productVariant = ProductVariant::find($item['product_variant_id']);
-                $totalPrice += $productVariant->price * $item['quantity'];
-
-                // Giảm số lượng sản phẩm tương ứng
-                $productVariant->quantity -= $item['quantity'];
-                $productVariant->save();
-            }
-
-            // Áp dụng mã giảm giá nếu có
-            if ($request->input('coupon_id')) {
-                $coupon = Coupon::find($request->input('coupon_id'));
-                if ($totalPrice >= $coupon->min_order_value) {
-                    $totalPrice -= $coupon->discount_amount;
-                }
-            }
-
-            // Lưu thông tin đơn hàng
+    
             $order = new Order();
             $order->user_id = $user->id;
-            $order->total_price = $totalPrice;
             $order->status_order = 'chờ xử lý'; 
-            $order->payment_type = $request->input('payment_type');
+            $order->payment_type = $request->input('payment_type'); 
             $order->shipping_address = $request->input('shipping_address');
             $order->coupon_id = $request->input('coupon_id'); 
             $order->phone_order = $request->input('phone_order'); 
@@ -59,30 +42,94 @@ class OrderController extends Controller
             $order->email_order = $request->input('email_order'); 
             $order->user_note = $request->input('user_note'); 
             $order->save();
-
-            // Lưu thông tin chi tiết đơn hàng (order_items)
+    
+            // luuư chi tiết san thg sp biết thể
             foreach ($orderItems as $item) {
-                $orderItem = new OrderItem();
-                $orderItem->order_id = $order->id;
-                $orderItem->product_variant_id = $item['product_variant_id'];
-                $orderItem->quantity = $item['quantity'];
-                $orderItem->save();
+                if (array_key_exists('product_id', $item)) {
+                    // xủa lí sp thg
+                    $product = Product::find($item['product_id']);
+    
+                    if (!$product) {
+                        return response()->json(['message' => 'khong tim thay sp: ' . $item['product_id']], 404);
+                    }
+    
+                    // xử lí sp khi còn sale 
+                    $price = $product->sale_price && $product->sale_start <= now() && $product->sale_end >= now() 
+                        ? $product->sale_price 
+                        : $product->price;
+    
+                    // tong gtri thg
+                    $totalPriceProduct += $price * $item['quantity'];
+    
+                    // luu chi tiết dh sp thg
+                    $orderItem = new OrderItem();
+                    $orderItem->order_id = $order->id; 
+                    $orderItem->product_id = $item['product_id']; 
+                    $orderItem->product_variant_id = null; 
+                    $orderItem->quantity = $item['quantity'];
+                    $orderItem->save();
+    
+                    // giảm sl sp
+                    $product->quantity -= $item['quantity'];
+                    $product->save();
+                }
+                else if (array_key_exists('product_variant_id', $item)) {
+                    $productVariant = ProductVariant::find($item['product_variant_id']);
+    
+                    if (!$productVariant) {
+                        return response()->json(['message' => 'ko có sp biến thể ' . $item['product_variant_id']], 404);
+                    }
+    
+                    $price = $productVariant->sale_price && $productVariant->sale_start <= now() && $productVariant->sale_end >= now() 
+                        ? $productVariant->sale_price 
+                        : $productVariant->price;
+    
+                    // tính tổng
+                    $totalPriceVariant += $price * $item['quantity'];
+    
+                    if ($productVariant->quantity < $item['quantity']) {
+                        return response()->json(['message' => 'số lg so ko đủ' . $item['product_variant_id']], 400);
+                    }
+                    $productVariant->quantity -= $item['quantity'];
+                    $productVariant->save();
+    
+                    // chi tiết sp bt
+                    $orderItem = new OrderItem();
+                    $orderItem->order_id = $order->id; 
+                    $orderItem->product_id = $productVariant->product_id; 
+                    $orderItem->product_variant_id = $item['product_variant_id'];
+                    $orderItem->quantity = $item['quantity'];
+                    $orderItem->save();
+                } else {
+                    return response()->json(['message' => 'ko xác định đc sp'], 400);
+                }
             }
-
+    
+            $totalPrice = $totalPriceProduct + $totalPriceVariant;
+    
+            if ($request->input('coupon_id')) {
+                $coupon = Coupon::find($request->input('coupon_id'));
+                if ($coupon && $totalPrice >= $coupon->min_order_value) {
+                    $totalPrice -= $coupon->discount_amount;
+                }
+            }
+    
+            $order->total_price = $totalPrice; 
+            $order->save(); 
+    
             DB::commit();
-
-            // Trả về phản hồi sau khi thanh toán thành công
+    
             return response()->json([
                 'message' => 'Thanh toán thành công!',
                 'order_id' => $order->id,
                 'total_price' => $totalPrice,
             ], 201);
-
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json(['message' => 'Lỗi khi xử lý thanh toán: ' . $e->getMessage()], 500);
         }
     }
+    
 
 
 }

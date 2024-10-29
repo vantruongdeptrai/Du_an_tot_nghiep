@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Models;
-
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -30,6 +30,11 @@ class Product extends Model
         'sale_start',
         'sale_end',
     ];
+
+    public function variants()
+{
+    return $this->hasMany(ProductVariant::class);
+}
     public function attributes()
     {
         return $this->hasMany(Attribute::class);
@@ -46,7 +51,7 @@ class Product extends Model
     {
         return $this->belongsTo(Category::class, 'category_id');
     }
-    protected $appends = ['category_name', 'highest_price', 'lowest_price', 'image_url', 'variants'];
+    protected $appends = ['category_name', 'highest_price', 'lowest_price', 'image_url', 'variants', 'final_price'];
 
     public function getCategoryNameAttribute()
     {
@@ -67,6 +72,8 @@ class Product extends Model
         return $this->image ? asset('storage/' . $this->image) : null;
     }
 
+
+
     public function getVariantsAttribute()
     {
         return $this->productVariants->map(function ($variant) {
@@ -78,5 +85,23 @@ class Product extends Model
             ];
         });
     }
+    public function getFinalPriceAttribute()
+    {
+        $currentDate = Carbon::now();
+
+        if ($this->sale_start && $this->sale_end &&
+            $currentDate->between($this->sale_start, $this->sale_end)) {
+            return $this->sale_price ?? $this->price;
+        }
+
+        return $this->price;
+    }
+
+    public function orderItems()
+    {
+        return $this->hasMany(OrderItem::class);
+    }
+
+
 
 }

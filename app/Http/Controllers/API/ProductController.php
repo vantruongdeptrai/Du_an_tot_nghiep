@@ -20,7 +20,6 @@ class ProductController extends Controller
      */
     public function index()
     {
-        // Eager load category và productVariants để tối ưu hiệu suất
         $products = Product::with(['category', 'productVariants'])->get();
         return response()->json($products);
     }
@@ -65,7 +64,7 @@ class ProductController extends Controller
             'slug' => $slug, 
         ]);
     
-        return response()->json(['message' => 'Product created successfully', 'product' => $product], 201);
+        return response()->json(['message' => 'tạo sản phẩm thành công', 'product' => $product], 201);
     }
 
     public function show(string $id)
@@ -76,7 +75,7 @@ class ProductController extends Controller
         foreach ($product->productVariants as $variant) {
             $variant->image_url = $variant->image ? asset('storage/' . $variant->image) : null;
         }
-        return response()->json($product);
+        return response()->json($product->makeHidden(['variants']));
     }
 
     /**
@@ -148,19 +147,7 @@ class ProductController extends Controller
                 ]);
             }
 
-            // Cập nhật chi tiết biến thể
-            // foreach ($variant['attributes'] as $attributeId => $attributeValueId) {
-            //     DB::table('detail_variants')->updateOrInsert(
-            //         [
-            //             'product_variant_id' => $productVariant->id,
-            //             'attribute_value_id' => $attributeValueId,
-            //         ],
-            //         [
-            //             'product_variant_id' => $productVariant->id,
-            //             'attribute_value_id' => $attributeValueId,
-            //         ]
-            //     );
-            // }
+
         }
 
         return response()->json($product, 200);
@@ -340,23 +327,19 @@ class ProductController extends Controller
             return response()->json([
                 'message'=>"Không tìm thấy sản phẩm"], 404);
         }
-        // trả về chi tiết sản phẩm cùng với các biến thể
         return response()->json([
             'product'=>$product
         ]);
     }
     public function filterProducts(Request $request)
     {
-        // Lấy các thông số lọc từ request
         $colorId = $request->input('color_id');
         $sizeId = $request->input('size_id');
         $minPrice = $request->input('min_price');
         $maxPrice = $request->input('max_price');
 
-        // Truy vấn sản phẩm theo các tiêu chí
         $query = Product::query();
 
-        // Nếu có biến thể sản phẩm, thực hiện truy vấn join với bảng product_variants
         $query->whereHas('productVariants', function($q) use ($colorId, $sizeId, $minPrice, $maxPrice) {
             if ($colorId) {
                 $q->where('color_id', $colorId);
@@ -373,10 +356,8 @@ class ProductController extends Controller
             }
         });
 
-        // Lấy danh sách sản phẩm sau khi lọc
         $products = $query->get();
 
-        // Trả về dữ liệu dưới dạng JSON
         return response()->json($products);
     }
 

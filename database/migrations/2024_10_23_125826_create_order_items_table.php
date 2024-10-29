@@ -13,14 +13,14 @@ return new class extends Migration
     {
         Schema::create('order_items', function (Blueprint $table) {
             $table->id();
+            $table->unsignedInteger('product_id');
             $table->unsignedInteger('product_variant_id');
             $table->unsignedInteger('order_id');
             $table->integer('quantity');
             $table->timestamps();
             $table->softDeletes();
 
-            // $table->foreign('product_variant_id')->references('id')->on('product_variants')->onDelete('cascade');
-            // $table->foreign('order_id')->references('id')->on('orders')->onDelete('cascade');
+
 
 
         });

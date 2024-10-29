@@ -25,7 +25,6 @@ class CartFactory extends Factory
             'product_id' => Product::all()->random()->id,
             'product_variant_id' => ProductVariant::all()->random()->id,
             'quantity' => $this->faker->numberBetween(1, 1000),
-            'price' => $this->faker->randomFloat(2, 100, 10000),
         ];
     }
 }
