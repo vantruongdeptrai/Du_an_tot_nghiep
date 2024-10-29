@@ -5,6 +5,7 @@ use Illuminate\Support\Str;
 use App\Models\ProductVariant;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Storage;
 
 
 class ProductVariantController extends Controller
@@ -36,7 +37,6 @@ class ProductVariantController extends Controller
     public function store(Request $request)
     {
 
-        // Define validation rules
         $rules = [
             'product_id' => 'required|integer|exists:products,id',
             'colors' => 'required|array|min:1',
@@ -49,26 +49,22 @@ class ProductVariantController extends Controller
             'prices.*' => 'required|numeric|min:0',
             'status' => 'required|boolean',
             'images' => 'sometimes|array',
-            'images.*' => 'nullable|string', // Adjust based on your image handling
+            'images.*' => 'nullable|string', 
         ];
 
-        // Validate the request
         $validatedData = $request->validate($rules);
 
-        // Ensure 'colors' and 'sizes' arrays have the same length
         if (count($validatedData['colors']) !== count($validatedData['sizes'])) {
             return response()->json([
-                'message' => 'The number of colors and sizes must match.'
+                'message' => '.'
             ], 422);
         }
 
         $createdVariants = [];
 
-        // Start a database transaction
         DB::beginTransaction();
 
         try {
-            // Iterate through each color-size pair using a single loop
             for ($i = 0; $i < count($validatedData['colors']); $i++) {
                 $color_id = $validatedData['colors'][$i];
                 $size_id = $validatedData['sizes'][$i];
@@ -83,32 +79,28 @@ class ProductVariantController extends Controller
                 $productVariant->price = $validatedData['prices'][$priceKey] ?? 0;
                 $productVariant->status = $validatedData['status'];
 
-                // Generate a unique SKU
-                $randomString = Str::upper(Str::random(5)); // Uppercase for consistency
+                $randomString = Str::upper(Str::random(5)); 
                 $productVariant->sku = "SKU-{$validatedData['product_id']}-{$color_id}-{$size_id}-{$randomString}";
 
-                // Assign image if available
                 if (isset($validatedData['images'][$quantityKey])) {
-                    $productVariant->image = $validatedData['images'][$quantityKey];
-                }
-
+                    $imagePath = $validatedData['images'][$quantityKey];
+                    $productVariant->image = $imagePath; // Gán đường dẫn hình ảnh
+                } 
                 $productVariant->save();
                 $createdVariants[] = $productVariant;
             }
 
-            // Commit the transaction if all variants are saved successfully
             DB::commit();
 
             return response()->json([
-                'message' => 'Product variants created successfully.',
+                'message' => 'tạo thành công.',
                 'variants' => $createdVariants
             ], 201);
 
         } catch (\Exception $e) {
-            // Rollback the transaction in case of any errors
             DB::rollBack();
             return response()->json([
-                'message' => 'Failed to create product variants.',
+                'message' => 'khong thể thạo.',
                 'error' => $e->getMessage()
             ], 500);
         }
@@ -117,34 +109,62 @@ class ProductVariantController extends Controller
 
     public function update(Request $request, $id)
     {
-        $request->validate([
-            'product_id' => 'required|integer',
-            'color_id' => 'required|integer',
-            'size_id' => 'required|integer',
-            'quantity' => 'required|integer',
-            'price' => 'required|numeric',
-            'sku' => 'required|string|unique:product_variants,sku,' . $id,
+        $rules = [
+            'product_id' => 'required|integer|exists:products,id',
+            'color_id' => 'required|integer|exists:colors,id',
+            'size_id' => 'required|integer|exists:sizes,id',
+            'quantity' => 'required|integer|min:0',
+            'price' => 'required|numeric|min:0',
+            'sale_price' => 'nullable|numeric|min:0',
+            'sale_start' => 'nullable|date',
+            'sale_end' => 'nullable|date|after_or_equal:sale_start',
             'status' => 'required|boolean',
-            'image' => 'nullable|string',
-        ]);
-        $productVariant = ProductVariant::findOrFail($id);
-        $productVariant->product_id = $request->product_id;
-        $productVariant->color_id = $request->color_id;
-        $productVariant->size_id = $request->size_id;
-        $productVariant->quantity = $request->quantity;
-        $productVariant->price = $request->price;
-        $productVariant->sku = $request->sku;
-        $productVariant->status = $request->status;
-
-        // Cập nhật trường ảnh
-        if ($request->has('image')) {
-            $productVariant->image = $request->image;
+            'sku' => 'required|string|max:50|unique:product_variants,sku,' . $id,
+            'image' => 'nullable|string', // Đường dẫn ảnh có thể là null
+        ];
+    
+        $validatedData = $request->validate($rules);
+    
+        DB::beginTransaction();
+    
+        try {
+            $productVariant = ProductVariant::findOrFail($id);
+    
+            $productVariant->product_id = $validatedData['product_id'];
+            $productVariant->color_id = $validatedData['color_id'];
+            $productVariant->size_id = $validatedData['size_id'];
+            $productVariant->quantity = $validatedData['quantity'];
+            $productVariant->price = $validatedData['price'];
+            $productVariant->sale_price = $validatedData['sale_price'];
+            $productVariant->sale_start = $validatedData['sale_start'];
+            $productVariant->sale_end = $validatedData['sale_end'];
+            $productVariant->status = $validatedData['status'];
+            $productVariant->sku = $validatedData['sku'];
+    
+            // Cập nhật hình ảnh nếu có
+            if (isset($validatedData['image'])) {
+                $productVariant->image = $validatedData['image'];
+            }
+    
+            $productVariant->save();
+    
+            DB::commit();
+    
+            return response()->json([
+                'message' => 'ok.',
+                'variant' => $productVariant
+            ], 200);
+    
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'message' => 'ok',
+                'error' => $e->getMessage()
+            ], 500);
         }
-
-        $productVariant->save();
-        return response()->json($productVariant);
     }
-
+    
+    
     public function destroy($id)
     {
         $productVariant = ProductVariant::findOrFail($id);

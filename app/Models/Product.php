@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Models;
-
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -46,7 +46,7 @@ class Product extends Model
     {
         return $this->belongsTo(Category::class, 'category_id');
     }
-    protected $appends = ['category_name', 'highest_price', 'lowest_price', 'image_url', 'variants'];
+    protected $appends = ['category_name', 'highest_price', 'lowest_price', 'image_url', 'variants', 'final_price'];
 
     public function getCategoryNameAttribute()
     {
@@ -77,6 +77,17 @@ class Product extends Model
                 'image_url' => $variant->image ? asset('storage/' . $variant->image) : null,
             ];
         });
+    }
+    public function getFinalPriceAttribute()
+    {
+        $currentDate = Carbon::now();
+
+        if ($this->sale_start && $this->sale_end &&
+            $currentDate->between($this->sale_start, $this->sale_end)) {
+            return $this->sale_price ?? $this->price;
+        }
+
+        return $this->price;
     }
 
 }
