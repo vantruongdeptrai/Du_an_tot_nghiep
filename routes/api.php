@@ -22,7 +22,8 @@ use App\Http\Controllers\API\AttributeValueController;
 use App\Http\Controllers\API\ProductVariantController;
 use App\Http\Controllers\API\PaymentController;
 use App\Http\Controllers\API\OrderController;
-
+use App\Http\Controllers\API\VNPayController;
+use App\Http\Controllers\API\vnpayReturn;
 
 
 
@@ -257,3 +258,7 @@ Route::middleware([\Illuminate\Session\Middleware\StartSession::class])->post('/
 Route::post('/oder/login', [OrderController::class, 'PaymentLogin']);
 Route::post('/oder/no-login', [OrderController::class, 'PaymentNoLogin']);
 
+// thanh toán
+Route::post('/payment', [VNPayController::class, 'createPayment']);
+// /api/vnpay/create-payment
+Route::get('/vnpay-return', [VNPayController::class, 'vnpayReturn']); // URL quay về sau thanh toán
