@@ -20,6 +20,7 @@ class ProductController extends Controller
      */
     public function index()
     {
+        // Eager load category và productVariants để tối ưu hiệu suất
         $products = Product::with(['category', 'productVariants'])->get();
         return response()->json($products);
     }

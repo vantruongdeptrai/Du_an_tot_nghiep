@@ -36,7 +36,6 @@ class ProductVariantController extends Controller
     
     public function store(Request $request)
     {
-
         $rules = [
             'product_id' => 'required|integer|exists:products,id',
             'colors' => 'required|array|min:1',
@@ -49,54 +48,49 @@ class ProductVariantController extends Controller
             'prices.*' => 'required|numeric|min:0',
             'status' => 'required|boolean',
             'images' => 'sometimes|array',
-            'images.*' => 'nullable|string', 
+            'images.*' => 'nullable|string',
         ];
-
+    
         $validatedData = $request->validate($rules);
-
-        if (count($validatedData['colors']) !== count($validatedData['sizes'])) {
-            return response()->json([
-                'message' => '.'
-            ], 422);
-        }
-
+    
         $createdVariants = [];
-
+    
         DB::beginTransaction();
-
+    
         try {
-            for ($i = 0; $i < count($validatedData['colors']); $i++) {
-                $color_id = $validatedData['colors'][$i];
-                $size_id = $validatedData['sizes'][$i];
-                $quantityKey = "{$color_id}-{$size_id}";
-                $priceKey = "{$color_id}-{$size_id}";
-
-                $productVariant = new ProductVariant();
-                $productVariant->product_id = $validatedData['product_id'];
-                $productVariant->color_id = $color_id;
-                $productVariant->size_id = $size_id;
-                $productVariant->quantity = $validatedData['quantities'][$quantityKey] ?? 0;
-                $productVariant->price = $validatedData['prices'][$priceKey] ?? 0;
-                $productVariant->status = $validatedData['status'];
-
-                $randomString = Str::upper(Str::random(5)); 
-                $productVariant->sku = "SKU-{$validatedData['product_id']}-{$color_id}-{$size_id}-{$randomString}";
-
-                if (isset($validatedData['images'][$quantityKey])) {
-                    $imagePath = $validatedData['images'][$quantityKey];
-                    $productVariant->image = $imagePath; // Gán đường dẫn hình ảnh
-                } 
-                $productVariant->save();
-                $createdVariants[] = $productVariant;
+            foreach ($validatedData['colors'] as $color_id) {
+                foreach ($validatedData['sizes'] as $size_id) {
+                    $quantityKey = "{$color_id}-{$size_id}";
+                    $priceKey = "{$color_id}-{$size_id}";
+    
+                    if (isset($validatedData['quantities'][$quantityKey]) && isset($validatedData['prices'][$priceKey])) {
+                        $productVariant = new ProductVariant();
+                        $productVariant->product_id = $validatedData['product_id'];
+                        $productVariant->color_id = $color_id;
+                        $productVariant->size_id = $size_id;
+                        $productVariant->quantity = $validatedData['quantities'][$quantityKey] ?? 0;
+                        $productVariant->price = $validatedData['prices'][$priceKey] ?? 0;
+                        $productVariant->status = $validatedData['status'];
+                        $randomString = Str::upper(Str::random(5));
+                        $productVariant->sku = "SKU-{$validatedData['product_id']}-{$color_id}-{$size_id}-{$randomString}";
+    
+                        if (isset($validatedData['images'][$quantityKey])) {
+                            $productVariant->image = $validatedData['images'][$quantityKey];
+                        }
+    
+                        $productVariant->save();
+                        $createdVariants[] = $productVariant;
+                    }
+                }
             }
-
+    
             DB::commit();
-
+    
             return response()->json([
                 'message' => 'tạo thành công.',
                 'variants' => $createdVariants
             ], 201);
-
+    
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json([
@@ -105,8 +99,7 @@ class ProductVariantController extends Controller
             ], 500);
         }
     }
-
-
+    
     public function update(Request $request, $id)
     {
         $rules = [
