@@ -1,7 +1,8 @@
 <?php
 namespace App\Http\Controllers\API;
-use Illuminate\Http\Request;
+use Carbon\Carbon;
 use Illuminate\Support\Str;
+use Illuminate\Http\Request;
 use App\Models\ProductVariant;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
@@ -18,94 +19,114 @@ class ProductVariantController extends Controller
 
     public function show($id)
     {
-        $productVariant = ProductVariant::findOrFail($id);
+    $productVariant = ProductVariant::with(['product', 'size', 'color'])->findOrFail($id);
 
-        $now = now(); 
-        if ($productVariant->sale_price && $productVariant->sale_start && $productVariant->sale_end) {
-            if ($now->between($productVariant->sale_start, $productVariant->sale_end)) {
-                $productVariant->display_price = $productVariant->sale_price;
-            } else {
-                $productVariant->display_price = $productVariant->price;
-            }
-        } else {
-            $productVariant->display_price = $productVariant->price;
+    $now = now(); 
+    $displayPrice = $productVariant->price;
+    if ($productVariant->sale_price && $productVariant->sale_start && $productVariant->sale_end) {
+        if ($now->between($productVariant->sale_start, $productVariant->sale_end)) {
+            $displayPrice = $productVariant->sale_price;
         }
-    
-        return response()->json($productVariant);
     }
+    return response()->json([
+        "id" => $productVariant->id,
+        "product_name" => $productVariant->product->name ?? null,
+        "color_name" => $productVariant->color->name ?? null,
+        "size_name" => $productVariant->size->name ?? null,
+        "quantity" => $productVariant->quantity,
+        "image" => $productVariant->image,
+        "price" => $productVariant->price,
+        "sale_price" => $productVariant->sale_price,
+        "sale_start" => $productVariant->sale_start,
+        "sale_end" => $productVariant->sale_end,
+        "sku" => $productVariant->sku,
+        "status" => $productVariant->status,
+        "deleted_at" => $productVariant->deleted_at,
+        "created_at" => $productVariant->created_at,
+        "updated_at" => $productVariant->updated_at,
+        "display_price" => $displayPrice,
+        "image_url" => url('storage/' . $productVariant->image),
+        "final_price" => $displayPrice,
+    ]);
+}
     
-    public function store(Request $request)
-    {
+public function store(Request $request)
+{
+    $rules = [
+        'product_id' => 'required|integer|exists:products,id',
+        'colors' => 'required|array|min:1',
+        'colors.*' => 'required|integer|exists:colors,id',
+        'sizes' => 'required|array|min:1',
+        'sizes.*' => 'required|integer|exists:sizes,id',
+        'quantities' => 'required|array',
+        'quantities.*' => 'required|integer|min:0',
+        'prices' => 'required|array',
+        'prices.*' => 'required|numeric|min:0',
+        'sale_prices' => 'required|array',
+        'sale_prices.*' => 'required|numeric|min:0',
+        'sale_starts' => 'required|array',
+        'sale_starts.*' => 'required|date',
+        'sale_ends' => 'required|array',
+        'sale_ends.*' => 'required|date|after_or_equal:sale_starts.*',
+        'status' => 'required|boolean',
+        'images' => 'sometimes|array',
+        'images.*' => 'nullable|file',
+    ];
 
-        $rules = [
-            'product_id' => 'required|integer|exists:products,id',
-            'colors' => 'required|array|min:1',
-            'colors.*' => 'required|integer|exists:colors,id',
-            'sizes' => 'required|array|min:1',
-            'sizes.*' => 'required|integer|exists:sizes,id',
-            'quantities' => 'required|array',
-            'quantities.*' => 'required|integer|min:0',
-            'prices' => 'required|array',
-            'prices.*' => 'required|numeric|min:0',
-            'status' => 'required|boolean',
-            'images' => 'sometimes|array',
-            'images.*' => 'nullable|string', 
-        ];
+    $validatedData = $request->validate($rules);
 
-        $validatedData = $request->validate($rules);
+    $createdVariants = [];
 
-        if (count($validatedData['colors']) !== count($validatedData['sizes'])) {
-            return response()->json([
-                'message' => '.'
-            ], 422);
-        }
+    DB::beginTransaction();
 
-        $createdVariants = [];
-
-        DB::beginTransaction();
-
-        try {
-            for ($i = 0; $i < count($validatedData['colors']); $i++) {
-                $color_id = $validatedData['colors'][$i];
-                $size_id = $validatedData['sizes'][$i];
+    try {
+        foreach ($validatedData['colors'] as $color_id) {
+            foreach ($validatedData['sizes'] as $size_id) {
                 $quantityKey = "{$color_id}-{$size_id}";
                 $priceKey = "{$color_id}-{$size_id}";
 
-                $productVariant = new ProductVariant();
-                $productVariant->product_id = $validatedData['product_id'];
-                $productVariant->color_id = $color_id;
-                $productVariant->size_id = $size_id;
-                $productVariant->quantity = $validatedData['quantities'][$quantityKey] ?? 0;
-                $productVariant->price = $validatedData['prices'][$priceKey] ?? 0;
-                $productVariant->status = $validatedData['status'];
+                if (isset($validatedData['quantities'][$quantityKey]) && isset($validatedData['prices'][$priceKey])) {
+                    $productVariant = new ProductVariant();
+                    $productVariant->product_id = $validatedData['product_id'];
+                    $productVariant->color_id = $color_id;
+                    $productVariant->size_id = $size_id;
+                    $productVariant->quantity = $validatedData['quantities'][$quantityKey] ?? 0;
+                    $productVariant->price = $validatedData['prices'][$priceKey] ?? 0;
+                    $productVariant->sale_price = $validatedData['sale_prices'][$priceKey] ?? null;
+                    $productVariant->sale_start = isset($validatedData['sale_starts'][$priceKey]) ? Carbon::parse($validatedData['sale_starts'][$priceKey]) : null;
+                    $productVariant->sale_end = isset($validatedData['sale_ends'][$priceKey]) ? Carbon::parse($validatedData['sale_ends'][$priceKey]) : null;
+                    $productVariant->status = $validatedData['status'];
+                    $randomString = Str::upper(Str::random(5));
+                    $productVariant->sku = "SKU-{$validatedData['product_id']}-{$color_id}-{$size_id}-{$randomString}";
 
-                $randomString = Str::upper(Str::random(5)); 
-                $productVariant->sku = "SKU-{$validatedData['product_id']}-{$color_id}-{$size_id}-{$randomString}";
+                    // Lưu ảnh vào storage nếu tồn tại
+                    if (isset($validatedData['images'][$quantityKey]) && $validatedData['images'][$quantityKey]) {
+                        $path = $validatedData['images'][$quantityKey]->store('product_variants', 'public');
+                        $productVariant->image = $path;
+                    }
 
-                if (isset($validatedData['images'][$quantityKey])) {
-                    $imagePath = $validatedData['images'][$quantityKey];
-                    $productVariant->image = $imagePath; // Gán đường dẫn hình ảnh
-                } 
-                $productVariant->save();
-                $createdVariants[] = $productVariant;
+
+                    $productVariant->save();
+                    $createdVariants[] = $productVariant;
+                }
             }
-
-            DB::commit();
-
-            return response()->json([
-                'message' => 'tạo thành công.',
-                'variants' => $createdVariants
-            ], 201);
-
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return response()->json([
-                'message' => 'khong thể thạo.',
-                'error' => $e->getMessage()
-            ], 500);
         }
-    }
 
+        DB::commit();
+
+        return response()->json([
+            'message' => 'tạo thành công.',
+            'variants' => $createdVariants
+        ], 201);
+
+    } catch (\Exception $e) {
+        DB::rollBack();
+        return response()->json([
+            'message' => 'khong thể thạo.',
+            'error' => $e->getMessage()
+        ], 500);
+    }
+}
 
     public function update(Request $request, $id)
     {
@@ -120,7 +141,7 @@ class ProductVariantController extends Controller
             'sale_end' => 'nullable|date|after_or_equal:sale_start',
             'status' => 'required|boolean',
             'sku' => 'required|string|max:50|unique:product_variants,sku,' . $id,
-            'image' => 'nullable|string', // Đường dẫn ảnh có thể là null
+            'image' => 'nullable|file', // Đường dẫn ảnh có thể là null
         ];
     
         $validatedData = $request->validate($rules);
@@ -141,10 +162,18 @@ class ProductVariantController extends Controller
             $productVariant->status = $validatedData['status'];
             $productVariant->sku = $validatedData['sku'];
     
-            // Cập nhật hình ảnh nếu có
-            if (isset($validatedData['image'])) {
-                $productVariant->image = $validatedData['image'];
+            // Nếu có file ảnh mới trong request, lưu vào storage
+        if ($request->hasFile('image')) {
+            // Xóa ảnh cũ nếu có
+            if ($productVariant->image) {
+                Storage::delete($productVariant->image);
             }
+
+            // Lưu ảnh mới vào storage và cập nhật đường dẫn
+            $path = $request->file('image')->store('product_variants', 'public');
+            $productVariant->image = $path;
+        }
+        // Nếu không có ảnh mới, giữ nguyên ảnh cũ trong cơ sở dữ liệu
     
             $productVariant->save();
     
