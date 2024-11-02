@@ -65,7 +65,6 @@ class CartController extends Controller
             'product' => Product::find($request->product_id),
             'product_variant' => $request->product_variant_id ? ProductVariant::find($request->product_variant_id) : null,
             'quantity' => $request->quantity,
-            //   
         ];
 
         // Lưu giỏ hàng vào session với session ID cụ thể
@@ -182,6 +181,9 @@ public function getCart(Request $request)
                 'product_name' => $product->name ?? 'N/A',
                 'quantity' => $item['quantity'],
                 'price' => $price,
+                'sale_price' => $salePrice,
+                'sale_start' => $saleStart,
+                'sale_end' => $saleEnd,
                 'size' => $productVariant->size->name ?? 'N/A',
                 'color' => $productVariant->color->name ?? 'N/A',
                 'product_image' => isset($product->image) 
@@ -201,7 +203,10 @@ public function getCart(Request $request)
                 'product_name' => $product->name,
                 'quantity' => $item['quantity'],
                 'price' => $price,
-                'size' => 'N/A',
+                'sale_price' => $salePrice,
+                'sale_start' => $saleStart,
+                'sale_end' => $saleEnd,
+                 'size' => 'N/A',
                 'color' => 'N/A',
                 'product_image' => isset($product->image) 
                     ? asset('storage/' . $product->image)
@@ -213,6 +218,9 @@ public function getCart(Request $request)
             'product_name' => 'N/A',
             'quantity' => $item['quantity'],
             'price' => 'N/A',
+            'sale_price' => 'N/A',
+            'sale_start' => 'N/A',
+            'sale_end' => 'N/A',
             'size' => 'N/A',
             'color' => 'N/A',
             'product_image' => 'N/A',

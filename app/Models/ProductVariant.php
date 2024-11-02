@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Models;
-
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -34,11 +34,22 @@ class ProductVariant extends Model
     {
         return $this->belongsTo(Color::class);
     }
-    protected $appends = ['image_url'];
+    protected $appends = ['image_url', 'final_price'];
 
     public function getImageUrlAttribute()
     {
         return $this->image ? asset('storage/' . $this->image) : null;
+    }
+    public function getFinalPriceAttribute()
+    {
+        $currentDate = Carbon::now();
+
+        if ($this->sale_start && $this->sale_end &&
+            $currentDate->between($this->sale_start, $this->sale_end)) {
+            return $this->sale_price ?? $this->price;
+        }
+
+        return $this->price;
     }
 
     public function orderItems()

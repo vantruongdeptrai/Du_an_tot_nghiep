@@ -21,7 +21,8 @@ use App\Http\Controllers\API\OperatingCostController;
 use App\Http\Controllers\API\AttributeValueController;
 use App\Http\Controllers\API\ProductVariantController;
 use App\Http\Controllers\API\OrderController;
-
+use App\Http\Controllers\API\VNPayController;
+use App\Http\Controllers\API\vnpayReturn;
 
 
 
@@ -129,7 +130,7 @@ Route::get('/product-variants/{id}', [ProductVariantController::class, 'show']);
 Route::post('/product-variants', [ProductVariantController::class, 'store']); 
 
 //http://127.0.0.1:8000/api/product-variants/{id}
-Route::put('/product-variants/{id}', [ProductVariantController::class, 'update']); 
+Route::post('/product-variants/{id}', [ProductVariantController::class, 'update']); 
 
 
 //http://127.0.0.1:8000/api/product-variants/{id}
@@ -254,6 +255,11 @@ Route::middleware([\Illuminate\Session\Middleware\StartSession::class])->post('/
 
 
 Route::post('/oder/login', [OrderController::class, 'PaymentLogin']);
-Route::middleware(['api', 'session'])->post('/oder/no-login', [OrderController::class, 'PaymentNoLogin']);
+Route::middleware([\Illuminate\Session\Middleware\StartSession::class])->post('/oder/no-login', [OrderController::class, 'PaymentNoLogin']);
 
 
+
+// thanh toán
+Route::post('/payment', [VNPayController::class, 'createPayment']);
+// /api/vnpay/create-payment
+Route::get('/vnpay-return', [VNPayController::class, 'vnpayReturn']); // URL quay về sau thanh toán
