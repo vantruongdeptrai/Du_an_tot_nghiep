@@ -266,5 +266,115 @@ class OrderController extends Controller
                 return response()->json(['message' => 'Lỗi khi xử lý thanh toán: ' . $e->getMessage()], 500);
             }
         }
+
+        public function index() {
+            return Order::with('orderItems')->get();
+        }
+public function getOrderById($id)
+{
+    $order = Order::with(['user', 'orderItems.product', 'orderItems.productVariant.product']) // Eager load the related product through the product variant
+                  ->where('id', $id)
+                  ->first();
+
+    if (!$order) {
+        return response()->json(['message' => 'Order not found'], 404);
+    }
+
+    // Initialize the order data array
+    $orderData = [
+        'order_id' => $order->id,
+        'user_name' => $order->user ? $order->user->name : 'Khách',
+        'status_order' => $order->status_order,
+        'payment_type' => $order->payment_type,
+        'shipping_address' => $order->shipping_address,
+        'phone_order' => $order->phone_order,
+        'name_order' => $order->name_order,
+        'email_order' => $order->email_order,
+        'user_note' => $order->user_note,
+        'coupon_id' => $order->coupon_id,
+        'total_price' => $order->total_price,
+        'order_items' => [],
+        'created_at' => $order->created_at->format('Y-m-d H:i:s'),
+    ];
+
+    for ($i = 0; $i < $order->orderItems->count(); $i++) {
+        $item = $order->orderItems[$i];
+        $orderData['order_items'][] = [
+            'product_id' => $item->product ? $item->product->id : ($item->productVariant ? $item->productVariant->product->id : null),
+            'product_name' => $item->product ? $item->product->name : ($item->productVariant ? $item->productVariant->product->name : null),
+            'product_variant_id' => $item->productVariant ? $item->productVariant->id : null,
+            'variant_name' => $item->productVariant ? $item->productVariant->name : null,
+            'quantity' => $item->quantity,
+            'price' => $item->product ? $item->product->price : ($item->productVariant ? $item->productVariant->price : 0),
+            'total_item_price' => ($item->product ? $item->product->price : ($item->productVariant ? $item->productVariant->price : 0)) * $item->quantity,
+        ];
+    }
+
+    return response()->json([
+        'order' => $orderData,
+    ], 200);
+}
+
+        
+public function updateOrder(Request $request, $id)
+{
+    $request->validate([
+        'status_order' => 'required|string|in:Chờ xác nhận,Đã xác nhận,Đang chuẩn bị,Đang vận chuyển,Đã giao hàng,Giao hàng thành công,Đã hủy',
+    ]);
+
+    $order = Order::find($id);
+
+    if (!$order) {
+        return response()->json(['message' => 'khôg tìm thấy đơn hàng'], 404);
+    }
+
+    $validTransitions = [
+        'Chờ xác nhận' => ['Đã xác nhận', 'Đã hủy'],
+        'Đã xác nhận' => ['Đang chuẩn bị', 'Đã hủy'],
+        'Đang chuẩn bị' => ['Đang vận chuyển', 'Đã hủy'],
+        'Đang vận chuyển' => ['Đã giao hàng', 'Đã hủy'],
+        'Đã giao hàng' => ['Giao hàng thành công'],
+        'Giao hàng thành công' => [],
+        'Đã hủy' => [],
+    ];
+
+    $currentStatus = $order->status_order;
+    $newStatus = $request->input('status_order');
+
+    if (!in_array($newStatus, $validTransitions[$currentStatus] ?? [])) {
+        return response()->json([
+            'message' => 'khong hop lệ ' . $currentStatus . ' sang ' . $newStatus,
+        ], 400);
+    }
+
+    $order->status_order = $newStatus;
+    $order->save();
+
+    return response()->json([
+        'message' => 'sửa thành công',
+        'order' => [
+            'order_id' => $order->id,
+            'new_status_order' => $order->status_order,
+        ],
+    ], 200);
+}
+
+public function deleteOrder($id)
+{
+    $order = Order::find($id);
+    if (!$order) {
+        return response()->json(['message' => 'khôgng tìm thấy đơn hàng'], 404);
+    }
+
+    if ($order->status_order !== 'Giao hàng thành công' && $order->status_order !== 'Đã hủy') {
+        return response()->json(['message' => 'Chỉ có thể xóa các đơn hàng ở trạng thái "Giao hàng thành công" hoặc "Đã hủy"'], 400);
+    }
+    $order->delete();
+    return response()->json(['message' => 'xóaa thanh công'], 200);
+}
+
+
+        
+
         
 }
