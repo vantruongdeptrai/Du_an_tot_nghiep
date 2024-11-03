@@ -13,9 +13,9 @@ return new class extends Migration
     {
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
-            $table->unsignedInteger('user_id');
-            $table->decimal('total_price', 10, 2);
-            $table->enum('status_order', ['chờ xử lý', 'đang xử lý', 'đã gửi hàng', 'hoàn thành', 'đã hủy']);
+            $table->unsignedInteger('user_id')->nullable();
+            $table->decimal('total_price', 10, 2)->nullable();
+            $table->enum('status_order', ['Chờ xác nhận', 'Đã xác nhận', 'Đang chuẩn bị', 'Đang vận chuyển', 'Đã giao hàng','Giao hàng thành công','Đã hủy'  ]);
             $table->string('payment_type');
             $table->text('shipping_address');
             $table->text('user_note')->nullable();

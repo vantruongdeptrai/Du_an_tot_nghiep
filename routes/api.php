@@ -20,7 +20,6 @@ use App\Http\Controllers\API\DetailProductController;
 use App\Http\Controllers\API\OperatingCostController;
 use App\Http\Controllers\API\AttributeValueController;
 use App\Http\Controllers\API\ProductVariantController;
-use App\Http\Controllers\API\PaymentController;
 use App\Http\Controllers\API\OrderController;
 use App\Http\Controllers\API\VNPayController;
 use App\Http\Controllers\API\vnpayReturn;
@@ -131,7 +130,7 @@ Route::get('/product-variants/{id}', [ProductVariantController::class, 'show']);
 Route::post('/product-variants', [ProductVariantController::class, 'store']); 
 
 //http://127.0.0.1:8000/api/product-variants/{id}
-Route::put('/product-variants/{id}', [ProductVariantController::class, 'update']); 
+Route::post('/product-variants/{id}', [ProductVariantController::class, 'update']); 
 
 
 //http://127.0.0.1:8000/api/product-variants/{id}
@@ -254,9 +253,22 @@ Route::post('/cart/add', [CartController::class, 'addToCart']);
 // Route cho người dùng chưa đăng nhập
 Route::middleware([\Illuminate\Session\Middleware\StartSession::class])->post('/cart/add/guest', [CartController::class, 'addToCartGuest']);
 
-
+// http://127.0.0.1:8000/api/oder/login
 Route::post('/oder/login', [OrderController::class, 'PaymentLogin']);
-Route::post('/oder/no-login', [OrderController::class, 'PaymentNoLogin']);
+// http://127.0.0.1:8000/api/oder/no-login
+Route::middleware([\Illuminate\Session\Middleware\StartSession::class])->post('/oder/no-login', [OrderController::class, 'PaymentNoLogin']);
+Route::get('/orders', [OrderController::class, 'index']);//http:127.0.0.1:8000/api/orders
+Route::get('/orders/{id}', [OrderController::class, 'getOrderById']);//http:127.0.0.1:8000/api/orders
+
+Route::put('/orders/{id}', [OrderController::class, 'updateOrder']);
+Route::put('/orders/{id}', [OrderController::class, 'updateOrder']);
+Route::delete('/orders/{id}', [OrderController::class, 'deleteOrder']);
+
+
+
+
+
+
 
 // thanh toán
 Route::post('/payment', [VNPayController::class, 'createPayment']);
