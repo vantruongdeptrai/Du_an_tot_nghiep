@@ -375,8 +375,8 @@ class ProductController extends Controller
 
     public function searchProduct(Request $request)
     {
-        // Lấy từ khóa tìm kiếm từ request
-        $name_search = $request->input('name');
+        // Lấy từ khóa tìm kiếm từ request và loại bỏ khoảng trắng thừa
+        $name_search = trim($request->input('name'));
 
         // Kiểm tra đầu vào
         if (!$name_search) {
@@ -386,10 +386,11 @@ class ProductController extends Controller
             ], 400);
         }
 
-        // Tìm kiếm sản phẩm với phân trang
+        // Tìm kiếm sản phẩm theo tên hoặc ký tự, không phân biệt chữ hoa chữ thường
         $products = Product::query()
-            ->where('name', 'LIKE', '%' . $name_search . '%')
-            ->paginate(10); // Thay đổi số 10 nếu muốn số lượng sản phẩm mỗi trang khác
+            ->where('name', 'LIKE', '%' . strtolower($name_search) . '%')
+            ->orWhere('name', 'LIKE', '%' . strtoupper($name_search) . '%')
+            ->paginate(10); // Có thể thay đổi số 10 để điều chỉnh số lượng sản phẩm mỗi trang
 
         // Trả về kết quả
         return response()->json([
