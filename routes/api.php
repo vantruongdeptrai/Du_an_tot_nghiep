@@ -265,7 +265,7 @@ Route::put('/orders/{id}', [OrderController::class, 'updateOrder']);
 Route::delete('/orders/{id}', [OrderController::class, 'deleteOrder']);
 
 
-
+Route::get('/search', [ProductController::class, 'searchProduct']);
 
 
 

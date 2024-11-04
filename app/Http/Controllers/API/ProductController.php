@@ -42,13 +42,13 @@ class ProductController extends Controller
             'featured_product' => 'nullable|boolean',
             'image' => 'nullable|file|mimes:jpg,jpeg,png|max:2048', // Kiểm tra file ảnh
         ]);
-    
+
         // Xử lý slug cho sản phẩm
         $slug = Str::slug($validatedData['name']);
-    
+
         // Lưu file ảnh vào storage
         $imagePath = $request->hasFile('image') ? $request->file('image')->store('products', 'public') : null;
-    
+
         $product = Product::create([
             'name' => $request->input('name'), // Đảm bảo rằng bạn có giá trị cho trường này
             'description' => $request->input('description'),
@@ -61,9 +61,9 @@ class ProductController extends Controller
             'best_seller_product' => $request->input('best_seller_product', 0),
             'featured_product' => $request->input('featured_product', 0),
             'image' => $imagePath,
-            'slug' => $slug, 
+            'slug' => $slug,
         ]);
-    
+
         return response()->json(['message' => 'tạo sản phẩm thành công', 'product' => $product], 201);
     }
 
@@ -176,159 +176,164 @@ class ProductController extends Controller
 
         return response()->json(['message' => 'xóa thành công'], 200);
     }
-    public function newproduct(){
+    public function newproduct()
+    {
         $products = Product::with('productVariants') // Tải các biến thể để kiểm tra số lượng
-        ->where('new_product', 1) // Điều kiện new_product = 1
-        ->where(function ($query) {
-            // Kiểm tra số lượng sản phẩm hoặc số lượng sản phẩm biến thể
-            $query->where('quantity', ">=", 1) // Số lượng sản phẩm đơn thể
-                  ->orWhereHas('productVariants', function ($q) {
-                      $q->where('quantity', ">=", 1); // Số lượng của biến thể
-                  });
-        })
-        ->limit(10)
-        ->get();
+            ->where('new_product', 1) // Điều kiện new_product = 1
+            ->where(function ($query) {
+                // Kiểm tra số lượng sản phẩm hoặc số lượng sản phẩm biến thể
+                $query->where('quantity', ">=", 1) // Số lượng sản phẩm đơn thể
+                    ->orWhereHas('productVariants', function ($q) {
+                    $q->where('quantity', ">=", 1); // Số lượng của biến thể
+                });
+            })
+            ->limit(10)
+            ->get();
 
-    if ($products->isEmpty()) {
+        if ($products->isEmpty()) {
+            return response()->json([
+                'message' => "Không có sản phẩm new_product với số lượng 1."
+            ], 404);
+        }
+
+        $products->transform(function ($product) {
+            return [
+                'id' => $product->id,
+                'name' => $product->name,
+                'image' => $product->image ? Storage::url($product->image) : null, // URL hình ảnh sản phẩm
+                'quantity' => $product->quantity,
+                'price' => $this->getCurrentPrice($product), // Lấy giá hiện tại
+                'productVariants' => $product->productVariants->map(function ($variant) {
+                    return [
+                        'id' => $variant->id,
+                        'color_id' => $variant->color_id,
+                        'size_id' => $variant->size_id,
+                        'quantity' => $variant->quantity,
+                        'price' => $this->getCurrentPrice($variant), // Lấy giá hiện tại cho biến thể
+                        'sale_price' => $variant->sale_price,
+                        'sku' => $variant->sku,
+                        'image' => $variant->image ? Storage::url($variant->image) : null, // URL hình ảnh biến thể
+                    ];
+                }),
+            ];
+        });
+
         return response()->json([
-            'message' => "Không có sản phẩm new_product với số lượng 1."
-        ], 404);
+            'products' => $products
+        ]);
     }
-
-    $products->transform(function($product) {
-        return [
-            'id' => $product->id,
-            'name' => $product->name,
-            'image' => $product->image ? Storage::url($product->image) : null, // URL hình ảnh sản phẩm
-            'quantity' => $product->quantity,
-            'price' => $this->getCurrentPrice($product), // Lấy giá hiện tại
-            'productVariants' => $product->productVariants->map(function($variant) {
-                return [
-                    'id' => $variant->id,
-                    'color_id' => $variant->color_id,
-                    'size_id' => $variant->size_id,
-                    'quantity' => $variant->quantity,
-                    'price' => $this->getCurrentPrice($variant), // Lấy giá hiện tại cho biến thể
-                    'sale_price' => $variant->sale_price,
-                    'sku' => $variant->sku,
-                    'image' => $variant->image ? Storage::url($variant->image) : null, // URL hình ảnh biến thể
-                ];
-            }),
-        ];
-    });
-
-    return response()->json([
-        'products' => $products
-    ]);
-    }
-    public function bestproduct(){
+    public function bestproduct()
+    {
         $products = Product::with('productVariants') // Tải các biến thể để kiểm tra số lượng
-        ->where('best_seller_product', 1) // Điều kiện best_seller_product = 1
-        ->where(function ($query) {
-            // Kiểm tra số lượng sản phẩm hoặc số lượng sản phẩm biến thể
-            $query->where('quantity', ">=", 1) // Số lượng sản phẩm đơn thể
-                  ->orWhereHas('productVariants', function ($q) {
-                      $q->where('quantity', ">=", 1); // Số lượng của biến thể
-                  });
-        })
-        ->limit(10)
-        ->get();
+            ->where('best_seller_product', 1) // Điều kiện best_seller_product = 1
+            ->where(function ($query) {
+                // Kiểm tra số lượng sản phẩm hoặc số lượng sản phẩm biến thể
+                $query->where('quantity', ">=", 1) // Số lượng sản phẩm đơn thể
+                    ->orWhereHas('productVariants', function ($q) {
+                    $q->where('quantity', ">=", 1); // Số lượng của biến thể
+                });
+            })
+            ->limit(10)
+            ->get();
 
-    if ($products->isEmpty()) {
+        if ($products->isEmpty()) {
+            return response()->json([
+                'message' => "Không có sản phẩm best seller với số lượng 1."
+            ], 404);
+        }
+
+        $products->transform(function ($product) {
+            return [
+                'id' => $product->id,
+                'name' => $product->name,
+                'image' => $product->image ? Storage::url($product->image) : null, // URL hình ảnh sản phẩm
+                'quantity' => $product->quantity,
+                'price' => $this->getCurrentPrice($product), // Lấy giá hiện tại
+                'productVariants' => $product->productVariants->map(function ($variant) {
+                    return [
+                        'id' => $variant->id,
+                        'color_id' => $variant->color_id,
+                        'size_id' => $variant->size_id,
+                        'quantity' => $variant->quantity,
+                        'price' => $this->getCurrentPrice($variant), // Lấy giá hiện tại cho biến thể
+                        'sale_price' => $variant->sale_price,
+                        'sku' => $variant->sku,
+                        'image' => $variant->image ? Storage::url($variant->image) : null, // URL hình ảnh biến thể
+                    ];
+                }),
+            ];
+        });
+
         return response()->json([
-            'message' => "Không có sản phẩm best seller với số lượng 1."
-        ], 404);
+            'products' => $products
+        ]);
     }
-
-    $products->transform(function($product) {
-        return [
-            'id' => $product->id,
-            'name' => $product->name,
-            'image' => $product->image ? Storage::url($product->image) : null, // URL hình ảnh sản phẩm
-            'quantity' => $product->quantity,
-            'price' => $this->getCurrentPrice($product), // Lấy giá hiện tại
-            'productVariants' => $product->productVariants->map(function($variant) {
-                return [
-                    'id' => $variant->id,
-                    'color_id' => $variant->color_id,
-                    'size_id' => $variant->size_id,
-                    'quantity' => $variant->quantity,
-                    'price' => $this->getCurrentPrice($variant), // Lấy giá hiện tại cho biến thể
-                    'sale_price' => $variant->sale_price,
-                    'sku' => $variant->sku,
-                    'image' => $variant->image ? Storage::url($variant->image) : null, // URL hình ảnh biến thể
-                ];
-            }),
-        ];
-    });
-
-    return response()->json([
-        'products' => $products
-    ]);
-    }
-    public function featuredproduct(){
+    public function featuredproduct()
+    {
         $products = Product::with('productVariants') // Tải các biến thể để kiểm tra số lượng
-        ->where('featured_product', 1) // Điều kiện featured_product = 1
-        ->where(function ($query) {
-            // Kiểm tra số lượng sản phẩm hoặc số lượng sản phẩm biến thể
-            $query->where('quantity', ">=", 1) // Số lượng sản phẩm đơn thể
-                  ->orWhereHas('productVariants', function ($q) {
-                      $q->where('quantity', ">=", 1); // Số lượng của biến thể
-                  });
-        })
-        ->limit(10)
-        ->get();
+            ->where('featured_product', 1) // Điều kiện featured_product = 1
+            ->where(function ($query) {
+                // Kiểm tra số lượng sản phẩm hoặc số lượng sản phẩm biến thể
+                $query->where('quantity', ">=", 1) // Số lượng sản phẩm đơn thể
+                    ->orWhereHas('productVariants', function ($q) {
+                    $q->where('quantity', ">=", 1); // Số lượng của biến thể
+                });
+            })
+            ->limit(10)
+            ->get();
 
-    if ($products->isEmpty()) {
+        if ($products->isEmpty()) {
+            return response()->json([
+                'message' => "Không có sản phẩm featured_product với số lượng 1."
+            ], 404);
+        }
+
+        $products->transform(function ($product) {
+            return [
+                'id' => $product->id,
+                'name' => $product->name,
+                'image' => $product->image ? Storage::url($product->image) : null, // URL hình ảnh sản phẩm
+                'quantity' => $product->quantity,
+                'price' => $this->getCurrentPrice($product), // Lấy giá hiện tại
+                'productVariants' => $product->productVariants->map(function ($variant) {
+                    return [
+                        'id' => $variant->id,
+                        'color_id' => $variant->color_id,
+                        'size_id' => $variant->size_id,
+                        'quantity' => $variant->quantity,
+                        'price' => $this->getCurrentPrice($variant), // Lấy giá hiện tại cho biến thể
+                        'sale_price' => $variant->sale_price,
+                        'sku' => $variant->sku,
+                        'image' => $variant->image ? Storage::url($variant->image) : null, // URL hình ảnh biến thể
+                    ];
+                }),
+            ];
+        });
+
         return response()->json([
-            'message' => "Không có sản phẩm featured_product với số lượng 1."
-        ], 404);
-    }
-
-    $products->transform(function($product) {
-        return [
-            'id' => $product->id,
-            'name' => $product->name,
-            'image' => $product->image ? Storage::url($product->image) : null, // URL hình ảnh sản phẩm
-            'quantity' => $product->quantity,
-            'price' => $this->getCurrentPrice($product), // Lấy giá hiện tại
-            'productVariants' => $product->productVariants->map(function($variant) {
-                return [
-                    'id' => $variant->id,
-                    'color_id' => $variant->color_id,
-                    'size_id' => $variant->size_id,
-                    'quantity' => $variant->quantity,
-                    'price' => $this->getCurrentPrice($variant), // Lấy giá hiện tại cho biến thể
-                    'sale_price' => $variant->sale_price,
-                    'sku' => $variant->sku,
-                    'image' => $variant->image ? Storage::url($variant->image) : null, // URL hình ảnh biến thể
-                ];
-            }),
-        ];
-    });
-
-    return response()->json([
-        'products' => $products
-    ]);
+            'products' => $products
+        ]);
     }
     private function getCurrentPrice($item)
-{
-    $now = now();
-    if ($item->sale_price && $item->sale_start <= $now && $item->sale_end >= $now) {
-        return $item->sale_price; // Nếu giá sale còn hiệu lực
-    }
+    {
+        $now = now();
+        if ($item->sale_price && $item->sale_start <= $now && $item->sale_end >= $now) {
+            return $item->sale_price; // Nếu giá sale còn hiệu lực
+        }
 
-    return $item->price; // Nếu không, trả về giá gốc
-}
-    public function filterProductByColor(){
+        return $item->price; // Nếu không, trả về giá gốc
+    }
+    public function filterProductByColor()
+    {
         $product = Product::with('productVariants')->where('color_id')->get();
         // nếu không tìm thấy sản phẩm
-        if(!$product){
+        if (!$product) {
             return response()->json([
-                'message'=>"Không tìm thấy sản phẩm"], 404);
+                'message' => "Không tìm thấy sản phẩm"
+            ], 404);
         }
         return response()->json([
-            'product'=>$product
+            'product' => $product
         ]);
     }
     public function filterProducts(Request $request)
@@ -338,33 +343,41 @@ class ProductController extends Controller
         $minPrice = $request->input('min_price');
         $maxPrice = $request->input('max_price');
 
+        // Khởi tạo query sản phẩm
         $query = Product::query();
 
-        $query->whereHas('productVariants', function($q) use ($colorId, $sizeId, $minPrice, $maxPrice) {
+        // Thêm điều kiện nếu có màu sắc hoặc kích cỡ hoặc giá
+        $query->whereHas('productVariants', function ($q) use ($colorId, $sizeId, $minPrice, $maxPrice) {
             if ($colorId) {
                 $q->where('color_id', $colorId);
             }
+
             if ($sizeId) {
                 $q->where('size_id', $sizeId);
             }
-            if ($minPrice !== null && $maxPrice !== null) {
-                $q->whereBetween('price', [$minPrice, $maxPrice]);
-            } elseif ($minPrice !== null) {
-                $q->where('price', '>=', $minPrice);
-            } elseif ($maxPrice !== null) {
-                $q->where('price', '<=', $maxPrice);
+
+            if ($minPrice !== null || $maxPrice !== null) {
+                if ($minPrice !== null && $maxPrice !== null) {
+                    $q->whereBetween('price', [$minPrice, $maxPrice]);
+                } elseif ($minPrice !== null) {
+                    $q->where('price', '>=', $minPrice);
+                } elseif ($maxPrice !== null) {
+                    $q->where('price', '<=', $maxPrice);
+                }
             }
         });
 
+        // Lấy danh sách sản phẩm sau khi lọc
         $products = $query->get();
 
         return response()->json($products);
     }
 
-    public function searchProduct(Request $request) {
-        // Lấy từ khóa tìm kiếm từ request
-        $name_search = $request->input('name');
-        
+    public function searchProduct(Request $request)
+    {
+        // Lấy từ khóa tìm kiếm từ request và loại bỏ khoảng trắng thừa
+        $name_search = trim($request->input('name'));
+
         // Kiểm tra đầu vào
         if (!$name_search) {
             return response()->json([
@@ -372,18 +385,19 @@ class ProductController extends Controller
                 'message' => 'Vui lòng cung cấp từ khóa tìm kiếm.'
             ], 400);
         }
-    
-        // Tìm kiếm sản phẩm với phân trang
+
+        // Tìm kiếm sản phẩm theo tên hoặc ký tự, không phân biệt chữ hoa chữ thường
         $products = Product::query()
-            ->where('name', 'LIKE', '%' . $name_search . '%')
-            ->paginate(10); // Thay đổi số 10 nếu muốn số lượng sản phẩm mỗi trang khác
-    
+            ->where('name', 'LIKE', '%' . strtolower($name_search) . '%')
+            ->orWhere('name', 'LIKE', '%' . strtoupper($name_search) . '%')
+            ->paginate(10); // Có thể thay đổi số 10 để điều chỉnh số lượng sản phẩm mỗi trang
+
         // Trả về kết quả
         return response()->json([
             'status' => 'success',
             'products' => $products
         ], 200);
     }
-    
+
 
 }
