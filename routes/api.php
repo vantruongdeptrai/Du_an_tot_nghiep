@@ -268,7 +268,7 @@ Route::delete('/orders/{id}', [OrderController::class, 'deleteOrder']);
 Route::get('/search', [ProductController::class, 'searchProduct']);
 
 
-
+Route::get('/filter',[ProductController::class,'filterProducts'] );
 
 // thanh toán
 Route::post('/payment', [VNPayController::class, 'createPayment']);
