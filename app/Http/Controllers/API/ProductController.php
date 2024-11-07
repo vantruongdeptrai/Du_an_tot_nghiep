@@ -343,34 +343,54 @@ class ProductController extends Controller
         $minPrice = $request->input('min_price');
         $maxPrice = $request->input('max_price');
 
-        // Khởi tạo query sản phẩm
-        $query = Product::query();
+        // Lấy ID của các sản phẩm thỏa mãn điều kiện từ bảng product_variants
+        $productIds = DB::table('product_variants')
+            ->select('product_id')
+            ->when($colorId, function ($query) use ($colorId) {
+                return $query->where('color_id', $colorId);
+            })
+            ->when($sizeId, function ($query) use ($sizeId) {
+                return $query->where('size_id', $sizeId);
+            })
+            ->when($minPrice !== null, function ($query) use ($minPrice) {
+                return $query->where('price', '>=', $minPrice);
+            })
+            ->when($maxPrice !== null, function ($query) use ($maxPrice) {
+                return $query->where('price', '<=', $maxPrice);
+            })
+            ->groupBy('product_id')
+            ->havingRaw('COUNT(DISTINCT CASE 
+                WHEN ? IS NOT NULL THEN color_id 
+                ELSE NULL END) >= ?', 
+                [$colorId, $colorId ? 1 : 0]
+            )
+            ->havingRaw('COUNT(DISTINCT CASE 
+                WHEN ? IS NOT NULL THEN size_id 
+                ELSE NULL END) >= ?', 
+                [$sizeId, $sizeId ? 1 : 0]
+            )
+            ->pluck('product_id');
 
-        // Thêm điều kiện nếu có màu sắc hoặc kích cỡ hoặc giá
-        $query->whereHas('productVariants', function ($q) use ($colorId, $sizeId, $minPrice, $maxPrice) {
-            if ($colorId) {
-                $q->where('color_id', $colorId);
-            }
-
-            if ($sizeId) {
-                $q->where('size_id', $sizeId);
-            }
-
-            if ($minPrice !== null || $maxPrice !== null) {
-                if ($minPrice !== null && $maxPrice !== null) {
-                    $q->whereBetween('price', [$minPrice, $maxPrice]);
-                } elseif ($minPrice !== null) {
-                    $q->where('price', '>=', $minPrice);
-                } elseif ($maxPrice !== null) {
-                    $q->where('price', '<=', $maxPrice);
-                }
-            }
-        });
-
-        // Lấy danh sách sản phẩm sau khi lọc
-        $products = $query->get();
+        // Lấy thông tin chi tiết của sản phẩm và các biến thể
+        $products = Product::whereIn('id', $productIds)
+            ->with(['productVariants' => function ($query) use ($colorId, $sizeId, $minPrice, $maxPrice) {
+                $query->when($colorId, function ($q) use ($colorId) {
+                    return $q->where('color_id', $colorId);
+                })
+                ->when($sizeId, function ($q) use ($sizeId) {
+                    return $q->where('size_id', $sizeId);
+                })
+                ->when($minPrice !== null, function ($q) use ($minPrice) {
+                    return $q->where('price', '>=', $minPrice);
+                })
+                ->when($maxPrice !== null, function ($q) use ($maxPrice) {
+                    return $q->where('price', '<=', $maxPrice);
+                });
+            }])
+            ->get();
 
         return response()->json($products);
+
     }
 
     public function searchProduct(Request $request)
