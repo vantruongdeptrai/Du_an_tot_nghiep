@@ -390,14 +390,7 @@ class ProductController extends Controller
             ->get();
 
         return response()->json($products);
-        // Test case 1: Lọc theo màu
-        // http://127.0.0.1:8000/api/filter?color_id=1
 
-        // // Test case 2: Lọc theo màu và size
-        // http://127.0.0.1:8000/api/filter?color_id=1&size_id=2
-
-        // // Test case 3: Lọc theo màu, size và khoảng giá
-        // http://127.0.0.1:8000/api/filter?color_id=1&size_id=2&min_price=100000&max_price=500000
     }
 
     public function searchProduct(Request $request)
