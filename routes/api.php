@@ -258,11 +258,12 @@ Route::post('/oder/login', [OrderController::class, 'PaymentLogin']);
 // http://127.0.0.1:8000/api/oder/no-login
 Route::middleware([\Illuminate\Session\Middleware\StartSession::class])->post('/oder/no-login', [OrderController::class, 'PaymentNoLogin']);
 Route::get('/orders', [OrderController::class, 'index']);//http:127.0.0.1:8000/api/orders
-Route::get('/orders/{id}', [OrderController::class, 'getOrderById']);//http:127.0.0.1:8000/api/orders
+Route::get('/orders/{id}', [OrderController::class, 'getOrderById']);//http:127.0.0.1:8000/api/orders/id
 
-Route::put('/orders/{id}', [OrderController::class, 'updateOrder']);
-Route::put('/orders/{id}', [OrderController::class, 'updateOrder']);
-Route::delete('/orders/{id}', [OrderController::class, 'deleteOrder']);
+Route::put('/orders/{id}', [OrderController::class, 'updateOrder']); //http:127.0.0.1:8000/api/orders/id
+
+Route::delete('/orders/{id}', [OrderController::class, 'deleteOrder']); //http:127.0.0.1:8000/api/orders/id
+
 
 
 Route::get('/search', [ProductController::class, 'searchProduct']);
