@@ -253,6 +253,8 @@ Route::post('/cart/add', [CartController::class, 'addToCart']);
 // Route cho người dùng chưa đăng nhập
 Route::middleware([\Illuminate\Session\Middleware\StartSession::class])->post('/cart/add/guest', [CartController::class, 'addToCartGuest']);
 
+Route::delete('/delete/{id}', [CartController::class, 'destroy']); // Route xóa mềm giỏ hàng
+
 // http://127.0.0.1:8000/api/oder/login
 Route::post('/oder/login', [OrderController::class, 'PaymentLogin']);
 // http://127.0.0.1:8000/api/oder/no-login
