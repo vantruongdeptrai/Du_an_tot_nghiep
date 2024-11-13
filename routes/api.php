@@ -129,6 +129,7 @@ Route::get('/product-variants/{id}', [ProductVariantController::class, 'show']);
 //http://127.0.0.1:8000/api/product-variants
 Route::post('/product-variants', [ProductVariantController::class, 'store']); 
 
+
 //http://127.0.0.1:8000/api/product-variants/{id}
 Route::put('/product-variants/{id}', [ProductVariantController::class, 'update']); 
 
