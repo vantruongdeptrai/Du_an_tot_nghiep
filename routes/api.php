@@ -130,7 +130,7 @@ Route::get('/product-variants/{id}', [ProductVariantController::class, 'show']);
 Route::post('/product-variants', [ProductVariantController::class, 'store']); 
 
 //http://127.0.0.1:8000/api/product-variants/{id}
-Route::post('/product-variants/{id}', [ProductVariantController::class, 'update']); 
+Route::put('/product-variants/{id}', [ProductVariantController::class, 'update']); 
 
 
 //http://127.0.0.1:8000/api/product-variants/{id}
@@ -175,6 +175,9 @@ Route::post('products',[ProductController::class,'store']);
 
 Route::delete('products/{id}',[ProductController::class,'destroy']);
 //http://127.0.0.1:8000/api/products/id
+
+Route::put('products/{id}', [ProductController::class, 'update']);
+
 
 Route::get('product/{id}', [ProductController::class, 'show']);
 //http://127.0.0.1:8000/api/product/id
@@ -252,6 +255,8 @@ Route::post('/cart/add', [CartController::class, 'addToCart']);
 
 // Route cho người dùng chưa đăng nhập
 Route::middleware([\Illuminate\Session\Middleware\StartSession::class])->post('/cart/add/guest', [CartController::class, 'addToCartGuest']);
+
+Route::delete('/delete/{id}', [CartController::class, 'destroy']); // Route xóa mềm giỏ hàng
 
 // http://127.0.0.1:8000/api/oder/login
 Route::post('/oder/login', [OrderController::class, 'PaymentLogin']);

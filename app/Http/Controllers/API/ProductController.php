@@ -35,37 +35,48 @@ class ProductController extends Controller
             'price' => 'required|numeric',
             'sale_price' => 'nullable|numeric',
             'category_id' => 'required|integer|exists:categories,id',
+            'quantity' => 'nullable|integer',
             'sale_start' => 'nullable|date',
             'sale_end' => 'nullable|date',
             'new_product' => 'nullable|boolean',
             'best_seller_product' => 'nullable|boolean',
             'featured_product' => 'nullable|boolean',
+            'is_variant' => 'nullable|boolean',
             'image' => 'nullable|file|mimes:jpg,jpeg,png|max:2048', // Kiểm tra file ảnh
         ]);
     
-        // Xử lý slug cho sản phẩm
+        // Generate slug based on product name
         $slug = Str::slug($validatedData['name']);
+    
+        // Check if slug already exists and make it unique if necessary
+        $count = Product::where('slug', $slug)->count();
+        if ($count > 0) {
+            $slug .= '-' . ($count + 1);
+        }
     
         // Lưu file ảnh vào storage
         $imagePath = $request->hasFile('image') ? $request->file('image')->store('products', 'public') : null;
     
         $product = Product::create([
-            'name' => $request->input('name'), // Đảm bảo rằng bạn có giá trị cho trường này
+            'name' => $request->input('name'),
             'description' => $request->input('description'),
             'price' => $request->input('price'),
             'sale_price' => $request->input('sale_price'),
             'category_id' => $request->input('category_id'),
+            'quantity' => $request->input('quantity', 0),
             'sale_start' => $request->input('sale_start', now()),
             'sale_end' => $request->input('sale_end', now()->addDays(7)),
             'new_product' => $request->input('new_product', 0),
             'best_seller_product' => $request->input('best_seller_product', 0),
             'featured_product' => $request->input('featured_product', 0),
+            'is_variant' => $request->input('is_variant', true),
             'image' => $imagePath,
-            'slug' => $slug, 
+            'slug' => $slug,
         ]);
     
-        return response()->json(['message' => 'tạo sản phẩm thành công', 'product' => $product], 201);
+        return response()->json(['message' => 'Thêm sản phẩm thành công', 'product' => $product], 201);
     }
+    
 
     public function show(string $id)
     {
@@ -113,6 +124,8 @@ class ProductController extends Controller
             'best_seller_product' => $request->input('best_seller_product', $product->best_seller_product),
             'featured_product' => $request->input('featured_product', $product->featured_product),
             'image' => $imagePath,
+            'quantity' => $request->input('quantity', $product->quantity) // Cập nhật số lượng cho sản phẩm chính
+
         ]);
 
         // Cập nhật hoặc thêm mới các biến thể của sản phẩm
