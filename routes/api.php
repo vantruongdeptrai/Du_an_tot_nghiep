@@ -23,6 +23,8 @@ use App\Http\Controllers\API\ProductVariantController;
 use App\Http\Controllers\API\OrderController;
 use App\Http\Controllers\API\VNPayController;
 use App\Http\Controllers\API\vnpayReturn;
+use App\Http\Controllers\API\AddressController;
+
 
 
 
@@ -183,6 +185,9 @@ Route::put('products/{id}', [ProductController::class, 'update']);
 Route::get('product/{id}', [ProductController::class, 'show']);
 //http://127.0.0.1:8000/api/product/id
 
+Route::put('product/{id}', [ProductController::class, 'update']);
+//http://127.0.0.1:8000/api/product/id
+
 Route::get('products/newproduct', [ProductController::class, 'newproduct']);
 //http://127.0.0.1:8000/api/products/newproduct
 
@@ -272,12 +277,22 @@ Route::delete('/orders/{id}', [OrderController::class, 'deleteOrder']); //http:1
 
 
 
+Route::get('/search', [ProductController::class, 'searchProduct']);
 
 
-
-
+Route::get('/filter',[ProductController::class,'filterProducts'] );
 
 // thanh toán
 Route::post('/payment', [VNPayController::class, 'createPayment']);
 // /api/vnpay/create-payment
 Route::get('/vnpay-return', [VNPayController::class, 'vnpayReturn']); // URL quay về sau thanh toán
+
+
+Route::get('/addresses', [AddressController::class, 'getAllData']);
+//http://127.0.0.1:8000/api/addresses
+Route::post('/addresses', [AddressController::class, 'addAddresses']);
+//http://127.0.0.1:8000/api/addresses
+Route::put('/addresses/{id}', [AddressController::class, 'updateAddress']);
+
+Route::delete('/addresses/{id}', [AddressController::class, 'deleteAddress']);
+//http://127.0.0.1:8000/api/addresses/id

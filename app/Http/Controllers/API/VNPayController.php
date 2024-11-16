@@ -4,11 +4,11 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-
+use App\Models\Order;
 class VNPayController extends Controller
 {
     //
-    public function createPayment(Request $request)
+    public function createPayment(Request $request,Order $order)
     {
 
         // Lấy thông tin cấu hình từ .env
@@ -19,9 +19,9 @@ class VNPayController extends Controller
 
         // Dữ liệu thanh toán
         $vnp_TxnRef = time(); // Mã giao dịch thanh toán, unique mỗi lần
-        $vnp_OrderInfo = 'Thanh toán đơn hàng tại hệ thống';
+        $vnp_OrderInfo = ' Thanh toán đơn hàng ' . $order->id;
         $vnp_OrderType = 'billpayment';
-        $vnp_Amount = $request->input('amount') * 100; // Số tiền, tính bằng VND * 100
+        $vnp_Amount = $order->total_price; // Số tiền, tính bằng VND * 100
         $vnp_Locale = 'vn'; // Ngôn ngữ
         $vnp_BankCode = $request->input('bank_code') ?? ''; // Chọn ngân hàng nếu có
 
@@ -84,10 +84,20 @@ class VNPayController extends Controller
 
         if ($secureHash == $vnp_SecureHash) {
             if ($inputData['vnp_ResponseCode'] == '00') {
+                $order = Order::create([
+                    'transaction_id' => $inputData['vnp_TxnRef'],
+                    'amount' => $inputData['vnp_Amount'], // Convert from VND to appropriate currency
+                    'payment_method' => 'VNPay',
+                    'status' => 'Đã thanh toán',
+                    // Thêm các trường dữ liệu khác liên quan đến đơn hàng tùy theo yêu cầu
+                ]);
+                
                 return response()->json([
                     'status' => 'success',
                     'message' => 'Giao dịch thành công',
-                    'data' => $inputData
+                    'data' => [
+                        'order' => $order->toArray()
+                    ]
                 ]);
             } else {
                 return response()->json([
