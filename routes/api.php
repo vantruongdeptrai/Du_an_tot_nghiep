@@ -23,6 +23,8 @@ use App\Http\Controllers\API\ProductVariantController;
 use App\Http\Controllers\API\OrderController;
 use App\Http\Controllers\API\VNPayController;
 use App\Http\Controllers\API\vnpayReturn;
+use App\Http\Controllers\API\AddressController;
+
 
 
 
@@ -129,6 +131,7 @@ Route::get('/product-variants/{id}', [ProductVariantController::class, 'show']);
 //http://127.0.0.1:8000/api/product-variants
 Route::post('/product-variants', [ProductVariantController::class, 'store']); 
 
+
 //http://127.0.0.1:8000/api/product-variants/{id}
 Route::put('/product-variants/{id}', [ProductVariantController::class, 'update']); 
 
@@ -175,6 +178,9 @@ Route::post('products',[ProductController::class,'store']);
 
 Route::delete('products/{id}',[ProductController::class,'destroy']);
 //http://127.0.0.1:8000/api/products/id
+
+Route::put('products/{id}', [ProductController::class, 'update']);
+
 
 Route::get('product/{id}', [ProductController::class, 'show']);
 //http://127.0.0.1:8000/api/product/id
@@ -280,3 +286,13 @@ Route::get('/filter',[ProductController::class,'filterProducts'] );
 Route::post('/payment', [VNPayController::class, 'createPayment']);
 // /api/vnpay/create-payment
 Route::get('/vnpay-return', [VNPayController::class, 'vnpayReturn']); // URL quay về sau thanh toán
+
+
+Route::get('/addresses', [AddressController::class, 'getAllData']);
+//http://127.0.0.1:8000/api/addresses
+Route::post('/addresses', [AddressController::class, 'addAddresses']);
+//http://127.0.0.1:8000/api/addresses
+Route::put('/addresses/{id}', [AddressController::class, 'updateAddress']);
+
+Route::delete('/addresses/{id}', [AddressController::class, 'deleteAddress']);
+//http://127.0.0.1:8000/api/addresses/id

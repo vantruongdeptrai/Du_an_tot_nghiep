@@ -76,6 +76,7 @@ class ProductController extends Controller
     
         return response()->json(['message' => 'Thêm sản phẩm thành công', 'product' => $product], 201);
     }
+    
 
     public function show(string $id)
     {
@@ -126,41 +127,7 @@ class ProductController extends Controller
             'quantity' => $request->input('quantity', $product->quantity) // Cập nhật số lượng cho sản phẩm chính
 
         ]);
-
-        // Cập nhật hoặc thêm mới các biến thể của sản phẩm
-        $variants = $request->input('variants', []);
-
-        // Xóa các biến thể cũ không có trong yêu cầu cập nhật
-        $existingVariantIds = $product->variants->pluck('id')->toArray();
-        $newVariantIds = array_column($variants, 'id');
-        $variantIdsToDelete = array_diff($existingVariantIds, $newVariantIds);
-
-        ProductVariant::whereIn('id', $variantIdsToDelete)->delete();
-
-        // Cập nhật hoặc thêm các biến thể mới
-        foreach ($variants as $variant) {
-            if (isset($variant['id'])) {
-                // Nếu đã có variant, thì cập nhật
-                $productVariant = ProductVariant::find($variant['id']);
-                $productVariant->update([
-                    'quantity' => $variant['quantity'],
-                    'price' => $variant['price'],
-                    'status' => $variant['status'] ?? 0,
-                ]);
-            } else {
-                // Nếu chưa có variant, thì thêm mới
-                $sku = strtoupper(str_replace(' ', '-', $product->name) . '-' . Str::random(5));
-                $productVariant = ProductVariant::create([
-                    'product_id' => $product->id,
-                    'quantity' => $variant['quantity'],
-                    'price' => $variant['price'],
-                    'sku' => $sku,
-                    'status' => $variant['status'] ?? 0,
-                ]);
-            }
-
-
-        }
+       
 
         return response()->json($product, 200);
 
