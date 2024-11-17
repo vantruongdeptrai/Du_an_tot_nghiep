@@ -21,6 +21,7 @@ use App\Http\Controllers\API\OperatingCostController;
 use App\Http\Controllers\API\AttributeValueController;
 use App\Http\Controllers\API\ProductVariantController;
 use App\Http\Controllers\API\OrderController;
+use App\Http\Controllers\Api\RevenueController;
 use App\Http\Controllers\API\VNPayController;
 use App\Http\Controllers\API\vnpayReturn;
 
@@ -264,8 +265,6 @@ Route::put('/orders/{id}', [OrderController::class, 'updateOrder']); //http:127.
 
 Route::delete('/orders/{id}', [OrderController::class, 'deleteOrder']); //http:127.0.0.1:8000/api/orders/id
 
-
-
 Route::get('/search', [ProductController::class, 'searchProduct']);
 
 
@@ -275,3 +274,5 @@ Route::get('/filter',[ProductController::class,'filterProducts'] );
 Route::post('/payment', [VNPayController::class, 'createPayment']);
 // /api/vnpay/create-payment
 Route::get('/vnpay-return', [VNPayController::class, 'vnpayReturn']); // URL quay về sau thanh toán
+
+Route::get('revenue/day', [RevenueController::class, 'revenueByDay']);//Thống kê doanh thu theo ngày
