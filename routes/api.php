@@ -284,13 +284,11 @@ Route::get('/search', [ProductController::class, 'searchProduct']);
 
 
 Route::get('/filter',[ProductController::class,'filterProducts'] );
+
 // thanh toán
 Route::post('/payment', [VNPayController::class, 'createPayment']);
 // /api/vnpay/create-payment
 Route::get('/vnpay-return', [VNPayController::class, 'vnpayReturn']); // URL quay về sau thanh toán
-
-
-Route::get('revenue/day', [RevenueController::class, 'revenueByDay']);//Thống kê doanh thu theo ngày
 
 
 Route::get('/addresses', [AddressController::class, 'getAllData']);
@@ -303,4 +301,7 @@ Route::delete('/addresses/{id}', [AddressController::class, 'deleteAddress']);
 //http://127.0.0.1:8000/api/addresses/id
 
 
-Route::post('/momo-payment', [MomoController::class, 'momoPayment']);
+
+
+Route::post('/create-payment', [VNPayController::class, 'createPayment']); //http://127.0.0.1:8000/api/create-payment
+Route::get('/handle-ipn', [VNPayController::class, 'handleIPN']);

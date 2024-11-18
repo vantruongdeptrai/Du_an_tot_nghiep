@@ -21,7 +21,8 @@ return new class extends Migration
                 'Đang chuẩn bị', 
                 'Đang vận chuyển', 
                 'Giao hàng thành công', 
-                'Đã hủy'
+                'Đã hủy',
+                'Đã thanh toán'
             ]);
             $table->string('payment_type');
             $table->text('shipping_address');
