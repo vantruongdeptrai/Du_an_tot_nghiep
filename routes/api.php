@@ -24,6 +24,7 @@ use App\Http\Controllers\API\OrderController;
 use App\Http\Controllers\API\VNPayController;
 use App\Http\Controllers\API\vnpayReturn;
 use App\Http\Controllers\API\AddressController;
+use App\Http\Controllers\API\MomoController;
 
 
 
@@ -296,3 +297,5 @@ Route::put('/addresses/{id}', [AddressController::class, 'updateAddress']);
 
 Route::delete('/addresses/{id}', [AddressController::class, 'deleteAddress']);
 //http://127.0.0.1:8000/api/addresses/id
+
+Route::post('/momo-payment', [MomoController::class, 'momoPayment']);
