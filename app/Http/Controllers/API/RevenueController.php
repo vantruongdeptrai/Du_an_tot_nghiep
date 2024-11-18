@@ -38,7 +38,7 @@ class RevenueController extends Controller
     }
     public function revenueByYear(Request $request)
     {
-        $year = $request->input('year'); // Yêu cầu năm từ client (ví dụ: '2024')
+        $year = $request->input('year'); 
 
         $totalRevenue = Order::whereYear('created_at', $year)
             ->sum('total_price');

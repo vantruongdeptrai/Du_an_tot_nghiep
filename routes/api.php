@@ -291,6 +291,7 @@ Route::get('revenue/month', [OrderController::class, 'revenueByMonth']);//Thốn
 Route::get('revenue/day', [RevenueController::class, 'revenueByDay']);//Thống kê doanh thu theo ngày
 
 
+
 Route::get('/addresses', [AddressController::class, 'getAllData']);
 //http://127.0.0.1:8000/api/addresses
 Route::post('/addresses', [AddressController::class, 'addAddresses']);
