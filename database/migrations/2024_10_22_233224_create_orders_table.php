@@ -15,7 +15,14 @@ return new class extends Migration
             $table->id();
             $table->unsignedInteger('user_id')->nullable();
             $table->decimal('total_price', 10, 2)->nullable();
-            $table->enum('status_order', ['Chờ xác nhận', 'Đã xác nhận', 'Đang chuẩn bị', 'Đang vận chuyển', 'Đã giao hàng','Giao hàng thành công','Đã hủy'  ]);
+            $table->enum('status_order', [
+                'Chờ xác nhận', 
+                'Đã xác nhận', 
+                'Đang chuẩn bị', 
+                'Đang vận chuyển', 
+                'Giao hàng thành công', 
+                'Đã hủy'
+            ]);
             $table->string('payment_type');
             $table->text('shipping_address');
             $table->text('user_note')->nullable();
@@ -23,6 +30,7 @@ return new class extends Migration
             $table->string('phone_order');
             $table->string('name_order');
             $table->string('email_order');
+            $table->text('cancel_reason')->nullable(); // New column for cancellation reason
             $table->timestamps();
 
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');

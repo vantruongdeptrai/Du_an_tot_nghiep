@@ -28,6 +28,7 @@ use App\Http\Controllers\API\AddressController;
 
 
 
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -275,6 +276,8 @@ Route::put('/orders/{id}', [OrderController::class, 'updateOrder']); //http:127.
 
 Route::delete('/orders/{id}', [OrderController::class, 'deleteOrder']); //http:127.0.0.1:8000/api/orders/id
 
+Route::post('/orders/cancel/{id}', [OrderController::class, 'cancelOrder']);
+
 
 
 Route::get('/search', [ProductController::class, 'searchProduct']);
@@ -296,3 +299,15 @@ Route::put('/addresses/{id}', [AddressController::class, 'updateAddress']);
 
 Route::delete('/addresses/{id}', [AddressController::class, 'deleteAddress']);
 //http://127.0.0.1:8000/api/addresses/id
+
+
+// Route::post('/vnpay/payment', [VNPayController::class, 'createPayment']);
+// Route::get('/vnpay/return', [VNPayController::class, 'returnPayment']);
+// Route khởi tạo thanh toán VNPay
+// Route::post('/vnpay/create', [VNPayController::class, 'createPayment'])->name('vnpay.create');
+
+// // Route nhận kết quả thanh toán từ VNPay
+// Route::get('/vnpay/return', [VNPayController::class, 'returnPayment'])->name('vnpay.return');
+
+Route::post('/create-payment', [VNPayController::class, 'createPayment']);
+Route::get('/handle-ipn', [VNPayController::class, 'handleIPN']);
