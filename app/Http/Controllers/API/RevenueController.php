@@ -50,4 +50,13 @@ class RevenueController extends Controller
         ]);
     }
     
+    public function getTotalRevenue()
+    {
+       
+        $totalRevenue = Order::sum('total_price'); 
+
+        return response()->json([
+            'total_revenue' => $totalRevenue
+        ]);
+    }
 }

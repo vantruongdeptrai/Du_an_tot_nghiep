@@ -290,6 +290,7 @@ Route::get('revenue/year', [RevenueController::class, 'revenueByYear']);//Thong 
 Route::get('revenue/month', [OrderController::class, 'revenueByMonth']);//Thống kê doanh thu theo Tháng
 Route::get('revenue/day', [RevenueController::class, 'revenueByDay']);//Thống kê doanh thu theo ngày
 Route::get('/products/best-sellers', [ProductController::class, 'bestSellers']);
+Route::get('/total-revenue', [RevenueController::class, 'getTotalRevenue']);
 
 Route::get('/addresses', [AddressController::class, 'getAllData']);
 //http://127.0.0.1:8000/api/addresses
