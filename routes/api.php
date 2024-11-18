@@ -21,6 +21,7 @@ use App\Http\Controllers\API\OperatingCostController;
 use App\Http\Controllers\API\AttributeValueController;
 use App\Http\Controllers\API\ProductVariantController;
 use App\Http\Controllers\API\OrderController;
+use App\Http\Controllers\Api\RevenueController;
 use App\Http\Controllers\API\VNPayController;
 use App\Http\Controllers\API\vnpayReturn;
 use App\Http\Controllers\API\AddressController;
@@ -275,8 +276,6 @@ Route::put('/orders/{id}', [OrderController::class, 'updateOrder']); //http:127.
 
 Route::delete('/orders/{id}', [OrderController::class, 'deleteOrder']); //http:127.0.0.1:8000/api/orders/id
 
-
-
 Route::get('/search', [ProductController::class, 'searchProduct']);
 
 
@@ -288,6 +287,9 @@ Route::post('/payment', [VNPayController::class, 'createPayment']);
 Route::get('/vnpay-return', [VNPayController::class, 'vnpayReturn']); // URL quay về sau thanh toán
 
 
+Route::get('revenue/day', [RevenueController::class, 'revenueByDay']);//Thống kê doanh thu theo ngày
+
+
 Route::get('/addresses', [AddressController::class, 'getAllData']);
 //http://127.0.0.1:8000/api/addresses
 Route::post('/addresses', [AddressController::class, 'addAddresses']);
@@ -296,3 +298,4 @@ Route::put('/addresses/{id}', [AddressController::class, 'updateAddress']);
 
 Route::delete('/addresses/{id}', [AddressController::class, 'deleteAddress']);
 //http://127.0.0.1:8000/api/addresses/id
+
