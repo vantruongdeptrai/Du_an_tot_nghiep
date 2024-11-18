@@ -289,8 +289,7 @@ Route::get('/vnpay-return', [VNPayController::class, 'vnpayReturn']); // URL qua
 Route::get('revenue/year', [RevenueController::class, 'revenueByYear']);//Thong ke doanh thu theo nam
 Route::get('revenue/month', [OrderController::class, 'revenueByMonth']);//Thống kê doanh thu theo Tháng
 Route::get('revenue/day', [RevenueController::class, 'revenueByDay']);//Thống kê doanh thu theo ngày
-
-
+Route::get('/products/best-sellers', [ProductController::class, 'bestSellers']);
 
 Route::get('/addresses', [AddressController::class, 'getAllData']);
 //http://127.0.0.1:8000/api/addresses
