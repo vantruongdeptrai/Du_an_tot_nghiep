@@ -9,6 +9,7 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
+   
     public function up(): void
     {
         Schema::create('carts', function (Blueprint $table) {
@@ -18,12 +19,14 @@ return new class extends Migration
             $table->unsignedInteger('user_id');
             $table->integer('quantity');//Số lượng tồn kho
             // $table->decimal('price', 15, 2);
-            $table->softDeletes();
-            $table->timestamps();
+            // $table->softDeletes();
+            // $table->timestamps();
             // Thiết lập khóa ngoại
             $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade');
             $table->foreign('product_variant_id')->references('id')->on('product_variants')->onDelete('cascade');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            $table->softDeletes();
+            $table->timestamps();
         });
     }
     /**

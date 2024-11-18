@@ -24,6 +24,8 @@ use App\Http\Controllers\API\OrderController;
 use App\Http\Controllers\Api\RevenueController;
 use App\Http\Controllers\API\VNPayController;
 use App\Http\Controllers\API\vnpayReturn;
+use App\Http\Controllers\API\AddressController;
+
 
 
 
@@ -130,8 +132,9 @@ Route::get('/product-variants/{id}', [ProductVariantController::class, 'show']);
 //http://127.0.0.1:8000/api/product-variants
 Route::post('/product-variants', [ProductVariantController::class, 'store']); 
 
+
 //http://127.0.0.1:8000/api/product-variants/{id}
-Route::post('/product-variants/{id}', [ProductVariantController::class, 'update']); 
+Route::put('/product-variants/{id}', [ProductVariantController::class, 'update']); 
 
 
 //http://127.0.0.1:8000/api/product-variants/{id}
@@ -177,7 +180,13 @@ Route::post('products',[ProductController::class,'store']);
 Route::delete('products/{id}',[ProductController::class,'destroy']);
 //http://127.0.0.1:8000/api/products/id
 
+Route::put('products/{id}', [ProductController::class, 'update']);
+
+
 Route::get('product/{id}', [ProductController::class, 'show']);
+//http://127.0.0.1:8000/api/product/id
+
+Route::put('product/{id}', [ProductController::class, 'update']);
 //http://127.0.0.1:8000/api/product/id
 
 Route::get('products/newproduct', [ProductController::class, 'newproduct']);
@@ -254,6 +263,8 @@ Route::post('/cart/add', [CartController::class, 'addToCart']);
 // Route cho người dùng chưa đăng nhập
 Route::middleware([\Illuminate\Session\Middleware\StartSession::class])->post('/cart/add/guest', [CartController::class, 'addToCartGuest']);
 
+Route::delete('/delete/{id}', [CartController::class, 'destroy']); // Route xóa mềm giỏ hàng
+
 // http://127.0.0.1:8000/api/oder/login
 Route::post('/oder/login', [OrderController::class, 'PaymentLogin']);
 // http://127.0.0.1:8000/api/oder/no-login
@@ -275,4 +286,16 @@ Route::post('/payment', [VNPayController::class, 'createPayment']);
 // /api/vnpay/create-payment
 Route::get('/vnpay-return', [VNPayController::class, 'vnpayReturn']); // URL quay về sau thanh toán
 
+
 Route::get('revenue/day', [RevenueController::class, 'revenueByDay']);//Thống kê doanh thu theo ngày
+
+
+Route::get('/addresses', [AddressController::class, 'getAllData']);
+//http://127.0.0.1:8000/api/addresses
+Route::post('/addresses', [AddressController::class, 'addAddresses']);
+//http://127.0.0.1:8000/api/addresses
+Route::put('/addresses/{id}', [AddressController::class, 'updateAddress']);
+
+Route::delete('/addresses/{id}', [AddressController::class, 'deleteAddress']);
+//http://127.0.0.1:8000/api/addresses/id
+

@@ -11,6 +11,8 @@ use App\Models\Coupon;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use App\Models\Product;
+use App\Models\Cart;
+
 
 
 class OrderController extends Controller
@@ -121,11 +123,14 @@ class OrderController extends Controller
                     $totalPrice -= $coupon->discount_amount;
                 }
             }
-
-            $order->total_price = $totalPrice;
-            $order->save();
-
+            $order->total_price = $totalPrice; 
+            $order->save(); 
+    
+            // Xóa các sản phẩm khỏi giỏ hàng của người dùng
+            Cart::where('user_id', $user->id)->delete();
+    
             DB::commit();
+    
 
             return response()->json([
                 'message' => 'Thanh toán thành công!',
