@@ -258,6 +258,12 @@ public function getCart(Request $request)
      */
     public function destroy(string $id)
     {
-        //
+        $cart = Cart::find($id);
+        if ($cart) {
+            $cart->delete(); // Xóa mềm, không xóa hẳn trong DB
+            return response()->json(['message' => 'Cart deleted successfully'], 200);
+        }
+    
+        return response()->json(['message' => 'Cart not found'], 404);
     }
 }

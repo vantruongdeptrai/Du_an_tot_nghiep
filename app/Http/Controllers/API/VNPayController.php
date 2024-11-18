@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use App\Models\Transaction;
 use Illuminate\Http\Request;
 use App\Models\Order;
 class VNPayController extends Controller
@@ -18,7 +19,7 @@ class VNPayController extends Controller
         $vnp_Returnurl = env('VNP_RETURN_URL'); // URL quay lại sau khi thanh toán
 
         // Dữ liệu thanh toán
-        $vnp_TxnRef = time(); // Mã giao dịch thanh toán, unique mỗi lần
+        $vnp_TxnRef = $order->id; // Mã giao dịch thanh toán, unique mỗi lần
         $vnp_OrderInfo = ' Thanh toán đơn hàng ' . $order->id;
         $vnp_OrderType = 'billpayment';
         $vnp_Amount = $order->total_price; // Số tiền, tính bằng VND * 100
@@ -63,54 +64,81 @@ class VNPayController extends Controller
             'payment_url' => $vnp_Url
         ]);
     }
-
+    const STATUS_PAYMENT_PAID = 'paid';
     public function vnpayReturn(Request $request)
     {
-        $vnp_HashSecret = env('VNP_HASH_SECRET'); // Chuỗi bí mật
-
-        $inputData = [];
-        foreach ($request->all() as $key => $value) {
-            if (substr($key, 0, 4) == "vnp_") {
-                $inputData[$key] = $value;
+        
+        try {
+            $vnp_HashSecret = env('VNP_HASH_SECRET'); // Chuỗi bí mật từ môi trường
+            $inputData = [];
+    
+            // Lọc dữ liệu bắt đầu với "vnp_"
+            foreach ($request->all() as $key => $value) {
+                if (substr($key, 0, 4) == "vnp_") {
+                    $inputData[$key] = $value;
+                }
             }
-        }
-
-        $vnp_SecureHash = $inputData['vnp_SecureHash'];
-        unset($inputData['vnp_SecureHash']);
-        ksort($inputData);
-        $hashData = urldecode(http_build_query($inputData));
-
-        $secureHash = hash_hmac('sha512', $hashData, $vnp_HashSecret);
-
-        if ($secureHash == $vnp_SecureHash) {
-            if ($inputData['vnp_ResponseCode'] == '00') {
-                $order = Order::create([
-                    'transaction_id' => $inputData['vnp_TxnRef'],
-                    'amount' => $inputData['vnp_Amount'], // Convert from VND to appropriate currency
-                    'payment_method' => 'VNPay',
-                    'status' => 'Đã thanh toán',
-                    // Thêm các trường dữ liệu khác liên quan đến đơn hàng tùy theo yêu cầu
+    
+            // Lấy Secure Hash và xóa khỏi dữ liệu để kiểm tra
+            $vnp_SecureHash = $inputData['vnp_SecureHash'] ?? null;
+            unset($inputData['vnp_SecureHash']);
+            ksort($inputData); // Sắp xếp theo thứ tự key
+    
+            // Tạo hash để so sánh
+            $hashData = urldecode(http_build_query($inputData));
+            $secureHash = hash_hmac('sha512', $hashData, $vnp_HashSecret);
+    
+            // Kiểm tra chữ ký bảo mật
+            if ($secureHash !== $vnp_SecureHash) {
+                return response()->json([
+                    'status' => 'fail',
+                    'message' => 'Sai chữ ký bảo mật',
+                ], 400);
+            }
+    
+            // Xử lý nếu giao dịch thành công
+            if ($inputData['vnp_ResponseCode'] === '00') {
+                $orderId = $inputData['vnp_TxnRef']; // Mã đơn hàng
+                $order = Order::findOrFail($orderId); // Tìm đơn hàng theo ID
+    
+                // Tạo giao dịch
+                $transaction = Transaction::create([
+                    'order_id' => $orderId,
+                    'transaction_id' => $inputData['vnp_TransactionNo'],
+                    'amount' => $inputData['vnp_Amount'] / 100, // Chuyển đổi từ đồng sang đơn vị phù hợp
+                    'status' => 'completed',
                 ]);
+    
+                // Cập nhật trạng thái đơn hàng
                 
+                $order->status_payment = 'Đã thanh toán';
+                $order->save();
+    
+                // Trả về phản hồi thành công
                 return response()->json([
                     'status' => 'success',
                     'message' => 'Giao dịch thành công',
                     'data' => [
-                        'order' => $order->toArray()
+                        'order' => $order->toArray(),
+                        'transaction' => $transaction->toArray(),
                     ]
                 ]);
-            } else {
-                return response()->json([
-                    'status' => 'fail',
-                    'message' => 'Giao dịch không thành công',
-                    'data' => $inputData
-                ]);
             }
-        } else {
+    
+            // Nếu giao dịch không thành công
             return response()->json([
                 'status' => 'fail',
-                'message' => 'Sai chữ ký bảo mật',
-            ]);
+                'message' => 'Giao dịch không thành công',
+                'data' => $inputData,
+            ], 400);
+    
+        } catch (\Exception $e) {
+            // Xử lý ngoại lệ và trả về phản hồi lỗi
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Đã xảy ra lỗi trong quá trình xử lý',
+                'error' => $e->getMessage(),
+            ], 500);
         }
     }
 
