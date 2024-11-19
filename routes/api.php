@@ -295,6 +295,7 @@ Route::get('/total-revenue', [RevenueController::class, 'getTotalRevenue']);
 //http://127.0.0.1:8000/api/products/out-of-stock
 Route::get('products/out-of-stock', [ProductController::class, 'getOutOfStockProducts']);
 
+
 Route::get('/search', [ProductController::class, 'searchProduct']);
 
 
