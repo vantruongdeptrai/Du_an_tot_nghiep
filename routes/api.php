@@ -281,10 +281,18 @@ Route::delete('/orders/{id}', [OrderController::class, 'deleteOrder']); //http:1
 
 Route::post('/orders/cancel/{id}', [OrderController::class, 'cancelOrder']);  //http://127.0.0.1:8000/api/orders/cancel/{id}
 
+
+Route::get('revenue/year', [RevenueController::class, 'revenueByYear']);//Thong ke doanh thu theo nam
+Route::get('revenue/month', [OrderController::class, 'revenueByMonth']);//Thống kê doanh thu theo Tháng
+Route::get('revenue/day', [RevenueController::class, 'revenueByDay']);//Thống kê doanh thu theo ngày
+Route::get('/products/best-sellers', [ProductController::class, 'bestSellers']);
+Route::get('/total-revenue', [RevenueController::class, 'getTotalRevenue']);
+
 Route::get('/search', [ProductController::class, 'searchProduct']);
 
 
 Route::get('/filter',[ProductController::class,'filterProducts'] );
+
 
 
 
