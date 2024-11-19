@@ -397,4 +397,32 @@ class ProductController extends Controller
             ], 500);
         }
     }
+    //Thống kê sản phẩm hết hàng
+    public function getOutOfStockProducts()
+    {
+        try {
+            $outOfStockProducts = DB::table('products')
+                ->join('product_variants', 'products.id', '=', 'product_variants.product_id') 
+                ->select(
+                    'products.id as product_id',
+                    'products.name as product_name',
+                    DB::raw('COUNT(product_variants.id) as variant_count') 
+                )
+                ->where('product_variants.quantity', '=', 0) 
+                ->groupBy('products.id', 'products.name')
+                ->get();
+
+            // Trả về kết quả dưới dạng JSON
+            return response()->json([
+                'status' => 'success',
+                'data' => $outOfStockProducts,
+            ]);
+        } catch (\Exception $e) {
+            // Trả về lỗi nếu có vấn đề
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
 }

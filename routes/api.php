@@ -286,11 +286,18 @@ Route::post('/payment', [VNPayController::class, 'createPayment']);
 // /api/vnpay/create-payment
 Route::get('/vnpay-return', [VNPayController::class, 'vnpayReturn']); // URL quay về sau thanh toán
 
+//http://127.0.0.1:8000/api/revenue/year?year={năm}
 Route::get('revenue/year', [RevenueController::class, 'revenueByYear']);//Thong ke doanh thu theo nam
-Route::get('revenue/month', [OrderController::class, 'revenueByMonth']);//Thống kê doanh thu theo Tháng
+//http://127.0.0.1:8000/api/revenue/months?year=2024
+Route::get('revenue/months', [RevenueController::class, 'revenueByMonths']);//Thống kê doanh thu theo Tháng
+//http://127.0.0.1:8000/api/revenue/day?date=y-m-d
 Route::get('revenue/day', [RevenueController::class, 'revenueByDay']);//Thống kê doanh thu theo ngày
+//http://127.0.0.1:8000/api/products/best-sellers
 Route::get('/products/best-sellers', [ProductController::class, 'bestSellers']);
+//http://127.0.0.1:8000/api/total-revenue
 Route::get('/total-revenue', [RevenueController::class, 'getTotalRevenue']);
+//http://127.0.0.1:8000/api/products/out-of-stock
+Route::get('products/out-of-stock', [ProductController::class, 'getOutOfStockProducts']);
 
 Route::get('/addresses', [AddressController::class, 'getAllData']);
 //http://127.0.0.1:8000/api/addresses
