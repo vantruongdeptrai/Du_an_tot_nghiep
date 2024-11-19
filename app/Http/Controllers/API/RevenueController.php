@@ -24,19 +24,42 @@ class RevenueController extends Controller
         ]);
     }
     //Thống kê doanh thu theo tháng
-    public function revenueByMonth(Request $request)
-    {
-        $month = $request->input('month');
+    public function revenueByMonths(Request $request)
+{
+    $year = $request->input('year');
 
-        $totalRevenue = Order::whereMonth('created_at', Carbon::parse($month)->month)
-            ->whereYear('created_at', Carbon::parse($month)->year)
-            ->sum('total_price');
+    if (!$year) {
+        return response()->json([
+            'message' => 'The year parameter is required. Please provide a valid year.',
+        ], 400);
+    }
+
+    try {
+        $revenues = [];
+        for ($month = 1; $month <= 12; $month++) {
+            $revenue = Order::whereYear('created_at', $year)
+                ->whereMonth('created_at', $month)
+                ->sum('total_price');
+
+            $revenues[] = [
+                'month' => $month,
+                'revenue' => $revenue,
+            ];
+        }
 
         return response()->json([
-            'month' => $month,
-            'total_revenue' => $totalRevenue,
+            'year' => $year,
+            'revenues' => $revenues,
         ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'message' => 'An error occurred while calculating revenue.',
+            'error' => $e->getMessage(),
+        ], 500);
     }
+}
+
+//Thống kê doanh thu theo năm
     public function revenueByYear(Request $request)
     {
         $year = $request->input('year');
@@ -49,7 +72,7 @@ class RevenueController extends Controller
             'total_revenue' => $totalRevenue,
         ]);
     }
-    
+    //Thống kê tổng doanh thu
     public function getTotalRevenue()
     {
        
@@ -59,4 +82,5 @@ class RevenueController extends Controller
             'total_revenue' => $totalRevenue
         ]);
     }
+    
 }
