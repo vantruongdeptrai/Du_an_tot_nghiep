@@ -23,16 +23,17 @@ class OrderController extends Controller
     {
         $user = User::find($request->input('user_id'));
         if (!$user) {
-            return response()->json(['message' => 'không có người dùng'], 401);
+            return response()->json(['message' => 'Không có người dùng'], 401);
         }
-
+    
         DB::beginTransaction();
         try {
             // Khởi tạo tổng giá sản phẩm thường và biến thể
             $totalPriceProduct = 0;
             $totalPriceVariant = 0;
             $orderItems = $request->input('order_items');
-
+    
+            // Tạo đơn hàng
             $order = new Order();
             $order->user_id = $user->id;
             $order->status_order = 'Chờ xác nhận';
@@ -43,105 +44,151 @@ class OrderController extends Controller
             $order->name_order = $request->input('name_order');
             $order->email_order = $request->input('email_order');
             $order->user_note = $request->input('user_note');
-            $order->save();
-
+            $order->save(); 
+    
             // Lưu chi tiết sản phẩm bình thường và biến thể
             foreach ($orderItems as $item) {
                 if (array_key_exists('product_id', $item)) {
                     // Xử lý sản phẩm thường
                     $product = Product::find($item['product_id']);
-
                     if (!$product) {
                         return response()->json(['message' => 'Không tìm thấy sản phẩm: ' . $item['product_id']], 404);
                     }
-
+    
                     // Kiểm tra số lượng
                     if ($product->quantity < $item['quantity']) {
                         return response()->json(['message' => 'Số lượng sản phẩm không đủ: ' . $item['product_id']], 400);
                     }
-
-                    // Xử lý sản phẩm khi còn sale 
+    
+                    // Xử lý sản phẩm khi còn sale
                     $price = $product->sale_price && $product->sale_start <= now() && $product->sale_end >= now()
                         ? $product->sale_price
                         : $product->price;
-
+    
                     // Tổng giá trị sản phẩm
                     $totalPriceProduct += $price * $item['quantity'];
-
+    
                     // Lưu chi tiết đơn hàng sản phẩm
                     $orderItem = new OrderItem();
                     $orderItem->order_id = $order->id;
                     $orderItem->product_id = $item['product_id'];
                     $orderItem->product_variant_id = null;
                     $orderItem->quantity = $item['quantity'];
-                    $orderItem->save();
-
+                    $orderItem->save(); 
+    
                     // Giảm số lượng sản phẩm
                     $product->quantity -= $item['quantity'];
-                    $product->save();
+                    $product->save(); 
                 } else if (array_key_exists('product_variant_id', $item)) {
                     // Xử lý sản phẩm biến thể
                     $productVariant = ProductVariant::find($item['product_variant_id']);
-
                     if (!$productVariant) {
                         return response()->json(['message' => 'Không có sản phẩm biến thể ' . $item['product_variant_id']], 404);
                     }
-
+    
                     // Kiểm tra số lượng biến thể
                     if ($productVariant->quantity < $item['quantity']) {
                         return response()->json(['message' => 'Số lượng sản phẩm biến thể không đủ: ' . $item['product_variant_id']], 400);
                     }
-
+    
                     $price = $productVariant->sale_price && $productVariant->sale_start <= now() && $productVariant->sale_end >= now()
                         ? $productVariant->sale_price
                         : $productVariant->price;
-
-                    // Tính tổng
+    
+                    // Tổng giá trị sản phẩm biến thể
                     $totalPriceVariant += $price * $item['quantity'];
-
+    
                     // Giảm số lượng sản phẩm biến thể
                     $productVariant->quantity -= $item['quantity'];
-                    $productVariant->save();
-
-                    // Chi tiết sản phẩm biến thể
+                    $productVariant->save(); 
+    
+                    // Lưu chi tiết sản phẩm biến thể
                     $orderItem = new OrderItem();
                     $orderItem->order_id = $order->id;
                     $orderItem->product_id = $productVariant->product_id;
                     $orderItem->product_variant_id = $item['product_variant_id'];
                     $orderItem->quantity = $item['quantity'];
-                    $orderItem->save();
+                    $orderItem->save(); 
                 } else {
                     return response()->json(['message' => 'Không xác định được sản phẩm'], 400);
                 }
             }
-
+    
             $totalPrice = $totalPriceProduct + $totalPriceVariant;
-
-            if ($request->input('coupon_id')) {
-                $coupon = Coupon::find($request->input('coupon_id'));
-                if ($coupon && $totalPrice >= $coupon->min_order_value) {
-                    $totalPrice -= $coupon->discount_amount;
+    
+               // Mã giảm giá - Tìm coupon theo name
+               if ($request->input('coupon_name')) {
+                // Lấy mã giảm giá từ tên
+                $coupon = Coupon::where('name', $request->input('coupon_name'))->first();
+                
+                if ($coupon) {
+                    // Kiểm tra xem mã giảm giá có còn sử dụng được không (check thời gian, active, và usage limit)
+                    if ($coupon->is_active 
+                        && $totalPrice >= $coupon->min_order_value 
+                        && $coupon->start_date <= now() 
+                        && $coupon->end_date >= now()) {
+                        
+                        $discount = $totalPrice * ($coupon->discount_amount / 100);
+                        
+                        // Nếu giá trị giảm giá lớn hơn tổng đơn hàng, giảm giá không được vượt quá tổng giá trị đơn hàng
+                        if ($discount > $totalPrice) {
+                            $discount = $totalPrice;
+                        }
+                        
+                        // Trừ giá trị giảm giá từ tổng giá trị đơn hàng
+                        $totalPrice -= $discount;
+            
+                        // Lưu coupon_id vào đơn hàng
+                        $order->coupon_id = $coupon->id;
+                        $order->save(); 
+            
+                        // Trừ đi 1 lượt sử dụng mã giảm giá
+                        $coupon->usage_limit -= 1;
+                        if ($coupon->usage_limit <= 0) {
+                            $coupon->is_active = false; 
+                        }
+                        $coupon->save(); 
+                    } else {
+                        // Nếu mã giảm giá không hợp lệ
+                        return response()->json(['message' => 'Mã giảm giá không hợp lệ hoặc không đủ điều kiện sử dụng'], 400);
+                    }
+                } else {
+                    // Nếu không tìm thấy mã giảm giá
+                    return response()->json(['message' => 'Không tìm thấy mã giảm giá'], 404);
                 }
             }
-            $order->total_price = $totalPrice; 
+            
+    
+            // Lưu tổng giá trị đơn hàng
+            $order->total_price = $totalPrice;
             $order->save(); 
     
             // Xóa các sản phẩm khỏi giỏ hàng của người dùng
-            Cart::where('user_id', $user->id)->delete();
+            foreach ($orderItems as $item) {
+                if (array_key_exists('product_id', $item)) {
+                    Cart::where('user_id', $user->id)
+                        ->where('product_id', $item['product_id'])
+                        ->delete();
+                } elseif (array_key_exists('product_variant_id', $item)) {
+                    Cart::where('user_id', $user->id)
+                        ->where('product_variant_id', $item['product_variant_id'])
+                        ->delete();
+                }
+            }
     
-            DB::commit();
+            DB::commit(); // Commit the transaction
     
-
             return response()->json([
                 'message' => 'Thanh toán thành công!',
                 'order_id' => $order->id,
                 'total_price' => $totalPrice,
             ], 201);
         } catch (\Exception $e) {
-            DB::rollBack();
+            DB::rollBack(); // Rollback in case of an error
             return response()->json(['message' => 'Lỗi khi xử lý thanh toán: ' . $e->getMessage()], 500);
         }
     }
+    
 
 
 
@@ -257,8 +304,7 @@ class OrderController extends Controller
             DB::commit();
 
             // Xóa giỏ hàng trong session sau khi thanh toán
-            $request->session()->forget('cart_' . $sessionId);
-
+            $request->session()->forget('cart_' . $sessionId); 
             return response()->json([
                 'message' => 'Thanh toán thành công!',
                 'order_id' => $order->id,
