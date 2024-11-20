@@ -176,7 +176,7 @@ class OrderController extends Controller
                 }
             }
     
-            DB::commit(); // Commit the transaction
+            DB::commit(); 
     
             return response()->json([
                 'message' => 'Thanh toán thành công!',
@@ -184,7 +184,7 @@ class OrderController extends Controller
                 'total_price' => $totalPrice,
             ], 201);
         } catch (\Exception $e) {
-            DB::rollBack(); // Rollback in case of an error
+            DB::rollBack(); 
             return response()->json(['message' => 'Lỗi khi xử lý thanh toán: ' . $e->getMessage()], 500);
         }
     }
