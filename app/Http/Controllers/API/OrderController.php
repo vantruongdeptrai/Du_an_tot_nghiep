@@ -372,42 +372,70 @@ class OrderController extends Controller
         $request->validate([
             'status_order' => 'required|string|in:Chờ xác nhận,Đã xác nhận,Đang chuẩn bị,Đang vận chuyển,Giao hàng thành công,Đã hủy',
         ]);
-
+    
         $order = Order::find($id);
-
+    
         if (!$order) {
-            return response()->json(['message' => 'khôg tìm thấy đơn hàng'], 404);
+            return response()->json(['message' => 'Không tìm thấy đơn hàng'], 404);
         }
-
+    
+        // Define valid status transitions
         $validTransitions = [
-            'Chờ xác nhận' => ['Đã xác nhận', 'Đang chuẩn bị','Đang vận chuyển','Đã giao hàng', 'Đã hủy'],
-            'Đã xác nhận' => ['Đang chuẩn bị','Đang vận chuyển','Đã giao hàng', 'Đã hủy'],
+            'Chờ xác nhận' => ['Đã xác nhận', 'Đang chuẩn bị', 'Đang vận chuyển', 'Giao hàng thành công', 'Đã hủy'],
+            'Đã xác nhận' => ['Đang chuẩn bị', 'Đang vận chuyển', 'Giao hàng thành công', 'Đã hủy'],
             'Đang chuẩn bị' => ['Đang vận chuyển', 'Đã hủy'],
-            'Đang vận chuyển' => ['Đã giao hàng', 'Đã hủy'],
+            'Đang vận chuyển' => ['Giao hàng thành công', 'Đã hủy'],
             'Giao hàng thành công' => [],
             'Đã hủy' => [],
         ];
-
+    
         $currentStatus = $order->status_order;
         $newStatus = $request->input('status_order');
-
+    
         if (!in_array($newStatus, $validTransitions[$currentStatus] ?? [])) {
             return response()->json([
-                'message' => 'khong hop lệ ' . $currentStatus . ' sang ' . $newStatus,
+                'message' => "Không hợp lệ: không thể chuyển từ trạng thái $currentStatus sang $newStatus",
             ], 400);
         }
-
+    
+        // sửa lại số lượng hàng tồn kho nếu hủy
+        if ($newStatus === 'Đã hủy' && $currentStatus !== 'Đã hủy') {
+            foreach ($order->orderItems as $item) {
+                // kiếm tra xem snar phẩm có bt hay ko
+                if ($item->product_variant_id) {
+                    // cập nhập kho cho bt
+                    $variant = $item->variation;
+                    if ($variant) {
+                        \Log::info("Cập nhập id bt: {$variant->id}, sl: " . ($variant->quantity + $item->quantity));
+                        $variant->quantity += $item->quantity;
+                        $variant->save();
+                    } else {
+                        \Log::warning("ko tìm thấy bt nào: {$item->id}");
+                    }
+                } else {
+                    // nếu không có biến thể sẽ cập nhập sl cho sản phẩm
+                    $product = $item->product;
+                    if ($product) {
+                        $product->quantity += $item->quantity;
+                        $product->save();
+                    }
+                }
+            }
+        }
+    
         $order->status_order = $newStatus;
         $order->save();
-
+    
         return response()->json([
-            'message' => 'sửa thành công',
+            'message' => 'Cập nhật trạng thái đơn hàng thành công',
             'order' => [
                 'order_id' => $order->id,
-                'new_status_order' => $order->status_order,
+                'status_order' => $order->status_order,
             ],
         ], 200);
     }
+    
+    
 
     public function deleteOrder($id)
     {
