@@ -88,7 +88,7 @@ class VNPayController extends Controller
 
                 OrderItem::create([
                     'order_id' => $order->id,
-                    'product_id' => null,
+                    'product_id' => $productVariant->product_id, 
                     'product_variant_id' => $item['product_variant_id'],
                     'quantity' => $item['quantity'],
                 ]);
