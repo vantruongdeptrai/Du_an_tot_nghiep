@@ -123,6 +123,8 @@ public function getCartUser(Request $request)
                 }
 
                 return [
+                    'product_id' => $product->id,
+                    'product_variant_id' => $cart->product_variant_id,
                     'product_name' => $productName,
                     'quantity' => $cart->quantity,
                     'price' => $price,
