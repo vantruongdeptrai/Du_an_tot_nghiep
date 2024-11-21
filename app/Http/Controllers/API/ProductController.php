@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\API;
+
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -35,37 +36,48 @@ class ProductController extends Controller
             'price' => 'required|numeric',
             'sale_price' => 'nullable|numeric',
             'category_id' => 'required|integer|exists:categories,id',
+            'quantity' => 'nullable|integer',
             'sale_start' => 'nullable|date',
             'sale_end' => 'nullable|date',
             'new_product' => 'nullable|boolean',
             'best_seller_product' => 'nullable|boolean',
             'featured_product' => 'nullable|boolean',
+            'is_variant' => 'nullable|boolean',
             'image' => 'nullable|file|mimes:jpg,jpeg,png|max:2048', // Kiểm tra file ảnh
         ]);
 
-        // Xử lý slug cho sản phẩm
+        // Generate slug based on product name
         $slug = Str::slug($validatedData['name']);
+
+        // Check if slug already exists and make it unique if necessary
+        $count = Product::where('slug', $slug)->count();
+        if ($count > 0) {
+            $slug .= '-' . ($count + 1);
+        }
 
         // Lưu file ảnh vào storage
         $imagePath = $request->hasFile('image') ? $request->file('image')->store('products', 'public') : null;
 
         $product = Product::create([
-            'name' => $request->input('name'), // Đảm bảo rằng bạn có giá trị cho trường này
+            'name' => $request->input('name'),
             'description' => $request->input('description'),
             'price' => $request->input('price'),
             'sale_price' => $request->input('sale_price'),
             'category_id' => $request->input('category_id'),
+            'quantity' => $request->input('quantity', 0),
             'sale_start' => $request->input('sale_start', now()),
             'sale_end' => $request->input('sale_end', now()->addDays(7)),
             'new_product' => $request->input('new_product', 0),
             'best_seller_product' => $request->input('best_seller_product', 0),
             'featured_product' => $request->input('featured_product', 0),
+            'is_variant' => $request->input('is_variant', true),
             'image' => $imagePath,
             'slug' => $slug,
         ]);
 
-        return response()->json(['message' => 'tạo sản phẩm thành công', 'product' => $product], 201);
+        return response()->json(['message' => 'Thêm sản phẩm thành công', 'product' => $product], 201);
     }
+
 
     public function show(string $id)
     {
@@ -113,45 +125,12 @@ class ProductController extends Controller
             'best_seller_product' => $request->input('best_seller_product', $product->best_seller_product),
             'featured_product' => $request->input('featured_product', $product->featured_product),
             'image' => $imagePath,
+            'quantity' => $request->input('quantity', $product->quantity) // Cập nhật số lượng cho sản phẩm chính
+
         ]);
 
-        // Cập nhật hoặc thêm mới các biến thể của sản phẩm
-        $variants = $request->input('variants', []);
-
-        // Xóa các biến thể cũ không có trong yêu cầu cập nhật
-        $existingVariantIds = $product->variants->pluck('id')->toArray();
-        $newVariantIds = array_column($variants, 'id');
-        $variantIdsToDelete = array_diff($existingVariantIds, $newVariantIds);
-
-        ProductVariant::whereIn('id', $variantIdsToDelete)->delete();
-
-        // Cập nhật hoặc thêm các biến thể mới
-        foreach ($variants as $variant) {
-            if (isset($variant['id'])) {
-                // Nếu đã có variant, thì cập nhật
-                $productVariant = ProductVariant::find($variant['id']);
-                $productVariant->update([
-                    'quantity' => $variant['quantity'],
-                    'price' => $variant['price'],
-                    'status' => $variant['status'] ?? 0,
-                ]);
-            } else {
-                // Nếu chưa có variant, thì thêm mới
-                $sku = strtoupper(str_replace(' ', '-', $product->name) . '-' . Str::random(5));
-                $productVariant = ProductVariant::create([
-                    'product_id' => $product->id,
-                    'quantity' => $variant['quantity'],
-                    'price' => $variant['price'],
-                    'sku' => $sku,
-                    'status' => $variant['status'] ?? 0,
-                ]);
-            }
-
-
-        }
 
         return response()->json($product, 200);
-
     }
 
     /**
@@ -184,8 +163,8 @@ class ProductController extends Controller
                 // Kiểm tra số lượng sản phẩm hoặc số lượng sản phẩm biến thể
                 $query->where('quantity', ">=", 1) // Số lượng sản phẩm đơn thể
                     ->orWhereHas('productVariants', function ($q) {
-                    $q->where('quantity', ">=", 1); // Số lượng của biến thể
-                });
+                        $q->where('quantity', ">=", 1); // Số lượng của biến thể
+                    });
             })
             ->limit(10)
             ->get();
@@ -230,8 +209,8 @@ class ProductController extends Controller
                 // Kiểm tra số lượng sản phẩm hoặc số lượng sản phẩm biến thể
                 $query->where('quantity', ">=", 1) // Số lượng sản phẩm đơn thể
                     ->orWhereHas('productVariants', function ($q) {
-                    $q->where('quantity', ">=", 1); // Số lượng của biến thể
-                });
+                        $q->where('quantity', ">=", 1); // Số lượng của biến thể
+                    });
             })
             ->limit(10)
             ->get();
@@ -276,8 +255,8 @@ class ProductController extends Controller
                 // Kiểm tra số lượng sản phẩm hoặc số lượng sản phẩm biến thể
                 $query->where('quantity', ">=", 1) // Số lượng sản phẩm đơn thể
                     ->orWhereHas('productVariants', function ($q) {
-                    $q->where('quantity', ">=", 1); // Số lượng của biến thể
-                });
+                        $q->where('quantity', ">=", 1); // Số lượng của biến thể
+                    });
             })
             ->limit(10)
             ->get();
@@ -343,60 +322,33 @@ class ProductController extends Controller
         $minPrice = $request->input('min_price');
         $maxPrice = $request->input('max_price');
 
-        // Lấy ID của các sản phẩm thỏa mãn điều kiện từ bảng product_variants
-        $productIds = DB::table('product_variants')
-            ->select('product_id')
-            ->when($colorId, function ($query) use ($colorId) {
-                return $query->where('color_id', $colorId);
-            })
-            ->when($sizeId, function ($query) use ($sizeId) {
-                return $query->where('size_id', $sizeId);
-            })
-            ->when($minPrice !== null, function ($query) use ($minPrice) {
-                return $query->where('price', '>=', $minPrice);
-            })
-            ->when($maxPrice !== null, function ($query) use ($maxPrice) {
-                return $query->where('price', '<=', $maxPrice);
-            })
-            ->groupBy('product_id')
-            ->havingRaw('COUNT(DISTINCT CASE 
-                WHEN ? IS NOT NULL THEN color_id 
-                ELSE NULL END) >= ?', 
-                [$colorId, $colorId ? 1 : 0]
-            )
-            ->havingRaw('COUNT(DISTINCT CASE 
-                WHEN ? IS NOT NULL THEN size_id 
-                ELSE NULL END) >= ?', 
-                [$sizeId, $sizeId ? 1 : 0]
-            )
-            ->pluck('product_id');
+        $query = Product::query();
 
-        // Lấy thông tin chi tiết của sản phẩm và các biến thể
-        $products = Product::whereIn('id', $productIds)
-            ->with(['productVariants' => function ($query) use ($colorId, $sizeId, $minPrice, $maxPrice) {
-                $query->when($colorId, function ($q) use ($colorId) {
-                    return $q->where('color_id', $colorId);
-                })
-                ->when($sizeId, function ($q) use ($sizeId) {
-                    return $q->where('size_id', $sizeId);
-                })
-                ->when($minPrice !== null, function ($q) use ($minPrice) {
-                    return $q->where('price', '>=', $minPrice);
-                })
-                ->when($maxPrice !== null, function ($q) use ($maxPrice) {
-                    return $q->where('price', '<=', $maxPrice);
-                });
-            }])
-            ->get();
+        $query->whereHas('productVariants', function ($q) use ($colorId, $sizeId, $minPrice, $maxPrice) {
+            if ($colorId) {
+                $q->where('color_id', $colorId);
+            }
+            if ($sizeId) {
+                $q->where('size_id', $sizeId);
+            }
+            if ($minPrice !== null && $maxPrice !== null) {
+                $q->whereBetween('price', [$minPrice, $maxPrice]);
+            } elseif ($minPrice !== null) {
+                $q->where('price', '>=', $minPrice);
+            } elseif ($maxPrice !== null) {
+                $q->where('price', '<=', $maxPrice);
+            }
+        });
+
+        $products = $query->get();
 
         return response()->json($products);
-
     }
 
     public function searchProduct(Request $request)
     {
-        // Lấy từ khóa tìm kiếm từ request và loại bỏ khoảng trắng thừa
-        $name_search = trim($request->input('name'));
+        // Lấy từ khóa tìm kiếm từ request
+        $name_search = $request->input('name');
 
         // Kiểm tra đầu vào
         if (!$name_search) {
@@ -406,11 +358,10 @@ class ProductController extends Controller
             ], 400);
         }
 
-        // Tìm kiếm sản phẩm theo tên hoặc ký tự, không phân biệt chữ hoa chữ thường
+        // Tìm kiếm sản phẩm với phân trang
         $products = Product::query()
-            ->where('name', 'LIKE', '%' . strtolower($name_search) . '%')
-            ->orWhere('name', 'LIKE', '%' . strtoupper($name_search) . '%')
-            ->paginate(10); // Có thể thay đổi số 10 để điều chỉnh số lượng sản phẩm mỗi trang
+            ->where('name', 'LIKE', '%' . $name_search . '%')
+            ->paginate(10); // Thay đổi số 10 nếu muốn số lượng sản phẩm mỗi trang khác
 
         // Trả về kết quả
         return response()->json([
@@ -420,4 +371,58 @@ class ProductController extends Controller
     }
 
 
+
+    //Sản phẩm bán chạy
+    public function bestSellers()
+    {
+        try {
+            $products = Product::select('products.name', 'products.price')
+                ->join('order_items', 'products.id', '=', 'order_items.product_id')
+                ->selectRaw('SUM(order_items.quantity) as total_sold')
+                ->groupBy('products.name', 'products.price')
+                ->orderByDesc('total_sold')
+                ->take(10)  // Giới hạn số sản phẩm trả về (top 10)
+                ->get();
+
+            // Trả về kết quả với các trường n ame, price và total_sold
+            return response()->json([
+                'success' => true,
+                'data' => $products,
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error fetching best-seller products',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+    //Thống kê sản phẩm hết hàng
+    public function getOutOfStockProducts()
+    {
+        try {
+            $outOfStockProducts = DB::table('products')
+                ->join('product_variants', 'products.id', '=', 'product_variants.product_id') 
+                ->select(
+                    'products.id as product_id',
+                    'products.name as product_name',
+                    DB::raw('COUNT(product_variants.id) as variant_count') 
+                )
+                ->where('product_variants.quantity', '=', 0) 
+                ->groupBy('products.id', 'products.name')
+                ->get();
+
+            // Trả về kết quả dưới dạng JSON
+            return response()->json([
+                'status' => 'success',
+                'data' => $outOfStockProducts,
+            ]);
+        } catch (\Exception $e) {
+            // Trả về lỗi nếu có vấn đề
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
 }
