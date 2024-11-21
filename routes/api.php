@@ -21,8 +21,13 @@ use App\Http\Controllers\API\OperatingCostController;
 use App\Http\Controllers\API\AttributeValueController;
 use App\Http\Controllers\API\ProductVariantController;
 use App\Http\Controllers\API\OrderController;
+use App\Http\Controllers\Api\RevenueController;
 use App\Http\Controllers\API\VNPayController;
 use App\Http\Controllers\API\vnpayReturn;
+use App\Http\Controllers\API\AddressController;
+use App\Http\Controllers\API\MomoController;
+
+
 
 
 
@@ -129,6 +134,7 @@ Route::get('/product-variants/{id}', [ProductVariantController::class, 'show']);
 //http://127.0.0.1:8000/api/product-variants
 Route::post('/product-variants', [ProductVariantController::class, 'store']); 
 
+
 //http://127.0.0.1:8000/api/product-variants/{id}
 Route::put('/product-variants/{id}', [ProductVariantController::class, 'update']); 
 
@@ -175,6 +181,9 @@ Route::post('products',[ProductController::class,'store']);
 
 Route::delete('products/{id}',[ProductController::class,'destroy']);
 //http://127.0.0.1:8000/api/products/id
+
+Route::put('products/{id}', [ProductController::class, 'update']);
+
 
 Route::get('product/{id}', [ProductController::class, 'show']);
 //http://127.0.0.1:8000/api/product/id
@@ -257,6 +266,7 @@ Route::post('/cart/add', [CartController::class, 'addToCart']);
 Route::middleware([\Illuminate\Session\Middleware\StartSession::class])->post('/cart/add/guest', [CartController::class, 'addToCartGuest']);
 
 Route::delete('/delete/{id}', [CartController::class, 'destroy']); // Route xóa mềm giỏ hàng
+Route::put('/cart/update', [CartController::class, 'updateCart']);
 
 // http://127.0.0.1:8000/api/oder/login
 Route::post('/oder/login', [OrderController::class, 'PaymentLogin']);
@@ -270,13 +280,30 @@ Route::put('/orders/{id}', [OrderController::class, 'updateOrder']); //http:127.
 Route::delete('/orders/{id}', [OrderController::class, 'deleteOrder']); //http:127.0.0.1:8000/api/orders/id
 
 
+Route::post('/orders/cancel/{id}', [OrderController::class, 'cancelOrder']);  //http://127.0.0.1:8000/api/orders/cancel/{id}
+
+
+//http://127.0.0.1:8000/api/revenue/year?year={năm}
+Route::get('revenue/year', [RevenueController::class, 'revenueByYear']);//Thong ke doanh thu theo nam
+//http://127.0.0.1:8000/api/revenue/months?year=2024
+Route::get('revenue/months', [RevenueController::class, 'revenueByMonths']);//Thống kê doanh thu theo Tháng
+//http://127.0.0.1:8000/api/revenue/day?date=y-m-d
+Route::get('revenue/day', [RevenueController::class, 'revenueByDay']);//Thống kê doanh thu theo ngày
+//http://127.0.0.1:8000/api/products/best-sellers
+Route::get('/products/best-sellers', [ProductController::class, 'bestSellers']);
+//http://127.0.0.1:8000/api/total-revenue
+Route::get('/total-revenue', [RevenueController::class, 'getTotalRevenue']);
+//http://127.0.0.1:8000/api/products/out-of-stock
+Route::get('products/out-of-stock', [ProductController::class, 'getOutOfStockProducts']);
+
 
 Route::get('/search', [ProductController::class, 'searchProduct']);
 
 
 Route::get('/filter',[ProductController::class,'filterProducts'] );
 
-// thanh toán
-Route::post('/payment', [VNPayController::class, 'createPayment']);
-// /api/vnpay/create-payment
-Route::get('/vnpay-return', [VNPayController::class, 'vnpayReturn']); // URL quay về sau thanh toán
+
+
+
+Route::post('/create-payment', [VNPayController::class, 'createPayment']); //http://127.0.0.1:8000/api/create-payment
+Route::get('/handle-ipn', [VNPayController::class, 'handleIPN']);
