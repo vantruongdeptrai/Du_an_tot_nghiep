@@ -105,7 +105,6 @@ class VNPayController extends Controller
     
             $totalPrice = $totalPriceProduct + $totalPriceVariant;
     
-            // Xử lý mã giảm giá nếu có
             // Mã giảm giá - Tìm coupon theo name
             if ($request->input('coupon_name')) {
                 // Lấy mã giảm giá từ tên
@@ -143,7 +142,7 @@ class VNPayController extends Controller
                         return response()->json(['message' => 'Mã giảm giá không hợp lệ hoặc không đủ điều kiện sử dụng'], 400);
                     }
                 } else {
-                    // Nếu không tìm thấy mã giảm giá
+                    //Nếu không tìm thấy mã giảm giá
                     return response()->json(['message' => 'Không tìm thấy mã giảm giá'], 404);
                 }
             }
