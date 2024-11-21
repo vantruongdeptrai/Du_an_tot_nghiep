@@ -26,10 +26,7 @@ use App\Http\Controllers\API\VNPayController;
 use App\Http\Controllers\API\vnpayReturn;
 use App\Http\Controllers\API\AddressController;
 use App\Http\Controllers\API\MomoController;
-
-
-
-
+use App\Http\Controllers\API\UserController;
 
 /*
 |--------------------------------------------------------------------------
@@ -306,3 +303,14 @@ Route::get('/filter',[ProductController::class,'filterProducts'] );
 
 Route::post('/create-payment', [VNPayController::class, 'createPayment']); //http://127.0.0.1:8000/api/create-payment
 Route::get('/handle-ipn', [VNPayController::class, 'handleIPN']);
+
+//http://127.0.0.1:8000/api/users
+Route::get('users', [UserController::class, 'index']); 
+//http://127.0.0.1:8000/api/users/{id}
+Route::get('users/{id}', [UserController::class, 'show']); 
+//http://127.0.0.1:8000/api/users
+Route::post('users', [UserController::class, 'store']); 
+//http://127.0.0.1:8000/api/users/{id}
+Route::put('users/{id}', [UserController::class, 'update']);
+//http://127.0.0.1:8000/api/users/{id}
+Route::delete('users/{id}', [UserController::class, 'destroy']);
