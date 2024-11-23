@@ -26,6 +26,7 @@ use App\Http\Controllers\API\VNPayController;
 use App\Http\Controllers\API\vnpayReturn;
 use App\Http\Controllers\API\AddressController;
 use App\Http\Controllers\API\MomoController;
+use App\Http\Controllers\API\StatisticsController;
 use App\Http\Controllers\API\UserController;
 
 /*
@@ -291,6 +292,7 @@ Route::get('/products/best-sellers', [ProductController::class, 'bestSellers']);
 Route::get('/total-revenue', [RevenueController::class, 'getTotalRevenue']);
 //http://127.0.0.1:8000/api/products/out-of-stock
 Route::get('products/out-of-stock', [ProductController::class, 'getOutOfStockProducts']);
+Route::get('/revenue-by-category', [RevenueController::class, 'getRevenueByCategory']);
 
 
 Route::get('/search', [ProductController::class, 'searchProduct']);
