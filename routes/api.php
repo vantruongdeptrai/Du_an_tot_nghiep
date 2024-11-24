@@ -15,6 +15,7 @@ use App\Http\Controllers\API\GalleryController;
 use App\Http\Controllers\API\ProductController;
 use App\Http\Controllers\API\CategoryController;
 use App\Http\Controllers\API\AttributeController;
+use App\Http\Controllers\API\ReplyCommentController;
 use App\Http\Controllers\API\PermissionsController;
 use App\Http\Controllers\API\DetailProductController;
 use App\Http\Controllers\API\OperatingCostController;
@@ -26,6 +27,7 @@ use App\Http\Controllers\API\VNPayController;
 use App\Http\Controllers\API\vnpayReturn;
 use App\Http\Controllers\API\AddressController;
 use App\Http\Controllers\API\MomoController;
+use App\Http\Controllers\API\ReplyComment;
 use App\Http\Controllers\API\StatisticsController;
 use App\Http\Controllers\API\UserController;
 
@@ -221,16 +223,24 @@ Route::middleware('auth:sanctum')->post('logout', [AuthController::class, 'logou
 Route::post('/register', [AuthController::class, 'register']);
 
 //http://127.0.0.1:8000/api/comments
-Route::get('/comments', [CommentController::class, 'index']);
+Route::get('products/{id}/comments', [CommentController::class, 'index']);
 
 //http://127.0.0.1:8000/api/comments
-Route::post('/comments', [CommentController::class, 'store']);
+Route::post('products/{id}/comments', [CommentController::class, 'store']);
 
 //http://127.0.0.1:8000/api/comments/{id}
-Route::put('/comments/{id}', [CommentController::class, 'update']);
 
 //http://127.0.0.1:8000/api/comments/{id}
 Route::delete('/comments/{id}', [CommentController::class, 'destroy']);
+
+Route::get('comments/{id}/replies', [ReplyCommentController::class, 'index']);
+Route::post('comments/{id}/replies', [ReplyCommentController::class, 'store']);
+    
+    // Cập nhật reply
+Route::put('replies/{id}', [ReplyCommentController::class, 'update']);
+    
+    // Xóa reply
+    Route::delete('replies/{id}', [ReplyCommentController::class, 'destroy']);
 
 //http://127.0.0.1:8000/api/blogs
 Route::get('blogs', [BlogController::class, 'index']);

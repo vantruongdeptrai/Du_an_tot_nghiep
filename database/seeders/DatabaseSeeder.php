@@ -5,6 +5,7 @@ namespace Database\Seeders;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 
 use App\Models\AttributeValue;
+use App\Models\Comment;
 use App\Models\OperatingCost;
 use App\Models\Stock;
 use App\Models\Tag;
@@ -41,7 +42,8 @@ class DatabaseSeeder extends Seeder
             ProductVariantSeeder::class,
             UserSeeder::class,
            CartSeeder::class,
-           
+           CommentSeeder::class,
+           ReplyCommentSeeder::class
         ]);
         
         

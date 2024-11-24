@@ -67,5 +67,20 @@ class User extends Authenticatable
 {
     return $this->hasMany(Address::class);
 }
+public function comments()
+{
+    return $this->hasMany(Comment::class);
+}
 
+/**
+ * Quan hệ với bảng ReplyComment (các câu trả lời của người dùng).
+ */
+public function replyComments()
+{
+    return $this->hasMany(ReplyComment::class);
+}
+public function getImageUrl()
+    {
+        return asset('storage/image/' . $this->image); // Giả sử ảnh được lưu trong thư mục storage/images
+    }
 }
