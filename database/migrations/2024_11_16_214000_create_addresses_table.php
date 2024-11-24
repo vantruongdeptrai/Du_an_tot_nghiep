@@ -13,11 +13,16 @@ return new class extends Migration
     {
         Schema::create('addresses', function (Blueprint $table) {
             $table->id();
-            $table->unsignedInteger('user_id'); // Liên kết với user
-            $table->string('address'); // Địa chỉ chi tiết
+            $table->unsignedBigInteger('user_id');
+            $table->string('street');
+            $table->string('ward');
+            $table->string('district');
+            $table->string('city');
+            $table->string('zip_code')->nullable();
+            $table->string('country')->default('Vietnam');
+            $table->boolean('is_default')->default(false);
             $table->timestamps();
-            $table->softDeletes();
-
+            $table->softDeletes();  // Optional for soft deletes
         });
     }
 

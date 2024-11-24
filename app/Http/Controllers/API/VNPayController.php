@@ -185,7 +185,7 @@ class VNPayController extends Controller
     private function createPaymentUrl(Request $request, $totalPrice, $orderId)
     {
     $vnp_Url = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
-    $vnp_Returnurl = "https://www.your-website.com/payment-return"; 
+    $vnp_Returnurl = "http://localhost:5173/confirm"; 
     $vnp_TmnCode = "X9G2TVDO"; 
     $vnp_HashSecret = "OZKZBQ6BPVH2196YDDPJHYBIDUWH7J10"; 
 
