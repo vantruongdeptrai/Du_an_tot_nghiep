@@ -136,7 +136,8 @@ Route::post('/product-variants', [ProductVariantController::class, 'store']);
 
 
 //http://127.0.0.1:8000/api/product-variants/{id}
-Route::put('/product-variants/{id}', [ProductVariantController::class, 'update']); 
+Route::put('/product-variants/{id}', [ProductVariantController::class, 'update']);
+
 
 
 //http://127.0.0.1:8000/api/product-variants/{id}
@@ -182,7 +183,8 @@ Route::post('products',[ProductController::class,'store']);
 Route::delete('products/{id}',[ProductController::class,'destroy']);
 //http://127.0.0.1:8000/api/products/id
 
-Route::put('products/{id}', [ProductController::class, 'update']);
+Route::put('/products/{id}', [ProductController::class, 'update']);
+
 
 
 Route::get('product/{id}', [ProductController::class, 'show']);

@@ -110,7 +110,6 @@ class AddressController extends Controller
             return response()->json(['message' => 'Địa chỉ không tồn tại'], 404);
         }
 
-        // Soft delete address
         $address->delete();
 
         return response()->json(['message' => 'Xóa địa chỉ thành công'], 200);
