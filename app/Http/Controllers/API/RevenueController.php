@@ -82,5 +82,27 @@ class RevenueController extends Controller
             'total_revenue' => $totalRevenue
         ]);
     }
+    public function getRevenueByCategory()
+    {
+        // Truy vấn thống kê doanh thu theo danh mục
+        $revenues = DB::table('categories as c')
+            ->join('products as p', 'c.id', '=', 'p.category_id')
+            ->join('product_variants as pv', 'p.id', '=', 'pv.product_id')
+            ->join('order_items as oi', 'pv.id', '=', 'oi.product_variant_id')
+            ->join('orders as o', 'oi.order_id', '=', 'o.id')
+            ->select(
+                'c.name as category_name',
+                DB::raw('SUM(oi.quantity * pv.price) as total_revenue')
+            )
+            ->groupBy('c.id', 'c.name')
+            ->orderByDesc('total_revenue')
+            ->get();
+
+        // Trả về dữ liệu
+        return response()->json([
+            'success' => true,
+            'data' => $revenues,
+        ]);
+    }
     
 }
