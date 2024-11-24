@@ -317,3 +317,12 @@ Route::post('users', [UserController::class, 'store']);
 Route::put('users/{id}', [UserController::class, 'update']);
 //http://127.0.0.1:8000/api/users/{id}
 Route::delete('users/{id}', [UserController::class, 'destroy']);
+
+
+Route::get('/addresses', [AddressController::class, 'getAllData']);
+
+Route::post('/addresses', [AddressController::class, 'addAddresses']);
+
+Route::put('/addresses/{id}', [AddressController::class, 'updateAddress']);
+
+Route::delete('/addresses/{id}', [AddressController::class, 'deleteAddress']);
