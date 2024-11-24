@@ -26,10 +26,8 @@ use App\Http\Controllers\API\VNPayController;
 use App\Http\Controllers\API\vnpayReturn;
 use App\Http\Controllers\API\AddressController;
 use App\Http\Controllers\API\MomoController;
-
-
-
-
+use App\Http\Controllers\API\StatisticsController;
+use App\Http\Controllers\API\UserController;
 
 /*
 |--------------------------------------------------------------------------
@@ -295,6 +293,7 @@ Route::get('/products/best-sellers', [ProductController::class, 'bestSellers']);
 Route::get('/total-revenue', [RevenueController::class, 'getTotalRevenue']);
 //http://127.0.0.1:8000/api/products/out-of-stock
 Route::get('products/out-of-stock', [ProductController::class, 'getOutOfStockProducts']);
+Route::get('/revenue-by-category', [RevenueController::class, 'getRevenueByCategory']);
 
 
 Route::get('/search', [ProductController::class, 'searchProduct']);
@@ -307,3 +306,23 @@ Route::get('/filter',[ProductController::class,'filterProducts'] );
 
 Route::post('/create-payment', [VNPayController::class, 'createPayment']); //http://127.0.0.1:8000/api/create-payment
 Route::get('/handle-ipn', [VNPayController::class, 'handleIPN']);
+
+//http://127.0.0.1:8000/api/users
+Route::get('users', [UserController::class, 'index']); 
+//http://127.0.0.1:8000/api/users/{id}
+Route::get('users/{id}', [UserController::class, 'show']); 
+//http://127.0.0.1:8000/api/users
+Route::post('users', [UserController::class, 'store']); 
+//http://127.0.0.1:8000/api/users/{id}
+Route::put('users/{id}', [UserController::class, 'update']);
+//http://127.0.0.1:8000/api/users/{id}
+Route::delete('users/{id}', [UserController::class, 'destroy']);
+
+
+Route::get('/addresses', [AddressController::class, 'getAllData']);
+
+Route::post('/addresses', [AddressController::class, 'addAddresses']);
+
+Route::put('/addresses/{id}', [AddressController::class, 'updateAddress']);
+
+Route::delete('/addresses/{id}', [AddressController::class, 'deleteAddress']);
