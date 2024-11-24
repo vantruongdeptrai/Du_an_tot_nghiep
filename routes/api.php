@@ -292,7 +292,10 @@ Route::get('/products/best-sellers', [ProductController::class, 'bestSellers']);
 Route::get('/total-revenue', [RevenueController::class, 'getTotalRevenue']);
 //http://127.0.0.1:8000/api/products/out-of-stock
 Route::get('products/out-of-stock', [ProductController::class, 'getOutOfStockProducts']);
+//http://127.0.0.1:8000/api/revenue-by-category
 Route::get('/revenue-by-category', [RevenueController::class, 'getRevenueByCategory']);
+Route::get('/revenue/sold-products', [RevenueController::class, 'getSoldProductsCount']);
+
 
 
 Route::get('/search', [ProductController::class, 'searchProduct']);
