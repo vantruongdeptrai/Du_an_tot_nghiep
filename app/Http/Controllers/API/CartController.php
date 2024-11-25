@@ -372,4 +372,33 @@ public function updateCart(Request $request)
     
         return response()->json(['message' => 'Cart not found'], 404);
     }
+    public function removeFromCartGuest(Request $request, $id)
+{
+    // Xác thực dữ liệu đầu vào (không cần nữa vì id đã có trong URL)
+    // Lấy session ID để xác định khách hàng
+    $sessionId = $request->session()->getId();
+
+    // Lấy giỏ hàng từ session
+    $cart = $request->session()->get('cart_' . $sessionId, []);
+
+    // Tìm và xóa sản phẩm khỏi giỏ hàng dựa trên id
+    $cart = array_filter($cart, function ($item) use ($id) {
+        // Xóa sản phẩm nếu id trùng với id được gửi
+        return $item['id'] !== $id;
+    });
+
+    // Làm lại chỉ số mảng sau khi xóa
+    $cart = array_values($cart);
+
+    // Lưu giỏ hàng đã cập nhật vào session
+    $request->session()->put('cart_' . $sessionId, $cart);
+
+    // Trả về phản hồi JSON
+    return response()->json([
+        'message' => 'Product removed from cart successfully',
+        'cart' => $cart,
+        'session_id' => $sessionId,
+    ]);
+}
+
 }
