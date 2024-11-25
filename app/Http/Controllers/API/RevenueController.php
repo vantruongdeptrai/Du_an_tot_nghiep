@@ -104,5 +104,32 @@ class RevenueController extends Controller
             'data' => $revenues,
         ]);
     }
+    //Thống kê số lượng sản phẩm đã bán
+    public function getSoldProductsCount()
+    {
+        try {
+            $statistics = DB::table('order_items')
+                ->join('orders', 'order_items.order_id', '=', 'orders.id')
+                ->join('product_variants', 'order_items.product_variant_id', '=', 'product_variants.id')
+                ->join('products', 'product_variants.product_id', '=', 'products.id')
+                ->where('orders.status_order', 'Giao hàng thành công') 
+                ->select(
+                    'products.id',
+                    'products.name',
+                    DB::raw('SUM(order_items.quantity) as total_sold')
+                )
+                ->groupBy('products.id', 'products.name')
+                ->get();
+            return response()->json([
+                'success' => true,
+                'data' => $statistics,
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Lỗi xảy ra: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
     
 }
