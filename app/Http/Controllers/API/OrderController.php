@@ -507,44 +507,129 @@ class OrderController extends Controller
         }
     }
 
-    public function cancelOrder(Request $request, $order_id)
-    {
-        $predefinedReasons = [
-            'Người mua thay đổi ý định',
-            'Đặt nhầm sản phẩm',
-            'Thời gian giao hàng không phù hợp',
-            'Không liên lạc được với cửa hàng'
-        ];
+    // public function cancelOrder(Request $request, $order_id)
+    // {
+    //     $predefinedReasons = [
+    //         'Người mua thay đổi ý định',
+    //         'Đặt nhầm sản phẩm',
+    //         'Thời gian giao hàng không phù hợp',
+    //         'Không liên lạc được với cửa hàng'
+    //     ];
     
-        $order = Order::find($order_id);
+    //     $order = Order::find($order_id);
     
-        if (!$order) {
-            return response()->json(['message' => 'Không tìm thấy đơn hàng'], 404);
-        }
+    //     if (!$order) {
+    //         return response()->json(['message' => 'Không tìm thấy đơn hàng'], 404);
+    //     }
     
-        $validStatuses = ['Chờ xác nhận', 'Đang chuẩn bị', 'Đang vận chuyển'];
-        if (!in_array($order->status_order, $validStatuses)) {
-            return response()->json(['message' => 'Đơn hàng không thể hủy trong trạng thái này'], 400);
-        }
+    //     $validStatuses = ['Chờ xác nhận', 'Đang chuẩn bị', 'Đang vận chuyển'];
+    //     if (!in_array($order->status_order, $validStatuses)) {
+    //         return response()->json(['message' => 'Đơn hàng không thể hủy trong trạng thái này'], 400);
+    //     }
     
-        $cancelReason = $request->input('cancel_reason');
+    //     $cancelReason = $request->input('cancel_reason');
         
-        if (!$cancelReason || !in_array($cancelReason, $predefinedReasons)) {
-            return response()->json(['message' => 'Lý do hủy không hợp lệ'], 400);
-        }
+    //     if (!$cancelReason || !in_array($cancelReason, $predefinedReasons)) {
+    //         return response()->json(['message' => 'Lý do hủy không hợp lệ'], 400);
+    //     }
     
-        $order->status_order = 'Đã hủy';
-        $order->cancel_reason = $cancelReason;
-        $order->save();
+    //     $order->status_order = 'Đã hủy';
+    //     $order->cancel_reason = $cancelReason;
+    //     $order->save();
     
-        return response()->json([
-            'message' => 'Đơn hàng đã được hủy thành công',
-            'order' => [
-                'order_id' => $order->id,
-                'status_order' => $order->status_order,
-                'cancel_reason' => $order->cancel_reason,
-            ],
-        ], 200);
+    //     return response()->json([
+    //         'message' => 'Đơn hàng đã được hủy thành công',
+    //         'order' => [
+    //             'order_id' => $order->id,
+    //             'status_order' => $order->status_order,
+    //             'cancel_reason' => $order->cancel_reason,
+    //         ],
+    //     ], 200);
+    // }
+
+
+
+    public function cancelOrder(Request $request, $order_id)
+{
+    $predefinedReasons = [
+        'Người mua thay đổi ý định',
+        'Đặt nhầm sản phẩm',
+        'Thời gian giao hàng không phù hợp',
+        'Không liên lạc được với cửa hàng'
+    ];
+
+    $order = Order::find($order_id);
+
+    if (!$order) {
+        return response()->json(['message' => 'Không tìm thấy đơn hàng'], 404);
     }
+
+    $validStatuses = ['Chờ xác nhận', 'Đang chuẩn bị', 'Đang vận chuyển'];
+    if (!in_array($order->status_order, $validStatuses)) {
+        return response()->json(['message' => 'Đơn hàng không thể yêu cầu hủy trong trạng thái này'], 400);
+    }
+
+    $cancelReason = $request->input('cancel_reason');
+
+    if (!$cancelReason || !in_array($cancelReason, $predefinedReasons)) {
+        return response()->json(['message' => 'Lý do hủy không hợp lệ'], 400);
+    }
+
+    // Đánh dấu trạng thái "Chờ xác nhận hủy"
+    $order->status_order = 'Chờ xác nhận hủy';
+    $order->cancel_reason = $cancelReason;
+    $order->save();
+
+    // Gửi thông báo tới admin (tùy thuộc vào hệ thống của bạn)
+    // Notification::send(Admin::all(), new OrderCancelRequestNotification($order));
+
+    return response()->json([
+        'message' => 'Yêu cầu hủy đơn hàng đã được gửi đi, đang chờ admin xác nhận',
+        'order' => [
+            'order_id' => $order->id,
+            'status_order' => $order->status_order,
+            'cancel_reason' => $order->cancel_reason,
+        ],
+    ], 200);
+}
+
+
+
+public function confirmCancelOrder(Request $request, $order_id)
+{
+    $order = Order::find($order_id);
+
+    if (!$order) {
+        return response()->json(['message' => 'Không tìm thấy đơn hàng'], 404);
+    }
+
+    if ($order->status_order !== 'Chờ xác nhận hủy') {
+        return response()->json(['message' => 'Không thể xác nhận hủy đơn hàng trong trạng thái này'], 400);
+    }
+
+    $action = $request->input('action'); // 'approve' hoặc 'reject'
+
+    if ($action === 'approve') {
+        $order->status_order = 'Đã hủy';
+    } elseif ($action === 'reject') {
+        $order->status_order = 'Chờ xác nhận'; // Quay lại trạng thái ban đầu
+        $order->cancel_reason = null; // Xóa lý do hủy nếu từ chối
+    } else {
+        return response()->json(['message' => 'Hành động không hợp lệ'], 400);
+    }
+
+    $order->save();
+
+    return response()->json([
+        'message' => $action === 'approve' 
+            ? 'Đơn hàng đã được hủy thành công' 
+            : 'Yêu cầu hủy đơn hàng đã bị từ chối',
+        'order' => [
+            'order_id' => $order->id,
+            'status_order' => $order->status_order,
+        ],
+    ], 200);
+}
+
     
 }
