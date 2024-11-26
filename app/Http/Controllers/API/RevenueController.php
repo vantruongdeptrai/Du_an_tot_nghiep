@@ -131,5 +131,15 @@ class RevenueController extends Controller
             ], 500);
         }
     }
+
+    public function getOrderStats()
+    {
+        $stats = DB::table('orders')
+            ->select('status_order', DB::raw('count(*) as total'))
+            ->groupBy('status_order')
+            ->get();
+
+        return response()->json($stats);
+    }
     
 }
