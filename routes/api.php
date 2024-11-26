@@ -291,7 +291,7 @@ Route::delete('/orders/{id}', [OrderController::class, 'deleteOrder']); //http:1
 
 
 Route::post('/orders/cancel/{id}', [OrderController::class, 'cancelOrder']);  //http://127.0.0.1:8000/api/orders/cancel/{id}
-
+Route::post('/orders/cancel1/{id}', [OrderController::class, 'confirmCancelOrder']);  //http://127.0.0.1:8000/api/orders/cancel/{id}
 
 //http://127.0.0.1:8000/api/revenue/year?year={năm}
 Route::get('revenue/year', [RevenueController::class, 'revenueByYear']);//Thong ke doanh thu theo nam
