@@ -310,6 +310,7 @@ Route::get('products/out-of-stock', [ProductController::class, 'getOutOfStockPro
 //http://127.0.0.1:8000/api/revenue-by-category
 Route::get('/revenue-by-category', [RevenueController::class, 'getRevenueByCategory']);
 Route::get('/revenue/sold-products', [RevenueController::class, 'getSoldProductsCount']);
+Route::get('order-stats', [RevenueController::class, 'getOrderStats']);
 
 
 
