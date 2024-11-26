@@ -276,6 +276,8 @@ Route::post('/cart/add', [CartController::class, 'addToCart']);
 Route::middleware([\Illuminate\Session\Middleware\StartSession::class])->post('/cart/add/guest', [CartController::class, 'addToCartGuest']);
 
 Route::delete('/delete/{id}', [CartController::class, 'destroy']); // Route xóa mềm giỏ hàng
+Route::middleware([\Illuminate\Session\Middleware\StartSession::class])->delete('/cart/remove/{id}', [CartController::class, 'removeFromCartGuest']);
+
 Route::put('/cart/update', [CartController::class, 'updateCart']);
 
 // http://127.0.0.1:8000/api/oder/login

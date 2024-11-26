@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers\API;
 use App\Models\User;
-use App\Http\Controllers\Controller;
+use App\Mail\WelcomeMail;
+use App\Jobs\SendEmailJob;
 use Illuminate\Http\Request;
+use function Laravel\Prompts\table;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-
-use function Laravel\Prompts\table;
+use Illuminate\Support\Facades\Mail;
 
 class AuthController extends Controller
 {
@@ -48,11 +50,21 @@ class AuthController extends Controller
     public function register(Request $request){
         $data=$request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
+            'email' => [
+                'required',
+                'string',
+                'email',
+                'max:255',
+                'unique:users',
+                'regex:/^[a-zA-Z0-9._%+-]+@fpt\.edu\.vn$/'
+    ],
             'password' => 'required|string|min:8|confirmed',
         ]);
         $user=User::query()->create($data);
         $token = $user->createToken('API Token')->plainTextToken;
+        Mail::to($user->email)->queue(new \App\Mail\WelcomeMail($user));
+
+
         return response()->json([
             'token' => $token,
             'message' => 'đăng ký thành công',

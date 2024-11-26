@@ -46,42 +46,68 @@ class CartController extends Controller
 
 
 
-    public function addToCartGuest(Request $request)
-    {
-        $validated = $request->validate([
-            'product_id' => 'nullable|exists:products,id',
-            'product_variant_id' => 'nullable|exists:product_variants,id',
-            'quantity' => 'required|integer|min:1',
-        ]);
+public function addToCartGuest(Request $request)
+{
+    // Xác thực dữ liệu đầu vào
+    $validated = $request->validate([
+        'product_id' => 'nullable|exists:products,id',
+        'product_variant_id' => 'nullable|exists:product_variants,id',
+        'quantity' => 'required|integer|min:1',
+    ]);
 
-        // Lấy session ID để xác định khách hàng
-        $sessionId = $request->session()->getId();
+    // Lấy session ID để xác định khách hàng
+    $sessionId = $request->session()->getId();
 
-        // Lấy giỏ hàng từ session (giỏ hàng này thuộc về session ID của người dùng)
-        $cart = $request->session()->get('cart_' . $sessionId, []);
+    // Lấy giỏ hàng từ session
+    $cart = $request->session()->get('cart_' . $sessionId, []);
 
-        // Thêm sản phẩm vào giỏ hàng
-        $cart[] = [
-            'product' => Product::find($request->product_id),
-            'product_variant' => $request->product_variant_id ? ProductVariant::find($request->product_variant_id) : null,
-            'quantity' => $request->quantity,
-        ];
-
-        // Lưu giỏ hàng vào session với session ID cụ thể
-        $request->session()->put('cart_' . $sessionId, $cart);
-
-        return response()->json([
-            'message' => 'Product added to cart successfully',
-            'cart' => $cart,
-            'session_id' => $sessionId, // Trả về session ID để kiểm tra
-        ]);
+    // Kiểm tra nếu sản phẩm đã tồn tại trong giỏ hàng
+    $exists = false;
+    foreach ($cart as &$item) {
+        if (
+            $item['product_id'] == $request->product_id &&
+            $item['product_variant_id'] == $request->product_variant_id
+        ) {
+            // Cập nhật số lượng nếu sản phẩm đã tồn tại
+            $item['quantity'] += $request->quantity;
+            $exists = true;
+            break;
+        }
     }
+
+    // Nếu sản phẩm chưa tồn tại, thêm mới vào giỏ hàng
+    if (!$exists) {
+        $cart[] = [
+            'id' => md5(($request->product_id ?? '0') . '-' . ($request->product_variant_id ?? '0') . '-' . time()), // ID duy nhất
+            'product_id' => $request->product_id,
+            'product_variant_id' => $request->product_variant_id,
+            'quantity' => $request->quantity,
+            'product' => Product::find($request->product_id), // Thêm thông tin sản phẩm
+            'product_variant' => $request->product_variant_id
+                ? ProductVariant::find($request->product_variant_id)
+                : null, // Thêm thông tin biến thể nếu có
+        ];
+    }
+
+    // Lưu giỏ hàng vào session
+    $request->session()->put('cart_' . $sessionId, $cart);
+
+    // Trả về phản hồi JSON
+    return response()->json([
+        'message' => $exists
+            ? 'Product quantity updated in cart successfully'
+            : 'Product added to cart successfully',
+        'cart' => $cart,
+        'session_id' => $sessionId,
+    ]);
+}
+
+
 //Hiển thị giỏ hàng cho người đã đăng nhập
 public function getCartUser(Request $request)
 {
     $userId = $request->input('user_id');
     $user = User::find($userId);
-
     if ($user) {
         $carts = Cart::where('user_id', $user->id)
                     ->with([
@@ -346,4 +372,33 @@ public function updateCart(Request $request)
     
         return response()->json(['message' => 'Cart not found'], 404);
     }
+    public function removeFromCartGuest(Request $request, $id)
+{
+    // Xác thực dữ liệu đầu vào (không cần nữa vì id đã có trong URL)
+    // Lấy session ID để xác định khách hàng
+    $sessionId = $request->session()->getId();
+
+    // Lấy giỏ hàng từ session
+    $cart = $request->session()->get('cart_' . $sessionId, []);
+
+    // Tìm và xóa sản phẩm khỏi giỏ hàng dựa trên id
+    $cart = array_filter($cart, function ($item) use ($id) {
+        // Xóa sản phẩm nếu id trùng với id được gửi
+        return $item['id'] !== $id;
+    });
+
+    // Làm lại chỉ số mảng sau khi xóa
+    $cart = array_values($cart);
+
+    // Lưu giỏ hàng đã cập nhật vào session
+    $request->session()->put('cart_' . $sessionId, $cart);
+
+    // Trả về phản hồi JSON
+    return response()->json([
+        'message' => 'Product removed from cart successfully',
+        'cart' => $cart,
+        'session_id' => $sessionId,
+    ]);
+}
+
 }
