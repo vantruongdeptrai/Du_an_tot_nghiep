@@ -132,6 +132,7 @@ class RevenueController extends Controller
         }
     }
 
+//thống kê theo trạng thái đơn hàng
     public function getOrderStats()
     {
         $stats = DB::table('orders')
