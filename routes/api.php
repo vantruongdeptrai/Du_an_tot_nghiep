@@ -328,3 +328,4 @@ Route::post('/addresses', [AddressController::class, 'addAddresses']);
 Route::put('/addresses/{id}', [AddressController::class, 'updateAddress']);
 
 Route::delete('/addresses/{id}', [AddressController::class, 'deleteAddress']);
+Route::put('/addresses/default/{id}', [AddressController::class, 'setDefaultAddress']);
