@@ -114,6 +114,29 @@ class AddressController extends Controller
 
         return response()->json(['message' => 'Xóa địa chỉ thành công'], 200);
     }
+
+    public function setDefaultAddress(Request $request, $id)
+{
+    $address = Address::find($id);
+
+    if (!$address) {
+        return response()->json(['message' => 'Địa chỉ không tồn tại'], 404);
+    }
+
+    // Đặt tất cả các địa chỉ khác của cùng user về is_default = 0
+    Address::where('user_id', $address->user_id)
+        ->update(['is_default' => false]);
+
+    // Đặt địa chỉ hiện tại là mặc định
+    $address->is_default = true;
+    $address->save();
+
+    return response()->json([
+        'message' => 'Đặt địa chỉ mặc định thành công',
+        'data' => $address,
+    ], 200);
+}
+
 }
 
 
