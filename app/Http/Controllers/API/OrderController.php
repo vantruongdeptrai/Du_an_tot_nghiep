@@ -329,7 +329,7 @@ class OrderController extends Controller
             return response()->json(['message' => 'Order not found'], 404);
         }
 
-        // Initialize the order data array
+        // Khởi tạo mảng dữ liệu thứ tự
         $orderData = [
             'order_id' => $order->id,
             'user_name' => $order->user ? $order->user->name : 'Khách',
@@ -340,6 +340,8 @@ class OrderController extends Controller
             'name_order' => $order->name_order,
             'email_order' => $order->email_order,
             'user_note' => $order->user_note,
+            'cancel_reason' => $order->cancel_reason,
+
             'coupon_id' => $order->coupon_id,
             'total_price' => $order->total_price,
             'order_items' => [],
