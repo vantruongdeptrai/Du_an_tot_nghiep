@@ -321,12 +321,12 @@ class OrderController extends Controller
     }
     public function getOrderById($id)
     {
-        $order = Order::with(['user', 'orderItems.product', 'orderItems.productVariant.product']) // Eager load the related product through the product variant
+        $order = Order::with(['user', 'orderItems.product', 'orderItems.productVariant.product']) 
             ->where('id', $id)
             ->first();
 
         if (!$order) {
-            return response()->json(['message' => 'Order not found'], 404);
+            return response()->json(['message' => 'khoong tim thay don hang'], 404);
         }
 
         // Khởi tạo mảng dữ liệu thứ tự
@@ -348,6 +348,7 @@ class OrderController extends Controller
             'created_at' => $order->created_at->format('Y-m-d H:i:s'),
         ];
 
+        // laays chi tieét sp trong bảng đơn hàng
         for ($i = 0; $i < $order->orderItems->count(); $i++) {
             $item = $order->orderItems[$i];
             $orderData['order_items'][] = [
@@ -379,12 +380,13 @@ class OrderController extends Controller
             return response()->json(['message' => 'Không tìm thấy đơn hàng'], 404);
         }
     
-        // Define valid status transitions
+        // Xác định các trạng thái chuyển tiếp hợp lệ
         $validTransitions = [
             'Chờ xác nhận' => ['Đã xác nhận', 'Đang chuẩn bị', 'Đang vận chuyển', 'Giao hàng thành công', 'Đã hủy'],
             'Đã xác nhận' => ['Đang chuẩn bị', 'Đang vận chuyển', 'Giao hàng thành công', 'Đã hủy'],
             'Đang chuẩn bị' => ['Đang vận chuyển', 'Đã hủy'],
             'Đang vận chuyển' => ['Giao hàng thành công', 'Đã hủy'],
+            'Chờ xác nhận hủy'=>['Chờ xác nhận','Đã hủy'],
             'Giao hàng thành công' => [],
             'Đã hủy' => [],
         ];
@@ -583,7 +585,6 @@ class OrderController extends Controller
     $order->save();
 
     // Gửi thông báo tới admin (tùy thuộc vào hệ thống của bạn)
-    // Notification::send(Admin::all(), new OrderCancelRequestNotification($order));
 
     return response()->json([
         'message' => 'Yêu cầu hủy đơn hàng đã được gửi đi, đang chờ admin xác nhận',
