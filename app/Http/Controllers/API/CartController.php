@@ -149,6 +149,7 @@ public function getCartUser(Request $request)
                 }
 
                 return [
+                    'cart_id' => $cart->id,
                     'product_id' => $product->id,
                     'product_variant_id' => $cart->product_variant_id,
                     'product_name' => $productName,
@@ -180,13 +181,14 @@ public function getCart(Request $request)
     $sessionId = $request->header('session_id');
     $cart = $request->session()->get('cart_' . $sessionId, []);
 
-    $filteredCart = array_filter($cart, function($item) {
+    $filteredCart = array_filter($cart, function ($item) {
         return $item['quantity'] > 1; // Chỉ giữ lại những sản phẩm có quantity > 1
     });
 
     $now = now();
 
-    $detailedCart = array_map(function($item) use ($now) {
+    $detailedCart = array_map(function ($item) use ($now) {
+        $cartId = $item['id'] ?? null; // Lấy cart_id từ session (nếu có)
         $productId = $item['product']['id'] ?? null;
         $productVariantId = $item['product_variant']['id'] ?? null;
 
@@ -206,6 +208,9 @@ public function getCart(Request $request)
                 : $productVariant->price;
 
             return [
+                'cart_id' => $cartId,
+                'product_id' => $productId,
+                'product_variant_id' => $productVariantId,
                 'product_name' => $product->name ?? 'N/A',
                 'quantity' => $item['quantity'],
                 'price' => $price,
@@ -214,7 +219,7 @@ public function getCart(Request $request)
                 'sale_end' => $saleEnd,
                 'size' => $productVariant->size->name ?? 'N/A',
                 'color' => $productVariant->color->name ?? 'N/A',
-                'product_image' => isset($product->image) 
+                'product_image' => isset($product->image)
                     ? asset('storage/' . $product->image)
                     : 'N/A',
             ];
@@ -228,21 +233,27 @@ public function getCart(Request $request)
                 : $product->price;
 
             return [
+                'cart_id' => $cartId,
+                'product_id' => $productId,
+                'product_variant_id' => $productVariantId,
                 'product_name' => $product->name,
                 'quantity' => $item['quantity'],
                 'price' => $price,
                 'sale_price' => $salePrice,
                 'sale_start' => $saleStart,
                 'sale_end' => $saleEnd,
-                 'size' => 'N/A',
+                'size' => 'N/A',
                 'color' => 'N/A',
-                'product_image' => isset($product->image) 
+                'product_image' => isset($product->image)
                     ? asset('storage/' . $product->image)
                     : 'N/A',
             ];
         }
 
         return [
+            'cart_id' => $cartId,
+            'product_id' => 'N/A',
+            'product_variant_id' => 'N/A',
             'product_name' => 'N/A',
             'quantity' => $item['quantity'],
             'price' => 'N/A',
@@ -256,8 +267,8 @@ public function getCart(Request $request)
     }, $filteredCart);
 
     return response()->json(['cart' => $detailedCart]);
-  
 }
+
 public function updateCart(Request $request)
 {
     $request->validate([
