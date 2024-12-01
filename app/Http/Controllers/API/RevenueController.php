@@ -104,7 +104,9 @@ class RevenueController extends Controller
             'data' => $revenues,
         ]);
     }
-    //Thống kê số lượng sản phẩm đã bán
+    //Thống kê số lượng sản phẩm đã bán .
+
+
     public function getSoldProductsCount()
     {
         try {
