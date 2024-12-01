@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use App\Models\Product;
 use App\Models\Cart;
+use App\Jobs\SendOrderSuccessMail;
 
 
 
@@ -175,7 +176,10 @@ class OrderController extends Controller
                         ->delete();
                 }
             }
-    
+             // Dispatch job để gửi email
+            if (!empty($user->email)) {
+                dispatch(new SendOrderSuccessMail($order));
+            }
             DB::commit(); 
     
             return response()->json([
