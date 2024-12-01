@@ -15,6 +15,7 @@ use App\Http\Controllers\API\GalleryController;
 use App\Http\Controllers\API\ProductController;
 use App\Http\Controllers\API\CategoryController;
 use App\Http\Controllers\API\AttributeController;
+use App\Http\Controllers\API\ReplyCommentController;
 use App\Http\Controllers\API\PermissionsController;
 use App\Http\Controllers\API\DetailProductController;
 use App\Http\Controllers\API\OperatingCostController;
@@ -26,6 +27,7 @@ use App\Http\Controllers\API\VNPayController;
 use App\Http\Controllers\API\vnpayReturn;
 use App\Http\Controllers\API\AddressController;
 use App\Http\Controllers\API\MomoController;
+use App\Http\Controllers\API\ReplyComment;
 use App\Http\Controllers\API\StatisticsController;
 use App\Http\Controllers\API\UserController;
 
@@ -134,7 +136,8 @@ Route::post('/product-variants', [ProductVariantController::class, 'store']);
 
 
 //http://127.0.0.1:8000/api/product-variants/{id}
-Route::put('/product-variants/{id}', [ProductVariantController::class, 'update']); 
+Route::put('/product-variants/{id}', [ProductVariantController::class, 'update']);
+
 
 
 //http://127.0.0.1:8000/api/product-variants/{id}
@@ -180,7 +183,8 @@ Route::post('products',[ProductController::class,'store']);
 Route::delete('products/{id}',[ProductController::class,'destroy']);
 //http://127.0.0.1:8000/api/products/id
 
-Route::put('products/{id}', [ProductController::class, 'update']);
+Route::put('/products/{id}', [ProductController::class, 'update']);
+
 
 
 Route::get('product/{id}', [ProductController::class, 'show']);
@@ -221,16 +225,24 @@ Route::middleware('auth:sanctum')->post('logout', [AuthController::class, 'logou
 Route::post('/register', [AuthController::class, 'register']);
 
 //http://127.0.0.1:8000/api/comments
-Route::get('/comments', [CommentController::class, 'index']);
+Route::get('products/{id}/comments', [CommentController::class, 'index']);
 
 //http://127.0.0.1:8000/api/comments
-Route::post('/comments', [CommentController::class, 'store']);
+Route::post('products/{id}/comments', [CommentController::class, 'store']);
 
 //http://127.0.0.1:8000/api/comments/{id}
-Route::put('/comments/{id}', [CommentController::class, 'update']);
 
 //http://127.0.0.1:8000/api/comments/{id}
 Route::delete('/comments/{id}', [CommentController::class, 'destroy']);
+
+Route::get('comments/{id}/replies', [ReplyCommentController::class, 'index']);
+Route::post('comments/{id}/replies', [ReplyCommentController::class, 'store']);
+    
+    // Cập nhật reply
+Route::put('replies/{id}', [ReplyCommentController::class, 'update']);
+    
+    // Xóa reply
+    Route::delete('replies/{id}', [ReplyCommentController::class, 'destroy']);
 
 //http://127.0.0.1:8000/api/blogs
 Route::get('blogs', [BlogController::class, 'index']);
@@ -264,6 +276,9 @@ Route::post('/cart/add', [CartController::class, 'addToCart']);
 Route::middleware([\Illuminate\Session\Middleware\StartSession::class])->post('/cart/add/guest', [CartController::class, 'addToCartGuest']);
 
 Route::delete('/delete/{id}', [CartController::class, 'destroy']); // Route xóa mềm giỏ hàng
+Route::middleware([\Illuminate\Session\Middleware\StartSession::class])->delete('/cart/remove/{id}', [CartController::class, 'removeFromCartGuest']);
+
+Route::put('/cart/update', [CartController::class, 'updateCart']);
 
 // http://127.0.0.1:8000/api/oder/login
 Route::post('/oder/login', [OrderController::class, 'PaymentLogin']);
@@ -278,7 +293,7 @@ Route::delete('/orders/{id}', [OrderController::class, 'deleteOrder']); //http:1
 
 
 Route::post('/orders/cancel/{id}', [OrderController::class, 'cancelOrder']);  //http://127.0.0.1:8000/api/orders/cancel/{id}
-
+Route::post('/orders/cancel1/{id}', [OrderController::class, 'confirmCancelOrder']);  //http://127.0.0.1:8000/api/orders/cancel/{id}
 
 //http://127.0.0.1:8000/api/revenue/year?year={năm}
 Route::get('revenue/year', [RevenueController::class, 'revenueByYear']);//Thong ke doanh thu theo nam
@@ -321,3 +336,13 @@ Route::post('users', [UserController::class, 'store']);
 Route::put('users/{id}', [UserController::class, 'update']);
 //http://127.0.0.1:8000/api/users/{id}
 Route::delete('users/{id}', [UserController::class, 'destroy']);
+
+Route::get('/addresses', [AddressController::class, 'getAllData']);
+
+Route::post('/addresses', [AddressController::class, 'addAddresses']);
+
+Route::put('/addresses/{id}', [AddressController::class, 'updateAddress']);
+
+Route::delete('/addresses/{id}', [AddressController::class, 'deleteAddress']);
+Route::put('/addresses/default/{id}', [AddressController::class, 'setDefaultAddress']);
+

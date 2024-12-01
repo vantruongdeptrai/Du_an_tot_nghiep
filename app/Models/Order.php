@@ -22,6 +22,8 @@ class Order extends Model
         'phone_order',
         'name_order',
         'email_order',
+        'cancel_reason', 
+
     ];
 
     public function user()

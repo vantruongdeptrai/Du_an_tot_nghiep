@@ -22,7 +22,8 @@ return new class extends Migration
                 'Đang vận chuyển', 
                 'Giao hàng thành công', 
                 'Đã hủy',
-                'Đã thanh toán'
+                'Đã thanh toán',
+                'Chờ xác nhận hủy'  
             ]);
             $table->string('payment_type');
             $table->text('shipping_address');
@@ -31,12 +32,12 @@ return new class extends Migration
             $table->string('phone_order');
             $table->string('name_order');
             $table->string('email_order');
-            $table->text('cancel_reason')->nullable(); // New column for cancellation reason
+            $table->text('cancel_reason')->nullable(); 
             $table->timestamps();
-
+    
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->foreign('coupon_id')->references('id')->on('coupons')->onDelete('set null');
-
+    
             $table->softDeletes(); 
         });
     }

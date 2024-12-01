@@ -23,16 +23,17 @@ class OrderController extends Controller
     {
         $user = User::find($request->input('user_id'));
         if (!$user) {
-            return response()->json(['message' => 'không có người dùng'], 401);
+            return response()->json(['message' => 'Không có người dùng'], 401);
         }
-
+    
         DB::beginTransaction();
         try {
             // Khởi tạo tổng giá sản phẩm thường và biến thể
             $totalPriceProduct = 0;
             $totalPriceVariant = 0;
             $orderItems = $request->input('order_items');
-
+    
+            // Tạo đơn hàng
             $order = new Order();
             $order->user_id = $user->id;
             $order->status_order = 'Chờ xác nhận';
@@ -43,107 +44,151 @@ class OrderController extends Controller
             $order->name_order = $request->input('name_order');
             $order->email_order = $request->input('email_order');
             $order->user_note = $request->input('user_note');
-            $order->save();
-
+            $order->save(); 
+    
             // Lưu chi tiết sản phẩm bình thường và biến thể
             foreach ($orderItems as $item) {
                 if (array_key_exists('product_id', $item)) {
                     // Xử lý sản phẩm thường
                     $product = Product::find($item['product_id']);
-
                     if (!$product) {
                         return response()->json(['message' => 'Không tìm thấy sản phẩm: ' . $item['product_id']], 404);
                     }
-
+    
                     // Kiểm tra số lượng
                     if ($product->quantity < $item['quantity']) {
                         return response()->json(['message' => 'Số lượng sản phẩm không đủ: ' . $item['product_id']], 400);
                     }
-
-                    // Xử lý sản phẩm khi còn sale 
+    
+                    // Xử lý sản phẩm khi còn sale
                     $price = $product->sale_price && $product->sale_start <= now() && $product->sale_end >= now()
                         ? $product->sale_price
                         : $product->price;
-
+    
                     // Tổng giá trị sản phẩm
                     $totalPriceProduct += $price * $item['quantity'];
-
+    
                     // Lưu chi tiết đơn hàng sản phẩm
                     $orderItem = new OrderItem();
                     $orderItem->order_id = $order->id;
                     $orderItem->product_id = $item['product_id'];
                     $orderItem->product_variant_id = null;
                     $orderItem->quantity = $item['quantity'];
-                    $orderItem->save();
-
+                    $orderItem->save(); 
+    
                     // Giảm số lượng sản phẩm
                     $product->quantity -= $item['quantity'];
-                    $product->save();
+                    $product->save(); 
                 } else if (array_key_exists('product_variant_id', $item)) {
                     // Xử lý sản phẩm biến thể
                     $productVariant = ProductVariant::find($item['product_variant_id']);
-
                     if (!$productVariant) {
                         return response()->json(['message' => 'Không có sản phẩm biến thể ' . $item['product_variant_id']], 404);
                     }
-
+    
                     // Kiểm tra số lượng biến thể
                     if ($productVariant->quantity < $item['quantity']) {
                         return response()->json(['message' => 'Số lượng sản phẩm biến thể không đủ: ' . $item['product_variant_id']], 400);
                     }
-
+    
                     $price = $productVariant->sale_price && $productVariant->sale_start <= now() && $productVariant->sale_end >= now()
                         ? $productVariant->sale_price
                         : $productVariant->price;
-
-                    // Tính tổng
+    
+                    // Tổng giá trị sản phẩm biến thể
                     $totalPriceVariant += $price * $item['quantity'];
-
+    
                     // Giảm số lượng sản phẩm biến thể
                     $productVariant->quantity -= $item['quantity'];
-                    $productVariant->save();
-
-                    // Chi tiết sản phẩm biến thể
+                    $productVariant->save(); 
+    
+                    // Lưu chi tiết sản phẩm biến thể
                     $orderItem = new OrderItem();
                     $orderItem->order_id = $order->id;
                     $orderItem->product_id = $productVariant->product_id;
                     $orderItem->product_variant_id = $item['product_variant_id'];
                     $orderItem->quantity = $item['quantity'];
-                    $orderItem->save();
+                    $orderItem->save(); 
                 } else {
                     return response()->json(['message' => 'Không xác định được sản phẩm'], 400);
                 }
             }
-
+    
             $totalPrice = $totalPriceProduct + $totalPriceVariant;
-
-            if ($request->input('coupon_id')) {
-                $coupon = Coupon::find($request->input('coupon_id'));
-                if ($coupon && $totalPrice >= $coupon->min_order_value) {
-                    $totalPrice -= $coupon->discount_amount;
+    
+               // Mã giảm giá - Tìm coupon theo name
+               if ($request->input('coupon_name')) {
+                // Lấy mã giảm giá từ tên
+                $coupon = Coupon::where('name', $request->input('coupon_name'))->first();
+                
+                if ($coupon) {
+                    // Kiểm tra xem mã giảm giá có còn sử dụng được không (check thời gian, active, và usage limit)
+                    if ($coupon->is_active 
+                        && $totalPrice >= $coupon->min_order_value 
+                        && $coupon->start_date <= now() 
+                        && $coupon->end_date >= now()) {
+                        
+                        $discount = $totalPrice * ($coupon->discount_amount / 100);
+                        
+                        // Nếu giá trị giảm giá lớn hơn tổng đơn hàng, giảm giá không được vượt quá tổng giá trị đơn hàng
+                        if ($discount > $totalPrice) {
+                            $discount = $totalPrice;
+                        }
+                        
+                        // Trừ giá trị giảm giá từ tổng giá trị đơn hàng
+                        $totalPrice -= $discount;
+            
+                        // Lưu coupon_id vào đơn hàng
+                        $order->coupon_id = $coupon->id;
+                        $order->save(); 
+            
+                        // Trừ đi 1 lượt sử dụng mã giảm giá
+                        $coupon->usage_limit -= 1;
+                        if ($coupon->usage_limit <= 0) {
+                            $coupon->is_active = false; 
+                        }
+                        $coupon->save(); 
+                    } else {
+                        // Nếu mã giảm giá không hợp lệ
+                        return response()->json(['message' => 'Mã giảm giá không hợp lệ hoặc không đủ điều kiện sử dụng'], 400);
+                    }
+                } else {
+                    // Nếu không tìm thấy mã giảm giá
+                    return response()->json(['message' => 'Không tìm thấy mã giảm giá'], 404);
                 }
             }
-            $order->total_price = $totalPrice; 
+            
+    
+            // Lưu tổng giá trị đơn hàng
+            $order->total_price = $totalPrice;
             $order->save(); 
     
             // Xóa các sản phẩm khỏi giỏ hàng của người dùng
-            Cart::where('user_id', $user->id)->delete();
+            foreach ($orderItems as $item) {
+                if (array_key_exists('product_id', $item)) {
+                    Cart::where('user_id', $user->id)
+                        ->where('product_id', $item['product_id'])
+                        ->delete();
+                } elseif (array_key_exists('product_variant_id', $item)) {
+                    Cart::where('user_id', $user->id)
+                        ->where('product_variant_id', $item['product_variant_id'])
+                        ->delete();
+                }
+            }
     
-            DB::commit();
+            DB::commit(); 
     
-
             return response()->json([
                 'message' => 'Thanh toán thành công!',
                 'order_id' => $order->id,
                 'total_price' => $totalPrice,
             ], 201);
         } catch (\Exception $e) {
-            DB::rollBack();
+            DB::rollBack(); 
             return response()->json(['message' => 'Lỗi khi xử lý thanh toán: ' . $e->getMessage()], 500);
         }
     }
-
-
+    
 
     //  Thanh toán cho người dùng   ko  đăng nhập 
 
@@ -257,8 +302,7 @@ class OrderController extends Controller
             DB::commit();
 
             // Xóa giỏ hàng trong session sau khi thanh toán
-            $request->session()->forget('cart_' . $sessionId);
-
+            $request->session()->forget('cart_' . $sessionId); 
             return response()->json([
                 'message' => 'Thanh toán thành công!',
                 'order_id' => $order->id,
@@ -277,15 +321,15 @@ class OrderController extends Controller
     }
     public function getOrderById($id)
     {
-        $order = Order::with(['user', 'orderItems.product', 'orderItems.productVariant.product']) // Eager load the related product through the product variant
+        $order = Order::with(['user', 'orderItems.product', 'orderItems.productVariant.product']) 
             ->where('id', $id)
             ->first();
 
         if (!$order) {
-            return response()->json(['message' => 'Order not found'], 404);
+            return response()->json(['message' => 'khoong tim thay don hang'], 404);
         }
 
-        // Initialize the order data array
+        // Khởi tạo mảng dữ liệu thứ tự
         $orderData = [
             'order_id' => $order->id,
             'user_name' => $order->user ? $order->user->name : 'Khách',
@@ -296,12 +340,15 @@ class OrderController extends Controller
             'name_order' => $order->name_order,
             'email_order' => $order->email_order,
             'user_note' => $order->user_note,
+            'cancel_reason' => $order->cancel_reason,
+
             'coupon_id' => $order->coupon_id,
             'total_price' => $order->total_price,
             'order_items' => [],
             'created_at' => $order->created_at->format('Y-m-d H:i:s'),
         ];
 
+        // laays chi tieét sp trong bảng đơn hàng
         for ($i = 0; $i < $order->orderItems->count(); $i++) {
             $item = $order->orderItems[$i];
             $orderData['order_items'][] = [
@@ -326,42 +373,71 @@ class OrderController extends Controller
         $request->validate([
             'status_order' => 'required|string|in:Chờ xác nhận,Đã xác nhận,Đang chuẩn bị,Đang vận chuyển,Giao hàng thành công,Đã hủy',
         ]);
-
+    
         $order = Order::find($id);
-
+    
         if (!$order) {
-            return response()->json(['message' => 'khôg tìm thấy đơn hàng'], 404);
+            return response()->json(['message' => 'Không tìm thấy đơn hàng'], 404);
         }
-
+    
+        // Xác định các trạng thái chuyển tiếp hợp lệ
         $validTransitions = [
-            'Chờ xác nhận' => ['Đã xác nhận', 'Đang chuẩn bị','Đang vận chuyển','Đã giao hàng', 'Đã hủy'],
-            'Đã xác nhận' => ['Đang chuẩn bị','Đang vận chuyển','Đã giao hàng', 'Đã hủy'],
+            'Chờ xác nhận' => ['Đã xác nhận', 'Đang chuẩn bị', 'Đang vận chuyển', 'Giao hàng thành công', 'Đã hủy'],
+            'Đã xác nhận' => ['Đang chuẩn bị', 'Đang vận chuyển', 'Giao hàng thành công', 'Đã hủy'],
             'Đang chuẩn bị' => ['Đang vận chuyển', 'Đã hủy'],
-            'Đang vận chuyển' => ['Đã giao hàng', 'Đã hủy'],
+            'Đang vận chuyển' => ['Giao hàng thành công', 'Đã hủy'],
+            'Chờ xác nhận hủy'=>['Chờ xác nhận','Đã hủy'],
             'Giao hàng thành công' => [],
             'Đã hủy' => [],
         ];
-
+    
         $currentStatus = $order->status_order;
         $newStatus = $request->input('status_order');
-
+    
         if (!in_array($newStatus, $validTransitions[$currentStatus] ?? [])) {
             return response()->json([
-                'message' => 'khong hop lệ ' . $currentStatus . ' sang ' . $newStatus,
+                'message' => "Không hợp lệ: không thể chuyển từ trạng thái $currentStatus sang $newStatus",
             ], 400);
         }
-
+    
+        // sửa lại số lượng hàng tồn kho nếu hủy
+        if ($newStatus === 'Đã hủy' && $currentStatus !== 'Đã hủy') {
+            foreach ($order->orderItems as $item) {
+                // kiếm tra xem snar phẩm có bt hay ko
+                if ($item->product_variant_id) {
+                    // cập nhập kho cho bt
+                    $variant = $item->variation;
+                    if ($variant) {
+                        \Log::info("Cập nhập id bt: {$variant->id}, sl: " . ($variant->quantity + $item->quantity));
+                        $variant->quantity += $item->quantity;
+                        $variant->save();
+                    } else {
+                        \Log::warning("ko tìm thấy bt nào: {$item->id}");
+                    }
+                } else {
+                    // nếu không có biến thể sẽ cập nhập sl cho sản phẩm
+                    $product = $item->product;
+                    if ($product) {
+                        $product->quantity += $item->quantity;
+                        $product->save();
+                    }
+                }
+            }
+        }
+    
         $order->status_order = $newStatus;
         $order->save();
-
+    
         return response()->json([
-            'message' => 'sửa thành công',
+            'message' => 'Cập nhật trạng thái đơn hàng thành công',
             'order' => [
                 'order_id' => $order->id,
-                'new_status_order' => $order->status_order,
+                'status_order' => $order->status_order,
             ],
         ], 200);
     }
+    
+    
 
     public function deleteOrder($id)
     {
@@ -435,44 +511,128 @@ class OrderController extends Controller
         }
     }
 
-    public function cancelOrder(Request $request, $order_id)
-    {
-        $predefinedReasons = [
-            'Người mua thay đổi ý định',
-            'Đặt nhầm sản phẩm',
-            'Thời gian giao hàng không phù hợp',
-            'Không liên lạc được với cửa hàng'
-        ];
+    // public function cancelOrder(Request $request, $order_id)
+    // {
+    //     $predefinedReasons = [
+    //         'Người mua thay đổi ý định',
+    //         'Đặt nhầm sản phẩm',
+    //         'Thời gian giao hàng không phù hợp',
+    //         'Không liên lạc được với cửa hàng'
+    //     ];
     
-        $order = Order::find($order_id);
+    //     $order = Order::find($order_id);
     
-        if (!$order) {
-            return response()->json(['message' => 'Không tìm thấy đơn hàng'], 404);
-        }
+    //     if (!$order) {
+    //         return response()->json(['message' => 'Không tìm thấy đơn hàng'], 404);
+    //     }
     
-        $validStatuses = ['Chờ xác nhận', 'Đang chuẩn bị', 'Đang vận chuyển'];
-        if (!in_array($order->status_order, $validStatuses)) {
-            return response()->json(['message' => 'Đơn hàng không thể hủy trong trạng thái này'], 400);
-        }
+    //     $validStatuses = ['Chờ xác nhận', 'Đang chuẩn bị', 'Đang vận chuyển'];
+    //     if (!in_array($order->status_order, $validStatuses)) {
+    //         return response()->json(['message' => 'Đơn hàng không thể hủy trong trạng thái này'], 400);
+    //     }
     
-        $cancelReason = $request->input('cancel_reason');
+    //     $cancelReason = $request->input('cancel_reason');
         
-        if (!$cancelReason || !in_array($cancelReason, $predefinedReasons)) {
-            return response()->json(['message' => 'Lý do hủy không hợp lệ'], 400);
-        }
+    //     if (!$cancelReason || !in_array($cancelReason, $predefinedReasons)) {
+    //         return response()->json(['message' => 'Lý do hủy không hợp lệ'], 400);
+    //     }
     
-        $order->status_order = 'Đã hủy';
-        $order->cancel_reason = $cancelReason;
-        $order->save();
+    //     $order->status_order = 'Đã hủy';
+    //     $order->cancel_reason = $cancelReason;
+    //     $order->save();
     
-        return response()->json([
-            'message' => 'Đơn hàng đã được hủy thành công',
-            'order' => [
-                'order_id' => $order->id,
-                'status_order' => $order->status_order,
-                'cancel_reason' => $order->cancel_reason,
-            ],
-        ], 200);
+    //     return response()->json([
+    //         'message' => 'Đơn hàng đã được hủy thành công',
+    //         'order' => [
+    //             'order_id' => $order->id,
+    //             'status_order' => $order->status_order,
+    //             'cancel_reason' => $order->cancel_reason,
+    //         ],
+    //     ], 200);
+    // }
+
+
+
+    public function cancelOrder(Request $request, $order_id)
+{
+    $predefinedReasons = [
+        'Người mua thay đổi ý định',
+        'Đặt nhầm sản phẩm',
+        'Thời gian giao hàng không phù hợp',
+        'Không liên lạc được với cửa hàng'
+    ];
+
+    $order = Order::find($order_id);
+
+    if (!$order) {
+        return response()->json(['message' => 'Không tìm thấy đơn hàng'], 404);
     }
+
+    $validStatuses = ['Chờ xác nhận', 'Đang chuẩn bị', 'Đang vận chuyển'];
+    if (!in_array($order->status_order, $validStatuses)) {
+        return response()->json(['message' => 'Đơn hàng không thể yêu cầu hủy trong trạng thái này'], 400);
+    }
+
+    $cancelReason = $request->input('cancel_reason');
+
+    if (!$cancelReason || !in_array($cancelReason, $predefinedReasons)) {
+        return response()->json(['message' => 'Lý do hủy không hợp lệ'], 400);
+    }
+
+    // Đánh dấu trạng thái "Chờ xác nhận hủy"
+    $order->status_order = 'Chờ xác nhận hủy';
+    $order->cancel_reason = $cancelReason;
+    $order->save();
+
+    // Gửi thông báo tới admin (tùy thuộc vào hệ thống của bạn)
+
+    return response()->json([
+        'message' => 'Yêu cầu hủy đơn hàng đã được gửi đi, đang chờ admin xác nhận',
+        'order' => [
+            'order_id' => $order->id,
+            'status_order' => $order->status_order,
+            'cancel_reason' => $order->cancel_reason,
+        ],
+    ], 200);
+}
+
+
+
+public function confirmCancelOrder(Request $request, $order_id)
+{
+    $order = Order::find($order_id);
+
+    if (!$order) {
+        return response()->json(['message' => 'Không tìm thấy đơn hàng'], 404);
+    }
+
+    if ($order->status_order !== 'Chờ xác nhận hủy') {
+        return response()->json(['message' => 'Không thể xác nhận hủy đơn hàng trong trạng thái này'], 400);
+    }
+
+    $action = $request->input('action'); // 'approve' hoặc 'reject'
+
+    if ($action === 'approve') {
+        $order->status_order = 'Đã hủy';
+    } elseif ($action === 'reject') {
+        $order->status_order = 'Chờ xác nhận'; // Quay lại trạng thái ban đầu
+        $order->cancel_reason = null; // Xóa lý do hủy nếu từ chối
+    } else {
+        return response()->json(['message' => 'Hành động không hợp lệ'], 400);
+    }
+
+    $order->save();
+
+    return response()->json([
+        'message' => $action === 'approve' 
+            ? 'Đơn hàng đã được hủy thành công' 
+            : 'Yêu cầu hủy đơn hàng đã bị từ chối',
+        'order' => [
+            'order_id' => $order->id,
+            'status_order' => $order->status_order,
+        ],
+    ], 200);
+}
+
     
 }
