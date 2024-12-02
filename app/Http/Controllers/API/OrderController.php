@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use App\Models\Product;
 use App\Models\Cart;
-use App\Jobs\SendOrderSuccessMail;
+use App\Jobs\SendInvoiceEmailJob;
 use Barryvdh\DomPDF\Facade\Pdf; // Sử dụng package như dompdf
 use Mail;
 use App\Mail\InvoiceMail;
@@ -181,9 +181,7 @@ class OrderController extends Controller
                 }
             }
             // Dispatch job để gửi email
-            if (!empty($user->email)) {
-                dispatch(new SendOrderSuccessMail($order));
-            }
+            
             DB::commit();
 
             return response()->json([
@@ -643,21 +641,43 @@ class OrderController extends Controller
     }
     public function generateInvoice(Order $order)
     {
+            // Load thông tin đơn hàng
         $order->load('orderItems');
-        $pdf = PDF::loadView('admin.orders.invoice', compact('order'));
+
+        // Tạo file PDF từ view
+        $pdf = PDF::loadView('invoice.invoice-order', compact('order'));
         $pdf->setPaper('A4', 'portrait');
         $pdf->setOptions(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true]);
-        return $pdf->download('order-' . $order->id . '.pdf');
+
+        // Chuyển PDF thành base64
+        $pdfContent = $pdf->output();
+        $pdfBase64 = base64_encode($pdfContent);
+
+        // Trả về JSON
+        return response()->json([
+            'message' => 'Hóa đơn đã được tạo thành công.',
+            'file_name' => 'order-' . $order->id . '.pdf',
+            'file_base64' => $pdfBase64,
+        ], 200);
     }
 
     public function sendInvoiceEmail(Order $order)
     {
-        $order->load('orderItems');
-        $pdf = PDF::loadView('admin.orders.invoice', compact('order'));
-        $pdf->setPaper('A4', 'portrait');
-        $pdf->setOptions(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true]);
-        Mail::to($order->user_email)->send(new InvoiceMail($order, $pdf));
-        return redirect()->back()->with('success', 'Hóa đơn đã được gửi qua email.');
+        
+        // Gửi email với hóa đơn đính kèm
+        try {
+            SendInvoiceEmailJob::dispatch($order);
+            return response()->json([
+                'message' => 'Hóa đơn đã được gửi qua email thành công.',
+                'email' => $order->email_order,
+            ], 200);
+        } catch (\Exception $e) {
+            // Xử lý lỗi khi gửi email
+            return response()->json([
+                'message' => 'Gửi email thất bại.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
     } 
 
 }

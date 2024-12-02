@@ -37,9 +37,9 @@
     </div>
 
     <div class="invoice-details">
-        <p><strong>Khách hàng:</strong> {{ $order->customer_name }}</p>
-        <p><strong>Email:</strong> {{ $order->email }}</p>
-        <p><strong>Mã đơn hàng:</strong> {{ $order->order_id }}</p>
+        <p><strong>Khách hàng:</strong> {{ $order->name_order }}</p>
+        <p><strong>Email:</strong> {{ $order->email_order }}</p>
+        <p><strong>Mã đơn hàng:</strong> {{ $order->id }}</p>
     </div>
 
     <table>

@@ -7,8 +7,22 @@
 </head>
 <body>
     <h1>Hóa đơn của bạn - Đơn hàng #{{ $order->id }}</h1>
-    <p>Xin chào {{ $order->user_name }},</p>
+    <p>Xin chào {{ $order->name_order }},</p>
     <p>Cảm ơn bạn đã mua sắm tại cửa hàng của chúng tôi. Dưới đây là thông tin đơn hàng của bạn:</p>
+    <div class="invoice-header">
+        <h1>HÓA ĐƠN</h1>
+        <p>Công ty: {{ config('app.name') }}</p>
+        <p>Ngày: {{ \Carbon\Carbon::now()->format('d-m-Y') }}</p>
+    </div>
+
+    <div class="invoice-details">
+        <h2>Thông tin khách hàng</h2>
+        <p>Tên người đặt hàng: <strong>{{ $order->name_order }}</strong></p>
+        <p>Email: <strong>{{ $order->email_order }}</strong></p>
+        <p>Số điện thoại: <strong>{{ $order->phone_order }}</strong></p>
+        <p>Địa chỉ nhận: <strong>{{ $order->shipping_address }}</strong></p>
+        <p>Phương thức thanh toán: <strong>{{ $order->status_order }}</strong></p>
+    </div>
     <table border="1">
         <thead>
             <tr>
