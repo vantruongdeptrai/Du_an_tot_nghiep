@@ -346,3 +346,9 @@ Route::put('/addresses/{id}', [AddressController::class, 'updateAddress']);
 Route::delete('/addresses/{id}', [AddressController::class, 'deleteAddress']);
 Route::put('/addresses/default/{id}', [AddressController::class, 'setDefaultAddress']);
 
+
+
+Route::get('order/{order}/invoice', [OrderController::class, 'generateInvoice']);
+//http://127.0.0.1:8000/api/order/{order}/invoice
+Route::post('order/{order}/send-invoice', [OrderController::class, 'sendInvoiceEmail']);
+//http://127.0.0.1:8000/api/order/{order}/send-invoice
