@@ -302,7 +302,7 @@ Route::get('revenue/months', [RevenueController::class, 'revenueByMonths']);//Th
 //http://127.0.0.1:8000/api/revenue/day?date=y-m-d
 Route::get('revenue/day', [RevenueController::class, 'revenueByDay']);//Thống kê doanh thu theo ngày
 //http://127.0.0.1:8000/api/products/best-sellers
-Route::get('/products/best-sellers', [ProductController::class, 'bestSellers']);
+Route::get('/products/best-sellers', [ProductController::class, 'bestSellers']);//Thống kê sản phâm bán chạy nhât
 //http://127.0.0.1:8000/api/total-revenue
 Route::get('/total-revenue', [RevenueController::class, 'getTotalRevenue']);
 //http://127.0.0.1:8000/api/products/out-of-stock
