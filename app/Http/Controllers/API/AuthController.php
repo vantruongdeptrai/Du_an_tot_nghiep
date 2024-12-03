@@ -48,7 +48,7 @@ class AuthController extends Controller
         ]);
     }
     public function register(Request $request){
-        $data=$request->validate([
+        $data = $request->validate([
             'name' => 'required|string|max:255',
             'email' => [
                 'required',
@@ -56,15 +56,13 @@ class AuthController extends Controller
                 'email',
                 'max:255',
                 'unique:users',
-                'regex:/^[a-zA-Z0-9._%+-]+@fpt\.edu\.vn$/'
-    ],
+                'regex:/^[a-zA-Z0-9._%+-]+@(fpt\.edu\.vn|gmail\.com)$/'
+            ],
             'password' => 'required|string|min:8|confirmed',
-        ]);
+        ]);        
         $user=User::query()->create($data);
         $token = $user->createToken('API Token')->plainTextToken;
         Mail::to($user->email)->queue(new \App\Mail\WelcomeMail($user));
-
-
         return response()->json([
             'token' => $token,
             'message' => 'đăng ký thành công',
