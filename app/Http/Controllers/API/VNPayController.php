@@ -164,9 +164,7 @@ class VNPayController extends Controller
                 }
             }
             // Dispatch job để gửi email
-            if (!empty($user->email)) {
-                dispatch(new SendOrderSuccessMail($order));
-            }
+            
             DB::commit();
     
             return response()->json([
