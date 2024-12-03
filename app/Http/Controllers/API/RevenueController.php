@@ -104,7 +104,9 @@ class RevenueController extends Controller
             'data' => $revenues,
         ]);
     }
-    //Thống kê số lượng sản phẩm đã bán
+    //Thống kê số lượng sản phẩm đã bán .
+
+
     public function getSoldProductsCount()
     {
         try {
@@ -130,6 +132,17 @@ class RevenueController extends Controller
                 'message' => 'Lỗi xảy ra: ' . $e->getMessage(),
             ], 500);
         }
+    }
+
+//thống kê theo trạng thái đơn hàng
+    public function getOrderStats()
+    {
+        $stats = DB::table('orders')
+            ->select('status_order', DB::raw('count(*) as total'))
+            ->groupBy('status_order')
+            ->get();
+
+        return response()->json($stats);
     }
     
 }

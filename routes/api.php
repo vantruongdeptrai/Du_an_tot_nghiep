@@ -293,7 +293,7 @@ Route::delete('/orders/{id}', [OrderController::class, 'deleteOrder']); //http:1
 
 
 Route::post('/orders/cancel/{id}', [OrderController::class, 'cancelOrder']);  //http://127.0.0.1:8000/api/orders/cancel/{id}
-
+Route::post('/orders/cancel1/{id}', [OrderController::class, 'confirmCancelOrder']);  //http://127.0.0.1:8000/api/orders/cancel/{id}
 
 //http://127.0.0.1:8000/api/revenue/year?year={năm}
 Route::get('revenue/year', [RevenueController::class, 'revenueByYear']);//Thong ke doanh thu theo nam
@@ -309,8 +309,10 @@ Route::get('/total-revenue', [RevenueController::class, 'getTotalRevenue']);
 Route::get('products/out-of-stock', [ProductController::class, 'getOutOfStockProducts']);
 //http://127.0.0.1:8000/api/revenue-by-category
 Route::get('/revenue-by-category', [RevenueController::class, 'getRevenueByCategory']);
+//http://127.0.0.1:8000/api/revenue/sold-products
 Route::get('/revenue/sold-products', [RevenueController::class, 'getSoldProductsCount']);
-
+//http://127.0.0.1:8000/api/order-stats
+Route::get('order-stats', [RevenueController::class, 'getOrderStats']);
 
 
 Route::get('/search', [ProductController::class, 'searchProduct']);
@@ -335,7 +337,6 @@ Route::put('users/{id}', [UserController::class, 'update']);
 //http://127.0.0.1:8000/api/users/{id}
 Route::delete('users/{id}', [UserController::class, 'destroy']);
 
-
 Route::get('/addresses', [AddressController::class, 'getAllData']);
 
 Route::post('/addresses', [AddressController::class, 'addAddresses']);
@@ -343,3 +344,12 @@ Route::post('/addresses', [AddressController::class, 'addAddresses']);
 Route::put('/addresses/{id}', [AddressController::class, 'updateAddress']);
 
 Route::delete('/addresses/{id}', [AddressController::class, 'deleteAddress']);
+
+Route::put('/addresses/default/{id}', [AddressController::class, 'setDefaultAddress']);
+
+
+
+Route::get('order/{order}/invoice', [OrderController::class, 'generateInvoice']);
+//http://127.0.0.1:8000/api/order/{order}/invoice
+Route::post('order/{order}/send-invoice', [OrderController::class, 'sendInvoiceEmail']);
+//http://127.0.0.1:8000/api/order/{order}/send-invoice

@@ -14,8 +14,7 @@ use App\Models\Coupon;
 use Illuminate\Support\Facades\DB;
 use App\Models\Product;
 use App\Models\Cart;
-
-
+use App\Jobs\SendOrderSuccessMail;
 
 class VNPayController extends Controller
 {
@@ -164,7 +163,8 @@ class VNPayController extends Controller
                         ->delete();
                 }
             }
-    
+            // Dispatch job để gửi email
+            
             DB::commit();
     
             return response()->json([
