@@ -17,6 +17,7 @@ return new class extends Migration
             $table->text('description')->nullable();
             $table->decimal('discount_amount', 8, 2);
             $table->decimal('min_order_value', 8, 2);
+            $table->decimal('max_order_value', 8, 2);
             $table->integer('usage_limit');
             $table->boolean('is_active')->default(true);
             $table->date('start_date');

@@ -129,8 +129,10 @@ class OrderController extends Controller
                     if (
                         $coupon->is_active
                         && $totalPrice >= $coupon->min_order_value
+                        && ($coupon->max_order_value === null || $totalPrice <= $coupon->max_order_value)
                         && $coupon->start_date <= now()
                         && $coupon->end_date >= now()
+                        && ($coupon->discount_amount <= 80) // Giá trị giảm không vượt quá 80% 
                     ) {
 
                         $discount = $totalPrice * ($coupon->discount_amount / 100);
@@ -679,5 +681,6 @@ class OrderController extends Controller
             ], 500);
         }
     } 
+
 
 }
