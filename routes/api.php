@@ -304,7 +304,7 @@ Route::get('revenue/day', [RevenueController::class, 'revenueByDay']);//Thống 
 //http://127.0.0.1:8000/api/products/best-sellers
 Route::get('/products/best-sellers', [ProductController::class, 'bestSellers']);//Thống kê sản phâm bán chạy nhât
 //http://127.0.0.1:8000/api/total-revenue
-Route::get('/total-revenue', [RevenueController::class, 'getTotalRevenue']);
+Route::get('/total-revenue', [RevenueController::class, 'getTotalRevenue']);//Thống kê tôngr thống kê
 //http://127.0.0.1:8000/api/products/out-of-stock
 Route::get('products/out-of-stock', [ProductController::class, 'getOutOfStockProducts']);
 //http://127.0.0.1:8000/api/revenue-by-category
