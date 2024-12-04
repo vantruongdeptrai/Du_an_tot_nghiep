@@ -282,6 +282,3 @@ public function handleIPN(Request $request)
     
 
 }
-
-
-
