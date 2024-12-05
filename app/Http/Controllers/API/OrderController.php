@@ -379,7 +379,7 @@ class OrderController extends Controller
     public function updateOrder(Request $request, $id)
     {
         $request->validate([
-            'status_order' => 'required|string|in:Chờ xác nhận,Đã xác nhận,Đang chuẩn bị,Đang vận chuyển,Giao hàng thành công,Đã hủy',
+            'status_order' => 'required|string|in:Chờ xác nhận,Đã xác nhận,Đang chuẩn bị,Đang vận chuyển,Giao hàng thành công,Đã hủy','Xác nhận nhận hàng',
         ]);
 
         $order = Order::find($id);
@@ -393,7 +393,8 @@ class OrderController extends Controller
             'Chờ xác nhận' => ['Đã xác nhận', 'Đang chuẩn bị', 'Đang vận chuyển', 'Giao hàng thành công', 'Đã hủy'],
             'Đã xác nhận' => ['Đang chuẩn bị', 'Đang vận chuyển', 'Giao hàng thành công', 'Đã hủy'],
             'Đang chuẩn bị' => ['Đang vận chuyển', 'Đã hủy'],
-            'Đang vận chuyển' => ['Giao hàng thành công', 'Đã hủy'],
+            'Đang vận chuyển' => ['Giao hàng thành công', 'Đã hủy','Xác nhận nhận hàng'],
+            'Xác nhận nhận hàng' => ['Giao hàng thành công', 'Đã hủy'],
             'Chờ xác nhận hủy' => ['Chờ xác nhận', 'Đã hủy'],
             'Giao hàng thành công' => [],
             'Đã hủy' => [],
@@ -519,47 +520,7 @@ class OrderController extends Controller
         }
     }
 
-    // public function cancelOrder(Request $request, $order_id)
-    // {
-    //     $predefinedReasons = [
-    //         'Người mua thay đổi ý định',
-    //         'Đặt nhầm sản phẩm',
-    //         'Thời gian giao hàng không phù hợp',
-    //         'Không liên lạc được với cửa hàng'
-    //     ];
-
-    //     $order = Order::find($order_id);
-
-    //     if (!$order) {
-    //         return response()->json(['message' => 'Không tìm thấy đơn hàng'], 404);
-    //     }
-
-    //     $validStatuses = ['Chờ xác nhận', 'Đang chuẩn bị', 'Đang vận chuyển'];
-    //     if (!in_array($order->status_order, $validStatuses)) {
-    //         return response()->json(['message' => 'Đơn hàng không thể hủy trong trạng thái này'], 400);
-    //     }
-
-    //     $cancelReason = $request->input('cancel_reason');
-
-    //     if (!$cancelReason || !in_array($cancelReason, $predefinedReasons)) {
-    //         return response()->json(['message' => 'Lý do hủy không hợp lệ'], 400);
-    //     }
-
-    //     $order->status_order = 'Đã hủy';
-    //     $order->cancel_reason = $cancelReason;
-    //     $order->save();
-
-    //     return response()->json([
-    //         'message' => 'Đơn hàng đã được hủy thành công',
-    //         'order' => [
-    //             'order_id' => $order->id,
-    //             'status_order' => $order->status_order,
-    //             'cancel_reason' => $order->cancel_reason,
-    //         ],
-    //     ], 200);
-    // }
-
-
+   
 
     public function cancelOrder(Request $request, $order_id)
     {
@@ -576,7 +537,8 @@ class OrderController extends Controller
             return response()->json(['message' => 'Không tìm thấy đơn hàng'], 404);
         }
 
-        $validStatuses = ['Chờ xác nhận', 'Đang chuẩn bị', 'Đang vận chuyển'];
+        $validStatuses = ['Chờ xác nhận', 'Đang chuẩn bị', 'Xác nhận nhận hàng'];
+
         if (!in_array($order->status_order, $validStatuses)) {
             return response()->json(['message' => 'Đơn hàng không thể yêu cầu hủy trong trạng thái này'], 400);
         }
@@ -603,6 +565,51 @@ class OrderController extends Controller
             ],
         ], 200);
     }
+
+    public function confirmDelivery(Request $request, $order_id)
+    {
+        $order = Order::find($order_id);
+    
+        if (!$order) {
+            return response()->json(['message' => 'Không tìm thấy đơn hàng'], 404);
+        }
+    
+        if ($order->status_order !== 'Xác nhận nhận hàng') {
+            return response()->json(['message' => 'Đơn hàng không ở trạng thái Xác nhận nhận hàng'], 400);
+        }
+    
+        $order->status_order = 'Giao hàng thành công';
+        $order->save();
+    
+        return response()->json([
+            'message' => 'Giao hàng đã được xác nhận thành công',
+            'order' => [
+                'order_id' => $order->id,
+                'status_order' => $order->status_order,
+            ],
+        ], 200);
+    }
+    
+// Lịch trình chạy để tự động xác nhận sau 7 ngày
+public function autoConfirmDelivery()
+{
+    // Lọc các đơn hàng có trạng thái "Đang vận chuyển" và đã quá 7 ngày
+    $orders = Order::where('status_order', 'Đang vận chuyển')
+        ->where('updated_at', '<=', now()->subDays(7)) // Kiểm tra các đơn hàng chưa được cập nhật trong 7 ngày
+        ->get();
+
+    foreach ($orders as $order) {
+        // Cập nhật trạng thái đơn hàng thành "Giao hàng thành công"
+        $order->status_order = 'Giao hàng thành công';
+        $order->save();  // Lưu thay đổi trạng thái
+    }
+
+    return response()->json([
+        'message' => 'Đã tự động xác nhận giao hàng cho các đơn hàng quá hạn',
+        'affected_orders' => $orders->pluck('id'),  // Trả về danh sách các đơn hàng đã được thay đổi trạng thái
+    ]);
+}
+
 
 
 
