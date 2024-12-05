@@ -10,9 +10,12 @@ class Kernel extends ConsoleKernel
     /**
      * Define the application's command schedule.
      */
+
+
     protected function schedule(Schedule $schedule): void
     {
-        // $schedule->command('inspire')->hourly();
+        // Gọi phương thức tự động xác nhận giao hàng hàng ngày
+        $schedule->call('App\Http\Controllers\OrderController@autoConfirmDelivery')->daily();
     }
 
     /**
@@ -24,4 +27,6 @@ class Kernel extends ConsoleKernel
 
         require base_path('routes/console.php');
     }
+
+    
 }

@@ -21,6 +21,8 @@ class CouponController extends Controller
             'description' => 'nullable|string',
             'discount_amount' => 'required|numeric',
             'min_order_value' => 'required|numeric',
+            'max_order_value' => 'required|numeric',
+
             'usage_limit' => 'required|integer',
             'is_active' => 'required|boolean',
             'start_date' => 'required|date',
@@ -44,6 +46,8 @@ class CouponController extends Controller
             'description' => 'nullable|string',
             'discount_amount' => 'sometimes|required|numeric',
             'min_order_value' => 'sometimes|required|numeric',
+            'max_order_value' => 'sometimes|required|numeric',
+
             'usage_limit' => 'sometimes|required|integer',
             'is_active' => 'sometimes|required|boolean',
             'start_date' => 'sometimes|required|date',

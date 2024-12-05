@@ -295,6 +295,9 @@ Route::delete('/orders/{id}', [OrderController::class, 'deleteOrder']); //http:1
 Route::post('/orders/cancel/{id}', [OrderController::class, 'cancelOrder']);  //http://127.0.0.1:8000/api/orders/cancel/{id}
 Route::post('/orders/cancel1/{id}', [OrderController::class, 'confirmCancelOrder']);  //http://127.0.0.1:8000/api/orders/cancel/{id}
 
+Route::post('/confirm-delivery/{order_id}', [OrderController::class, 'confirmDelivery']);
+Route::get('/auto-confirm-delivery', [OrderController::class, 'autoConfirmDelivery']);
+
 //http://127.0.0.1:8000/api/revenue/year?year={năm}
 Route::get('revenue/year', [RevenueController::class, 'revenueByYear']);//Thong ke doanh thu theo nam
 //http://127.0.0.1:8000/api/revenue/months?year=2024
@@ -302,14 +305,14 @@ Route::get('revenue/months', [RevenueController::class, 'revenueByMonths']);//Th
 //http://127.0.0.1:8000/api/revenue/day?date=y-m-d
 Route::get('revenue/day', [RevenueController::class, 'revenueByDay']);//Thống kê doanh thu theo ngày
 //http://127.0.0.1:8000/api/products/best-sellers
-Route::get('/products/best-sellers', [ProductController::class, 'bestSellers']);
+Route::get('/products/best-sellers', [ProductController::class, 'bestSellers']);//Thống kê sản phâm bán chạy nhât
 //http://127.0.0.1:8000/api/total-revenue
-Route::get('/total-revenue', [RevenueController::class, 'getTotalRevenue']);
+Route::get('/total-revenue', [RevenueController::class, 'getTotalRevenue']);//Thống kê tôngr thống kê
 //http://127.0.0.1:8000/api/products/out-of-stock
 Route::get('products/out-of-stock', [ProductController::class, 'getOutOfStockProducts']);
 //http://127.0.0.1:8000/api/revenue-by-category
 Route::get('/revenue-by-category', [RevenueController::class, 'getRevenueByCategory']);
-//http://127.0.0.1:8000/api/revenue/sold-products
+//http://127.0.0.1:8000/api/revenue/sold-products.
 Route::get('/revenue/sold-products', [RevenueController::class, 'getSoldProductsCount']);
 //http://127.0.0.1:8000/api/order-stats
 Route::get('order-stats', [RevenueController::class, 'getOrderStats']);

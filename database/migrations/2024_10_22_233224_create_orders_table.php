@@ -23,7 +23,8 @@ return new class extends Migration
                 'Giao hàng thành công', 
                 'Đã hủy',
                 'Đã thanh toán',
-                'Chờ xác nhận hủy'  
+                'Chờ xác nhận hủy' ,
+                 'Đang chờ xác nhận giao hàng'
             ]);
             $table->string('payment_type');
             $table->text('shipping_address');

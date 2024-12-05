@@ -108,40 +108,44 @@ class VNPayController extends Controller
             if ($request->input('coupon_name')) {
                 // Lấy mã giảm giá từ tên
                 $coupon = Coupon::where('name', $request->input('coupon_name'))->first();
-                
+
                 if ($coupon) {
                     // Kiểm tra xem mã giảm giá có còn sử dụng được không (check thời gian, active, và usage limit)
-                    if ($coupon->is_active 
-                        && $totalPrice >= $coupon->min_order_value 
-                        && $coupon->start_date <= now() 
-                        && $coupon->end_date >= now()) {
-                        
+                    if (
+                        $coupon->is_active
+                        && $totalPrice >= $coupon->min_order_value
+                        && ($coupon->max_order_value === null || $totalPrice <= $coupon->max_order_value)
+                        && $coupon->start_date <= now()
+                        && $coupon->end_date >= now()
+                        && ($coupon->discount_amount <= 80) // Giá trị giảm không vượt quá 80% 
+                    ) {
+
                         $discount = $totalPrice * ($coupon->discount_amount / 100);
-                        
+
                         // Nếu giá trị giảm giá lớn hơn tổng đơn hàng, giảm giá không được vượt quá tổng giá trị đơn hàng
                         if ($discount > $totalPrice) {
                             $discount = $totalPrice;
                         }
-                        
+
                         // Trừ giá trị giảm giá từ tổng giá trị đơn hàng
                         $totalPrice -= $discount;
-            
+
                         // Lưu coupon_id vào đơn hàng
                         $order->coupon_id = $coupon->id;
-                        $order->save(); 
-            
+                        $order->save();
+
                         // Trừ đi 1 lượt sử dụng mã giảm giá
                         $coupon->usage_limit -= 1;
                         if ($coupon->usage_limit <= 0) {
-                            $coupon->is_active = false; 
+                            $coupon->is_active = false;
                         }
-                        $coupon->save(); 
+                        $coupon->save();
                     } else {
                         // Nếu mã giảm giá không hợp lệ
                         return response()->json(['message' => 'Mã giảm giá không hợp lệ hoặc không đủ điều kiện sử dụng'], 400);
                     }
                 } else {
-                    //Nếu không tìm thấy mã giảm giá
+                    // Nếu không tìm thấy mã giảm giá
                     return response()->json(['message' => 'Không tìm thấy mã giảm giá'], 404);
                 }
             }
@@ -282,6 +286,3 @@ public function handleIPN(Request $request)
     
 
 }
-
-
-
