@@ -295,6 +295,9 @@ Route::delete('/orders/{id}', [OrderController::class, 'deleteOrder']); //http:1
 Route::post('/orders/cancel/{id}', [OrderController::class, 'cancelOrder']);  //http://127.0.0.1:8000/api/orders/cancel/{id}
 Route::post('/orders/cancel1/{id}', [OrderController::class, 'confirmCancelOrder']);  //http://127.0.0.1:8000/api/orders/cancel/{id}
 
+Route::post('/confirm-delivery/{order_id}', [OrderController::class, 'confirmDelivery']);
+Route::get('/auto-confirm-delivery', [OrderController::class, 'autoConfirmDelivery']);
+
 //http://127.0.0.1:8000/api/revenue/year?year={năm}
 Route::get('revenue/year', [RevenueController::class, 'revenueByYear']);//Thong ke doanh thu theo nam
 //http://127.0.0.1:8000/api/revenue/months?year=2024
