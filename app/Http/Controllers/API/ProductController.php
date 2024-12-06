@@ -33,7 +33,7 @@ class ProductController extends Controller
         $validatedData = $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'price' => 'required|numeric',
+            'price' => 'numeric',
             'sale_price' => 'nullable|numeric',
             'category_id' => 'required|integer|exists:categories,id',
             'quantity' => 'nullable|integer',

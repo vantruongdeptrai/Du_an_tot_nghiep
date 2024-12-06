@@ -230,6 +230,9 @@ Route::get('products/{id}/comments', [CommentController::class, 'index']);
 //http://127.0.0.1:8000/api/comments
 Route::post('products/{id}/comments', [CommentController::class, 'store']);
 
+Route::get('/comments', [CommentController::class, 'showAllComments']);
+
+
 //http://127.0.0.1:8000/api/comments/{id}
 
 //http://127.0.0.1:8000/api/comments/{id}
