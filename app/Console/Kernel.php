@@ -12,14 +12,18 @@ class Kernel extends ConsoleKernel
      */
 
 
-    protected function schedule(Schedule $schedule): void
-    {
-        // Gọi phương thức tự động xác nhận giao hàng hàng ngày
-        $schedule->call('App\Http\Controllers\OrderController@autoConfirmDelivery')->daily();
-    }
+     protected function schedule(Schedule $schedule)
+     {
+         $schedule->call(function () {
+             app('App\Http\Controllers\OrderController')->autoConfirmDelivery();
+         })->hourly();  // Lên lịch cho hàm autoConfirmDelivery chạy hàng ngày
+     }
+     
+     
+     
 
     /**
-     * Register the commands for the application.
+     * Register the commands for the application.php artisan schedule:list
      */
     protected function commands(): void
     {

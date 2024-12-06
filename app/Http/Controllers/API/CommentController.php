@@ -10,6 +10,20 @@ use Illuminate\Support\Facades\Storage;
 
 class CommentController extends Controller
 {
+
+    public function showAllComments()
+    {
+        // Lấy tất cả bình luận, bao gồm thông tin người dùng và các bình luận trả lời
+        $comments = Comment::with(['user' => function ($query) {
+            $query->select('id', 'name'); 
+        }, 'replyComments.user' => function ($query) {
+            $query->select('id', 'name'); 
+        }])->get();
+    
+        return response()->json($comments);
+    }
+    
+
     public function index($id)
 {
     $product = Product::findOrFail($id);
