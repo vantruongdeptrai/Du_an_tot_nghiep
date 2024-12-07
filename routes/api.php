@@ -311,7 +311,7 @@ Route::get('products/out-of-stock', [ProductController::class, 'getOutOfStockPro
 Route::get('/revenue-by-category', [RevenueController::class, 'getRevenueByCategory']);
 //http://127.0.0.1:8000/api/revenue/sold-products.
 Route::get('/revenue/sold-products', [RevenueController::class, 'getSoldProductsCount']);
-//http://127.0.0.1:8000/api/order-stats
+//http://127.0.0.1:8000/api/order-stats.
 Route::get('order-stats', [RevenueController::class, 'getOrderStats']);
 
 
