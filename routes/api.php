@@ -323,7 +323,7 @@ Route::get('/filter',[ProductController::class,'filterProducts'] );
 
 
 
-Route::post('/create-payment', [VNPayController::class, 'createPayment']); //http://127.0.0.1:8000/api/create-payment
+Route::post('/create-payment', [VNPayController::class, 'createPayment']); //http://127.0.0.1:8000/api/create-payment.
 Route::get('/handle-ipn', [VNPayController::class, 'handleIPN']);
 
 //http://127.0.0.1:8000/api/users
