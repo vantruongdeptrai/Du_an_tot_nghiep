@@ -183,7 +183,7 @@ class OrderController extends Controller
                 }
             }
             // Dispatch job để gửi email
-            
+            $this->sendInvoiceEmail($order);
             DB::commit();
 
             return response()->json([
