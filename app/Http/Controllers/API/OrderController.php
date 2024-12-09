@@ -379,7 +379,7 @@ class OrderController extends Controller
     public function updateOrder(Request $request, $id)
     {
         $request->validate([
-            'status_order' => 'required|string|in:Chờ xác nhận,Đã xác nhận,Đang chuẩn bị,Đang vận chuyển,Giao hàng thành công,Đã hủy','Xác nhận nhận hàng',
+            'status_order' => 'required|string|in:Chờ xác nhận,Đã xác nhận,Đang chuẩn bị,Đang vận chuyển,Giao hàng thành công,Đã hủy'
         ]);
 
         $order = Order::find($id);
@@ -394,7 +394,6 @@ class OrderController extends Controller
             'Đã xác nhận' => ['Đang chuẩn bị', 'Đang vận chuyển', 'Giao hàng thành công', 'Đã hủy'],
             'Đang chuẩn bị' => ['Đang vận chuyển', 'Đã hủy'],
             'Đang vận chuyển' => ['Giao hàng thành công', 'Đã hủy','Xác nhận nhận hàng'],
-            'Xác nhận nhận hàng' => ['Giao hàng thành công', 'Đã hủy'],
             'Chờ xác nhận hủy' => ['Chờ xác nhận', 'Đã hủy'],
             'Giao hàng thành công' => [],
             'Đã hủy' => [],
@@ -537,7 +536,7 @@ class OrderController extends Controller
             return response()->json(['message' => 'Không tìm thấy đơn hàng'], 404);
         }
 
-        $validStatuses = ['Chờ xác nhận', 'Đang chuẩn bị', 'Xác nhận nhận hàng'];
+        $validStatuses = ['Chờ xác nhận', 'Đang chuẩn bị'];
 
         if (!in_array($order->status_order, $validStatuses)) {
             return response()->json(['message' => 'Đơn hàng không thể yêu cầu hủy trong trạng thái này'], 400);
@@ -567,28 +566,53 @@ class OrderController extends Controller
     }
 
     public function confirmDelivery(Request $request, $order_id)
-    {
-        $order = Order::find($order_id);
-    
-        if (!$order) {
-            return response()->json(['message' => 'Không tìm thấy đơn hàng'], 404);
-        }
-    
-        if ($order->status_order !== 'Xác nhận nhận hàng') {
-            return response()->json(['message' => 'Đơn hàng không ở trạng thái Xác nhận nhận hàng'], 400);
-        }
-    
-        $order->status_order = 'Giao hàng thành công';
-        $order->save();
-    
-        return response()->json([
-            'message' => 'Giao hàng đã được xác nhận thành công',
-            'order' => [
-                'order_id' => $order->id,
-                'status_order' => $order->status_order,
-            ],
-        ], 200);
+{
+    // Tìm kiếm đơn hàng theo ID
+    $order = Order::find($order_id);
+
+    // Nếu không tìm thấy đơn hàng, trả về lỗi 404
+    if (!$order) {
+        return response()->json(['message' => 'Không tìm thấy đơn hàng'], 404);
     }
+
+    // Kiểm tra trạng thái hiện tại của đơn hàng
+    // Chỉ cho phép tiếp tục khi trạng thái là "Giao hàng thành công"
+    if ($order->status_order !== 'Giao hàng thành công') {
+        return response()->json(['message' => 'Đơn hàng không ở trạng thái chờ xác nhận nhận hàng'], 400);
+    }
+
+    // Lấy giá trị "confirmation" từ request (xác nhận của người dùng)
+    // Giá trị có thể là "received" (đã nhận) hoặc "not_received" (chưa nhận)
+    $confirmation = $request->input('confirmation');
+
+    // Nếu người dùng xác nhận đã nhận hàng
+    if ($confirmation === 'received') {
+        $order->status_order = 'Đã nhận hàng'; // Cập nhật trạng thái thành "Đã nhận hàng"
+        $message = 'Người dùng đã xác nhận nhận hàng.'; // Thông báo thành công
+    }
+    // Nếu người dùng xác nhận chưa nhận hàng
+    elseif ($confirmation === 'not_received') {
+        $order->status_order = 'Chưa nhận hàng'; // Cập nhật trạng thái thành "Chưa nhận hàng"
+        $message = 'Người dùng xác nhận chưa nhận hàng.'; // Thông báo trạng thái chưa nhận
+    }
+    // Trường hợp giá trị không hợp lệ
+    else {
+        return response()->json(['message' => 'Xác nhận không hợp lệ. Vui lòng chọn "received" hoặc "not_received".'], 400);
+    }
+
+    // Lưu lại trạng thái đơn hàng mới vào cơ sở dữ liệu
+    $order->save();
+
+    // Trả về phản hồi JSON, bao gồm thông báo và thông tin trạng thái đơn hàng
+    return response()->json([
+        'message' => $message,
+        'order' => [
+            'order_id' => $order->id, // ID của đơn hàng
+            'status_order' => $order->status_order, // Trạng thái hiện tại của đơn hàng
+        ],
+    ], 200);
+}
+
     
 // Lịch trình chạy để tự động xác nhận sau 7 ngày
 public function autoConfirmDelivery()
