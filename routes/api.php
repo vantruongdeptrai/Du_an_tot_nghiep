@@ -230,6 +230,9 @@ Route::get('products/{id}/comments', [CommentController::class, 'index']);
 //http://127.0.0.1:8000/api/comments
 Route::post('products/{id}/comments', [CommentController::class, 'store']);
 
+Route::get('/comments', [CommentController::class, 'showAllComments']);
+
+
 //http://127.0.0.1:8000/api/comments/{id}
 
 //http://127.0.0.1:8000/api/comments/{id}
@@ -314,7 +317,7 @@ Route::get('products/out-of-stock', [ProductController::class, 'getOutOfStockPro
 Route::get('/revenue-by-category', [RevenueController::class, 'getRevenueByCategory']);
 //http://127.0.0.1:8000/api/revenue/sold-products.
 Route::get('/revenue/sold-products', [RevenueController::class, 'getSoldProductsCount']);
-//http://127.0.0.1:8000/api/order-stats
+//http://127.0.0.1:8000/api/order-stats.
 Route::get('order-stats', [RevenueController::class, 'getOrderStats']);
 
 
@@ -326,7 +329,7 @@ Route::get('/filter',[ProductController::class,'filterProducts'] );
 
 
 
-Route::post('/create-payment', [VNPayController::class, 'createPayment']); //http://127.0.0.1:8000/api/create-payment
+Route::post('/create-payment', [VNPayController::class, 'createPayment']); //http://127.0.0.1:8000/api/create-payment.
 Route::get('/handle-ipn', [VNPayController::class, 'handleIPN']);
 
 //http://127.0.0.1:8000/api/users
