@@ -16,15 +16,7 @@ return new class extends Migration
             $table->unsignedInteger('user_id')->nullable();
             $table->decimal('total_price', 10, 2)->nullable();
             $table->enum('status_order', [
-                'Chờ xác nhận', 
-                'Đã xác nhận', 
-                'Đang chuẩn bị', 
-                'Đang vận chuyển', 
-                'Giao hàng thành công', 
-                'Đã hủy',
-                'Đã thanh toán',
-                'Chờ xác nhận hủy' ,
-                 'Đang chờ xác nhận giao hàng'
+'Chờ xác nhận','Đã xác nhận','Đang chuẩn bị','Đang vận chuyển','Giao hàng thành công','Đã hủy','Đã thanh toán','Chờ xác nhận hủy','Đã nhận hàng','Chưa nhận hàng'
             ]);
             $table->string('payment_type');
             $table->text('shipping_address');
