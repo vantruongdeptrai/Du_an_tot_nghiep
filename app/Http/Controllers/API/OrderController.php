@@ -15,6 +15,8 @@ use App\Models\Cart;
 use App\Jobs\SendInvoiceEmailJob;
 use Barryvdh\DomPDF\Facade\Pdf; // Sử dụng package như dompdf
 use Mail;
+use Carbon\Carbon;
+
 use App\Mail\InvoiceMail;
 
 
@@ -612,29 +614,6 @@ class OrderController extends Controller
         ],
     ], 200);
 }
-
-    
-// Lịch trình chạy để tự động xác nhận sau 7 ngày
-public function autoConfirmDelivery()
-{
-    // Lọc các đơn hàng có trạng thái "Đang vận chuyển" và đã quá 7 ngày
-    $orders = Order::where('status_order', 'Đang vận chuyển')
-        ->where('updated_at', '<=', now()->subDays(7)) // Kiểm tra các đơn hàng chưa được cập nhật trong 7 ngày
-        ->get();
-
-    foreach ($orders as $order) {
-        // Cập nhật trạng thái đơn hàng thành "Giao hàng thành công"
-        $order->status_order = 'Giao hàng thành công';
-        $order->save();  // Lưu thay đổi trạng thái
-    }
-
-    return response()->json([
-        'message' => 'Đã tự động xác nhận giao hàng cho các đơn hàng quá hạn',
-        'affected_orders' => $orders->pluck('id'),  // Trả về danh sách các đơn hàng đã được thay đổi trạng thái
-    ]);
-}
-
-
 
 
     public function confirmCancelOrder(Request $request, $order_id)
