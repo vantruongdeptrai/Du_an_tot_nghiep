@@ -5,6 +5,7 @@ use App\Models\ProductVariant;
 use Illuminate\Support\Facades\Route;
 use App\Models\DetailVariant;
 use App\Models\Product;
+use Illuminate\Http\Request;
 
 /*
 |--------------------------------------------------------------------------
@@ -19,11 +20,6 @@ use App\Models\Product;
 
 Route::get('/', function () {
 
-    // $detail_product = Product::findOrFail(7);
-    
-    // $id = $detail_product->id;
-    
-    // $detail_product_variants = ProductVariant::where('product_id',$id)->get();
-    // dd($detail_product_variants);
+    dd(Hash::make('123456789'));
     return view('welcome');
 });
