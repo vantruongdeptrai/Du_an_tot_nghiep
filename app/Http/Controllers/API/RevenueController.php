@@ -144,5 +144,21 @@ class RevenueController extends Controller
 
         return response()->json($stats);
     }
+    public function getOrderStatistics(Request $request)
+    {
+        $date = $request->input('date', now()->toDateString());  // Ví dụ: '2024-12-15'
+
+        $date = $request->input('date', now()->toDateString());  // Ví dụ: '2024-12-15'
+
+        // Truy vấn thống kê tổng số đơn hàng cho ngày cụ thể
+        $statistics = DB::table('order_items')
+            ->select(DB::raw('COUNT(DISTINCT id) as total_orders'))  // Đếm số đơn hàng (dùng DISTINCT để tính mỗi đơn hàng duy nhất)
+            ->whereDate('created_at', $date)  // Lọc theo ngày được cung cấp
+            ->first();
+            return response()->json([
+                'data' => $statistics,
+                'date' => $date,
+            ]);
+    }
     
 }

@@ -313,7 +313,7 @@ Route::get('/revenue-by-category', [RevenueController::class, 'getRevenueByCateg
 Route::get('/revenue/sold-products', [RevenueController::class, 'getSoldProductsCount']);
 //http://127.0.0.1:8000/api/order-stats.
 Route::get('order-stats', [RevenueController::class, 'getOrderStats']);
-
+Route::get('order-statistics', [RevenueController::class, 'getOrderStatistics']);
 
 Route::get('/search', [ProductController::class, 'searchProduct']);
 
