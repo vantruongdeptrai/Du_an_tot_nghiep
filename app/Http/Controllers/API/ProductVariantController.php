@@ -66,9 +66,13 @@ public function store(Request $request)
         'quantities.*' => 'required|integer|min:0',
         'prices' => 'required|array',
         'prices.*' => 'required|numeric|min:0',
+        'sale_prices' => 'nullable|array',
+        'sale_prices.*' => 'nullable|numeric|min:0',
+        'sale_start' => 'nullable|date',
+        'sale_end' => 'nullable|date|after_or_equal:sale_start',
         'status' => 'required|boolean',
         'images' => 'sometimes|array',
-        'images.*' => 'nullable|file', 
+        'images.*' => 'nullable|file',
     ];
 
     $validatedData = $request->validate($rules);
@@ -96,6 +100,9 @@ public function store(Request $request)
             $productVariant->size_id = $size_id;
             $productVariant->quantity = $validatedData['quantities'][$quantityKey] ?? 0;
             $productVariant->price = $validatedData['prices'][$priceKey] ?? 0;
+            $productVariant->sale_price = $validatedData['sale_prices'][$priceKey] ?? null;
+            $productVariant->sale_start = $validatedData['sale_start'] ?? null;
+            $productVariant->sale_end = $validatedData['sale_end'] ?? null;
             $productVariant->status = $validatedData['status'];
 
             $randomString = Str::upper(Str::random(5)); 
