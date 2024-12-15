@@ -14,11 +14,10 @@ class Kernel extends ConsoleKernel
 
      protected function schedule(Schedule $schedule)
      {
-         // Run the command daily at a specific time (e.g., 1:00 AM)
-         $schedule->command('orders:auto-update')->dailyAt('01:00');
+         $schedule->call(function () {
+             app('App\Http\Controllers\OrderController')->autoConfirmDelivery();
+         })->hourly();  // Lên lịch cho hàm autoConfirmDelivery chạy hàng ngày
      }
-     
-     
      
      
      
