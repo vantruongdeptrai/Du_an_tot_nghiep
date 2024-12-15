@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-        *{
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+       * {
+            font-family: Tahoma, sans-serif;
         }
     </style>
     <title>Hóa đơn đơn hàng #{{ $order->id }}</title>
@@ -26,14 +26,14 @@
         <p>Email: <strong>{{ $order->email_order }}</strong></p>
         <p>Số điện thoại: <strong>{{ $order->phone_order }}</strong></p>
         <p>Địa chỉ nhận: <strong>{{ $order->shipping_address }}</strong></p>
-        <p>Phương thức thanh toán: <strong>{{ $order->status_order }}</strong></p>
+        <p>Phương thức thanh toán: <strong>{{ $order->payment_type }}</strong></p>
     </div>
     <table border="1">
         <thead>
             <tr>
                 <th>Sản phẩm</th>
                 <th>Số lượng</th>
-                <th>Giá</th>
+                
             </tr>
         </thead>
         <tbody>
@@ -41,7 +41,6 @@
                 <tr>
                     <td>{{ $item->product->name }}</td>
                     <td>{{ $item->quantity }}</td>
-                    <td>{{ number_format($item->price, 0, ',', '.') }} VND</td>
                 </tr>
             @endforeach
         </tbody>

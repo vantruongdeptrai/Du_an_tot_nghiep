@@ -57,7 +57,6 @@
                     <td>{{ $item->product_name }}</td>
                     <td>{{ $item->quantity }}</td>
                     <td>{{ number_format($item->price, 0, ',', '.') }} VND</td>
-                    <td>{{ number_format($item->price * $item->quantity, 0, ',', '.') }} VND</td>
                 </tr>
             @endforeach
         </tbody>
