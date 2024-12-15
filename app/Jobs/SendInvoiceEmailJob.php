@@ -42,6 +42,7 @@ class SendInvoiceEmailJob implements ShouldQueue
         $pdf->setOptions(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true]);
 
         Mail::to($this->order->email_order)->send(new InvoiceMail($this->order, $pdf));
+        
     }
 }
 

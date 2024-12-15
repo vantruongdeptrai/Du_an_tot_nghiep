@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Jobs\SendInvoiceEmailJob;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Response;
@@ -168,7 +169,7 @@ class VNPayController extends Controller
                 }
             }
             // Dispatch job để gửi email
-            
+            SendInvoiceEmailJob::dispatch($order);
             DB::commit();
     
             return response()->json([

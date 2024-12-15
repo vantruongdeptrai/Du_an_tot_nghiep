@@ -526,7 +526,7 @@ class OrderController extends Controller
     public function cancelOrder(Request $request, $order_id)
     {
         $predefinedReasons = [
-            'Người mua thay đổi ý định',
+            'Đặt nhầm địa chỉ',
             'Đặt nhầm sản phẩm',
             'Thời gian giao hàng không phù hợp',
             'Không liên lạc được với cửa hàng'

@@ -83,8 +83,8 @@ return [
     |
     */
 
-    'locale' => 'en',
-
+    'locale' => 'vi',
+    'charset' => 'UTF-8',
     /*
     |--------------------------------------------------------------------------
     | Application Fallback Locale
