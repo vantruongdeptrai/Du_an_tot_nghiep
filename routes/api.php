@@ -314,7 +314,7 @@ Route::get('/revenue/sold-products', [RevenueController::class, 'getSoldProducts
 //http://127.0.0.1:8000/api/order-stats.
 Route::get('order-stats', action: [RevenueController::class, 'getOrderStats']);
 //http://127.0.0.1:8000/api/order-statistics?date=y-m-d
-Route::get('order-statistics', [RevenueController::class, 'getOrderStatistics']);//Tổng số đơn hàng theo ngày
+Route::get('order-statistics', [RevenueController::class, 'getOrderStatistics']);//Tổng số đơn hàng theo ngày.
 //http://127.0.0.1:8000/api/order-StatsByDate?date=y-m-d
 Route::get('order-StatsByDate', [RevenueController::class, 'getOrderStatsByDate']);//Tổng số đơn hàng theo trạng thái đơn hàng theo ngày
 
