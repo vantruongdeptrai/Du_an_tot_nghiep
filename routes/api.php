@@ -299,7 +299,7 @@ Route::post('/orders/cancel1/{id}', [OrderController::class, 'confirmCancelOrder
 Route::get('revenue/year', [RevenueController::class, 'revenueByYear']);//Thong ke doanh thu theo nam
 //http://127.0.0.1:8000/api/revenue/months?year=2024
 Route::get('revenue/months', [RevenueController::class, 'revenueByMonths']);//Thống kê doanh thu theo Tháng
-//http://127.0.0.1:8000/api/revenue/day?date=y-m-d
+//http://127.0.0.1:8000/api/revenue/day?year={năm}&month={tháng}
 Route::get('revenue/day', [RevenueController::class, 'revenueByDay']);//Thống kê doanh thu theo ngày
 //http://127.0.0.1:8000/api/products/best-sellers
 Route::get('/products/best-sellers', [ProductController::class, 'bestSellers']);//Thống kê sản phâm bán chạy nhât
@@ -309,7 +309,7 @@ Route::get('/total-revenue', [RevenueController::class, 'getTotalRevenue']);//Th
 Route::get('products/out-of-stock', [ProductController::class, 'getOutOfStockProducts']);
 //http://127.0.0.1:8000/api/revenue-by-category
 Route::get('/revenue-by-category', [RevenueController::class, 'getRevenueByCategory']);
-//http://127.0.0.1:8000/api/revenue/sold-products.
+//http://127.0.0.1:8000/api/revenue/sold-products?year=2024&month=9
 Route::get('/revenue/sold-products', [RevenueController::class, 'getSoldProductsCount']);
 //http://127.0.0.1:8000/api/order-stats.
 Route::get('order-stats', action: [RevenueController::class, 'getOrderStats']);
