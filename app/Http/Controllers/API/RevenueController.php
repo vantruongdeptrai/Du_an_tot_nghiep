@@ -144,10 +144,22 @@ class RevenueController extends Controller
 
         return response()->json($stats);
     }
+    //Thống kê tôgr đơn theo trạng thái đơn hàng theo ngày tuỳ ý
+    public function getOrderStatsByDate(Request $request)
+{
+    $date = $request->input('date');
+
+    $stats = DB::table('orders')
+        ->select(DB::raw('DATE(created_at) as order_date, status_order, count(*) as total'))
+        ->whereDate('created_at', $date)
+        ->groupBy('order_date', 'status_order')
+        ->orderBy('order_date', 'asc')
+        ->get();
+
+    return response()->json($stats);
+}
     public function getOrderStatistics(Request $request)
     {
-        $date = $request->input('date', now()->toDateString());  // Ví dụ: '2024-12-15'
-
         $date = $request->input('date', now()->toDateString());  // Ví dụ: '2024-12-15'
 
         // Truy vấn thống kê tổng số đơn hàng cho ngày cụ thể

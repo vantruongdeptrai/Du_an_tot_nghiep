@@ -318,8 +318,12 @@ Route::get('/revenue-by-category', [RevenueController::class, 'getRevenueByCateg
 //http://127.0.0.1:8000/api/revenue/sold-products.
 Route::get('/revenue/sold-products', [RevenueController::class, 'getSoldProductsCount']);
 //http://127.0.0.1:8000/api/order-stats.
-Route::get('order-stats', [RevenueController::class, 'getOrderStats']);
-Route::get('order-statistics', [RevenueController::class, 'getOrderStatistics']);
+Route::get('order-stats', action: [RevenueController::class, 'getOrderStats']);
+//http://127.0.0.1:8000/api/order-statistics?date=y-m-d
+Route::get('order-statistics', [RevenueController::class, 'getOrderStatistics']);//Tổng số đơn hàng theo ngày.
+//http://127.0.0.1:8000/api/order-StatsByDate?date=y-m-d
+Route::get('order-StatsByDate', [RevenueController::class, 'getOrderStatsByDate']);//Tổng số đơn hàng theo trạng thái đơn hàng theo ngày
+
 
 Route::get('/search', [ProductController::class, 'searchProduct']);
 
