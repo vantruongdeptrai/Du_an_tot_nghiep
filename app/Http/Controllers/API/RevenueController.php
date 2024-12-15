@@ -248,30 +248,67 @@ class RevenueController extends Controller
     }
     //Thống kê tôgr đơn theo trạng thái đơn hàng theo ngày tuỳ ý
     public function getOrderStatsByDate(Request $request)
-    {
-        $date = $request->input('date');
+{
+    // Nhận tháng và năm từ request
+    $year = $request->input('year');
+    $month = $request->input('month');
 
-        $stats = DB::table('orders')
-            ->select(DB::raw('DATE(created_at) as order_date, status_order, count(*) as total'))
-            ->whereDate('created_at', $date)
-            ->groupBy('order_date', 'status_order')
-            ->orderBy('order_date', 'asc')
-            ->get();
-
-        return response()->json($stats);
-    }
-    public function getOrderStatistics(Request $request)
-    {
-        $date = $request->input('date', now()->toDateString());  // Ví dụ: '2024-12-15'
-
-        // Truy vấn thống kê tổng số đơn hàng cho ngày cụ thể
-        $statistics = DB::table('order_items')
-            ->select(DB::raw('COUNT(DISTINCT id) as total_orders'))  // Đếm số đơn hàng (dùng DISTINCT để tính mỗi đơn hàng duy nhất)
-            ->whereDate('created_at', $date)  // Lọc theo ngày được cung cấp
-            ->first();
+    if (!$year || !$month) {
         return response()->json([
-            'data' => $statistics,
-            'date' => $date,
-        ]);
+            'success' => false,
+            'message' => 'Vui lòng cung cấp năm và tháng.'
+        ], 400);
     }
+
+    // Lấy danh sách tất cả các ngày trong tháng
+    $daysInMonth = cal_days_in_month(CAL_GREGORIAN, $month, $year);
+
+    // Tạo danh sách ngày trong tháng
+    $dates = [];
+    for ($day = 1; $day <= $daysInMonth; $day++) {
+        $dates[] = sprintf('%04d-%02d-%02d', $year, $month, $day);
+    }
+
+    // Lấy thống kê đơn hàng trong tháng từ database
+    $rawStats = DB::table('orders')
+        ->select(DB::raw('DATE(created_at) as order_date, status_order, count(*) as total'))
+        ->whereYear('created_at', $year)
+        ->whereMonth('created_at', $month)
+        ->groupBy('order_date', 'status_order')
+        ->orderBy('order_date', 'asc')
+        ->get();
+
+    // Chuyển đổi dữ liệu thành dạng dễ xử lý
+    $formattedData = [];
+    foreach ($rawStats as $stat) {
+        $formattedData[$stat->order_date][$stat->status_order] = $stat->total;
+    }
+
+    // Tạo kết quả trả về với tất cả ngày trong tháng
+    $results = [];
+    foreach ($dates as $date) {
+        $dailyStats = [
+            'date' => $date,
+            'statuses' => [],
+        ];
+
+        // Nếu không có đơn hàng cho ngày này, giá trị mặc định là 0
+        $statuses = ['Chờ xac nhận','Đã xác nhận','Đang chuẩn bị','Đang vận chuyển','Giao hàng thành công','Đã huỷ','Chờ xách nhận huỷ']; // Thêm các trạng thái cần thiết
+
+        foreach ($statuses as $status) {
+            $dailyStats['statuses'][] = [
+                'status' => $status,
+                'total' => $formattedData[$date][$status] ?? 0,
+            ];
+        }
+
+        $results[] = $dailyStats;
+    }
+
+    return response()->json([
+        'success' => true,
+        'data' => $results,
+    ]);
+}
+
 }
