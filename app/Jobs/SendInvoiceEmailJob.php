@@ -33,13 +33,14 @@ class SendInvoiceEmailJob implements ShouldQueue
      */
     public function handle()
     {
-        // Load thông tin đơn hàng
         $this->order->load('orderItems');
 
         // Tạo file PDF từ view
         $pdf = PDF::loadView('emails.invoice-mail',['order' => $this->order]);
         $pdf->setPaper('A4', 'portrait');
-        $pdf->setOptions(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true]);
+        $options = $pdf->getOptions();
+        $options->set('defaultFont', 'Roboto'); // Tên font đã tải
+        $pdf->setOptions(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true,$options]);
 
         Mail::to($this->order->email_order)->send(new InvoiceMail($this->order, $pdf));
         

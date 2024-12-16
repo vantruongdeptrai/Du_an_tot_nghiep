@@ -56,7 +56,14 @@ return array(
          * Note: This directory must exist and be writable by the webserver process.
          */
         "font_cache" => storage_path('fonts'),
-
+        'font_data' => [
+            'roboto' => [
+                'R' => 'Roboto-Regular.ttf',    // Normal
+                'B' => 'Roboto-Bold.ttf',       // Bold
+                'I' => 'Roboto-Italic.ttf',     // Italic
+                'BI' => 'Roboto-BoldItalic.ttf' // Bold Italic
+            ],
+        ],
         /**
          * The location of a temporary directory.
          *
@@ -186,7 +193,7 @@ return array(
          * Used if no suitable fonts can be found. This must exist in the font folder.
          * @var string
          */
-        "default_font" => "serif",
+        "default_font" => "Roboto",
 
         /**
          * Image DPI setting

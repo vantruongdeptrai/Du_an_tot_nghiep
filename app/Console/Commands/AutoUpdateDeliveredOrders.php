@@ -32,7 +32,7 @@ class AutoUpdateDeliveredOrders extends Command
         // Lặp qua từng lệnh
         foreach ($orders as $order) {
             // Thêm độ trễ 5p giây trước khi cập nhật trạng thái đơn hàng
-            sleep(10);
+            sleep(120);
 
             $order->update(['status_order' => 'Đã nhận hàng']);
 
