@@ -223,6 +223,10 @@ Route::put('galleries/{id}', [GalleryController::class, 'update']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::middleware('auth:sanctum')->post('logout', [AuthController::class, 'logout']);
 Route::post('/register', [AuthController::class, 'register']);
+// quên mật khẩu
+Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
+// thay đổi mật khẩu
+Route::post('/update-password/{id_user}', [AuthController::class, 'updatePassword']);
 
 //http://127.0.0.1:8000/api/comments
 Route::get('products/{id}/comments', [CommentController::class, 'index']);
