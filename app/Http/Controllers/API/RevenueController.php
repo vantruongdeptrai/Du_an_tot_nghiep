@@ -39,9 +39,7 @@ class RevenueController extends Controller
                 ->whereMonth('created_at', $month)
                 ->selectRaw('DATE(created_at) as date, SUM(total_price) as total_revenue')
                 ->groupByRaw('DATE(created_at)')
-                ->pluck('total_revenue', 'date'); // Trả về key-value (date => total_revenue)
-
-            // Ánh xạ dữ liệu vào danh sách ngày
+                ->pluck('total_revenue', 'date');
             $revenues = [];
             foreach ($days as $day) {
                 $revenues[] = [
@@ -309,6 +307,175 @@ class RevenueController extends Controller
         'success' => true,
         'data' => $results,
     ]);
+}
+
+
+public function getOrderByDates(Request $request)
+{
+    // Lấy ngày từ request
+    $date = $request->input('date');
+
+    if (!$date) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Vui lòng cung cấp ngày (date).'
+        ], 400);
+    }
+
+    try {
+        // Truy vấn thống kê đơn hàng theo trạng thái trong ngày cụ thể
+        $rawStats = DB::table('orders')
+            ->select('status_order', DB::raw('count(*) as total'))
+            ->whereDate('created_at', $date)
+            ->groupBy('status_order')
+            ->get();
+
+        // Danh sách các trạng thái cần hiển thị
+        $statuses = [
+            'Chờ xác nhận',
+            'Đã xác nhận',
+            'Đang chuẩn bị',
+            'Đang vận chuyển',
+            'Giao hàng thành công',
+            'Đã hủy',
+            'Chờ xác nhận hủy',
+        ];
+
+        // Định dạng kết quả
+        $results = [];
+        foreach ($statuses as $status) {
+            $results[] = [
+                'status' => $status,
+                'total' => $rawStats->firstWhere('status_order', $status)->total ?? 0,
+            ];
+        }
+
+        return response()->json([
+            'success' => true,
+            'date' => $date,
+            'data' => $results,
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Đã xảy ra lỗi: ' . $e->getMessage(),
+        ], 500);
+    }
+}
+
+
+public function revenueBySpecificDate(Request $request)
+{
+    $date = $request->input('date'); // Lấy ngày từ request
+
+    // Kiểm tra tham số date
+    if (!$date) {
+        return response()->json([
+            'success' => false,
+            'message' => 'The date parameter is required. Please provide a valid date (YYYY-MM-DD).',
+        ], 400);
+    }
+
+    try {
+        // Kiểm tra định dạng ngày
+        if (!\Carbon\Carbon::createFromFormat('Y-m-d', $date)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid date format. Please use YYYY-MM-DD.',
+            ], 400);
+        }
+
+        // Lấy doanh thu của ngày cụ thể
+        $totalRevenue = Order::whereDate('created_at', $date)
+            ->sum('total_price'); // Tính tổng doanh thu
+
+        return response()->json([
+            'success' => true,
+            'date' => $date,
+            'total_revenue' => $totalRevenue,
+        ], 200);
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'An error occurred while calculating revenue.',
+            'error' => $e->getMessage(),
+        ], 500);
+    }
+}
+
+public function getSoldProductsCountByDay(Request $request)
+{
+    try {
+        // Lấy ngày từ request (dạng YYYY-MM-DD)
+        $date = $request->input('date');
+
+        if (!$date) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Vui lòng cung cấp ngày (dạng YYYY-MM-DD).'
+            ], 400);
+        }
+
+        // Kiểm tra định dạng ngày có hợp lệ không
+        if (!\Carbon\Carbon::createFromFormat('Y-m-d', $date)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Định dạng ngày không hợp lệ. Vui lòng sử dụng định dạng YYYY-MM-DD.'
+            ], 400);
+        }
+
+        // Lấy dữ liệu thống kê từ database cho ngày cụ thể
+        $rawData = DB::table('order_items')
+            ->join('orders', 'order_items.order_id', '=', 'orders.id')
+            ->join('product_variants', 'order_items.product_variant_id', '=', 'product_variants.id')
+            ->join('products', 'product_variants.product_id', '=', 'products.id')
+            ->where('orders.status_order', 'Giao hàng thành công')
+            ->whereDate('orders.created_at', $date)  // Lọc theo ngày
+            ->select(
+                DB::raw('DATE(orders.created_at) as sold_date'),
+                'products.id',
+                'products.name',
+                DB::raw('SUM(order_items.quantity) as total_sold')
+            )
+            ->groupBy('sold_date', 'products.id', 'products.name')
+            ->get();
+
+        // Chuyển dữ liệu thành dạng dễ xử lý
+        $formattedData = [];
+        foreach ($rawData as $row) {
+            $formattedData[$row->sold_date][$row->id] = [
+                'name' => $row->name,
+                'total_sold' => $row->total_sold
+            ];
+        }
+
+        // Chuẩn bị kết quả trả về
+        $dailyData = [
+            'date' => $date,
+            'products' => []
+        ];
+
+        // Nếu có sản phẩm, thêm vào danh sách
+        if (isset($formattedData[$date])) {
+            foreach ($formattedData[$date] as $id => $product) {
+                $dailyData['products'][] = [
+                    'id' => $id,
+                    'name' => $product['name'],
+                    'total_sold' => $product['total_sold']
+                ];
+            }
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => $dailyData
+        ], 200);
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Lỗi xảy ra: ' . $e->getMessage()
+        ], 500);
+    }
 }
 
 }

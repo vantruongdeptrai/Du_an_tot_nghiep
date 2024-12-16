@@ -302,27 +302,31 @@ Route::post('/confirm-delivery/{order_id}', [OrderController::class, 'confirmDel
 Route::get('/auto-confirm-delivery', [OrderController::class, 'autoConfirmDelivery']);
 
 //http://127.0.0.1:8000/api/revenue/year?year={năm}
-Route::get('revenue/year', [RevenueController::class, 'revenueByYear']);//Thong ke doanh thu theo nam
+Route::get('revenue/year', [RevenueController::class, 'revenueByYear']);//Thong ke doanh thu theo nam.
 //http://127.0.0.1:8000/api/revenue/months?year=2024
-Route::get('revenue/months', [RevenueController::class, 'revenueByMonths']);//Thống kê doanh thu theo Tháng
+Route::get('revenue/months', [RevenueController::class, 'revenueByMonths']);//Thống kê doanh thu theo Tháng.
 //http://127.0.0.1:8000/api/revenue/day?year={năm}&month={tháng}
-Route::get('revenue/day', [RevenueController::class, 'revenueByDay']);//Thống kê doanh thu theo ngày
+Route::get('revenue/day', [RevenueController::class, 'revenueByDay']);//Thống kê doanh thu theo tất cả ngày trong tháng.
 //http://127.0.0.1:8000/api/products/best-sellers
 Route::get('/products/best-sellers', [ProductController::class, 'bestSellers']);//Thống kê sản phâm bán chạy nhât
 //http://127.0.0.1:8000/api/total-revenue
-Route::get('/total-revenue', [RevenueController::class, 'getTotalRevenue']);//Thống kê tôngr thống kê
+Route::get('/total-revenue', [RevenueController::class, 'getTotalRevenue']);//Thống kê tổng doanh thu
 //http://127.0.0.1:8000/api/products/out-of-stock
-Route::get('products/out-of-stock', [ProductController::class, 'getOutOfStockProducts']);
+Route::get('products/out-of-stock', [ProductController::class, 'getOutOfStockProducts']);//Thống kê sản phẩm hết hàng
 //http://127.0.0.1:8000/api/revenue-by-category
-Route::get('/revenue-by-category', [RevenueController::class, 'getRevenueByCategory']);
+Route::get('/revenue-by-category', [RevenueController::class, 'getRevenueByCategory']);//Thống kê đơn hàng theo danh mục.
 //http://127.0.0.1:8000/api/revenue/sold-products?year={năm}&month=tháng
-Route::get('/revenue/sold-products', [RevenueController::class, 'getSoldProductsCount']);
-//http://127.0.0.1:8000/api/order-stats.
-Route::get('order-stats', action: [RevenueController::class, 'getOrderStats']);
-//http://127.0.0.1:8000/api/order-statistics?date=y-m-d
-Route::get('order-statistics', [RevenueController::class, 'getOrderStatistics']);//Tổng số đơn hàng theo ngày.
-//http://127.0.0.1:8000/api/order-StatsByDate?date=y-m-d
-Route::get('order-StatsByDate', [RevenueController::class, 'getOrderStatsByDate']);//Tổng số đơn hàng theo trạng thái đơn hàng theo ngày
+Route::get('/revenue/sold-products', [RevenueController::class, 'getSoldProductsCount']);//Thống kê sản phẩm đã bán theo tất cả ngày trong tháng
+//http://127.0.0.1:8000/api/order-stats
+Route::get('order-stats', action: [RevenueController::class, 'getOrderStats']);//Thống kê tổng đơn hàng theo từng trạng thái đơn hàng.
+//http://127.0.0.1:8000/api/order-StatsByDate?year={năm}&month=tháng
+Route::get('order-StatsByDate', [RevenueController::class, 'getOrderStatsByDate']);//Tổng số đơn hàng theo trạng thái đơn hàng theo tất cả ngày trong tháng
+//http://127.0.0.1:8000/api/order-stats-d?date=y-m-d
+Route::get('/order-stats-d', [RevenueController::class, 'getOrderByDates']);//tổng đơn hàng theo trạng thái theo ngày tuỳ ý
+//http://127.0.0.1:8000/api/revenue-by-date?date=y-m-d
+Route::get('/revenue-by-date', [RevenueController::class, 'revenueBySpecificDate']);//Tổng doanh thu theo ngày
+//http://127.0.0.1:8000/api/sold-products-count-by-day?date=y-m-d
+Route::get('/sold-products-count-by-day', [RevenueController::class, 'getSoldProductsCountByDay']);//Tổng sản phẩm đã bán theo ngày
 
 
 Route::get('/search', [ProductController::class, 'searchProduct']);
